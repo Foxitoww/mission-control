@@ -25,11 +25,14 @@ Prérequis : Node.js ≥ 22 (testé sur v24.19).
 
 ```bash
 npm install
+```
+
+```bash
 node node_modules/electron/install.js
 ```
 
 La seconde commande télécharge le binaire Electron. Elle est nécessaire lorsque npm
-bloque les scripts d'installation (`allow-scripts`), ce qui est le cas ici.
+bloque les scripts d'installation (`allow-scripts`), ce qui est le cas sur cette machine.
 
 ## Commandes
 
@@ -40,6 +43,10 @@ bloque les scripts d'installation (`allow-scripts`), ce qui est le cas ici.
 | `npm test` | Suite Vitest (SQLite en mémoire) |
 | `npm run typecheck` | Vérification TypeScript des projets Node et Web |
 | `npm run package` | Exécutable Windows via electron-builder |
+
+En développement uniquement, la variable `MC_DB_PATH` pointe l'application vers une
+base jetable — pratique pour une session de test manuelle sans toucher aux vraies
+données. La bascule est ignorée dans une application empaquetée.
 
 ## Base de données locale
 
@@ -63,4 +70,6 @@ sont en ajout seul — voir [DATA-MODEL.md](docs/DATA-MODEL.md).
 
 **Phases 0 à 2 terminées.** Base locale migrée, authentification multi-utilisateurs
 avec scrypt, session en mémoire, isolation des comptes vérifiée par tests, écran
-d'accès bilingue FR/EN. Phase 3 (dashboard, projets, tâches) à venir.
+d'accès bilingue FR/EN, sélection de profil et éditeur de profil (image, emoji,
+pseudo, couleur d'accent, thème, langue), option « se souvenir de moi ».
+Phase 3 (dashboard, projets, tâches) à venir.

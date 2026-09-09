@@ -125,18 +125,6 @@
   border-color: var(--mc-grid-strong);
 }
 
-.auth__avatar {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--mc-radius-control);
-  background: var(--mc-blue);
-  color: var(--mc-on-accent);
-  font-weight: 650;
-}
-
 .auth__profile-text {
   display: flex;
   flex-direction: column;
@@ -164,7 +152,7 @@
   padding: 0;
   background: none;
   border: none;
-  color: var(--mc-blue);
+  color: var(--mc-accent);
   font-weight: 550;
   cursor: pointer;
 }

@@ -31,6 +31,9 @@ const fr = {
   'auth.signedInAs': 'Connecté en tant que',
   'auth.signOut': 'Se déconnecter',
 
+  'auth.remember': 'Se souvenir de moi',
+  'auth.rememberHint': 'Reste connecté 30 jours sur cet ordinateur. À éviter sur un poste partagé.',
+
   'auth.hint.username': '3 à 32 caractères : minuscules, chiffres, tirets et tirets bas',
   'auth.hint.password': '8 caractères minimum. La longueur compte plus que la complexité.',
 
@@ -53,7 +56,49 @@ const fr = {
   'error.DB_ERROR': 'Erreur de base de données locale.',
   'error.UNKNOWN': "Une erreur inattendue s'est produite.",
 
+  'profile.menu': 'Menu du profil',
+  'profile.edit': 'Modifier le profil',
+  'profile.title': 'Profil',
+  'profile.identity': 'Identité',
+  'profile.appearance': 'Apparence',
+  'profile.avatar': 'Image',
+  'profile.avatarUpload': 'Choisir une image',
+  'profile.avatarRemove': 'Retirer',
+  'profile.avatarHint': 'Redimensionnée à 128 × 128 et stockée en local.',
+  'profile.emoji': 'Ou un emoji',
+  'profile.accent': "Couleur d'accent",
+  'profile.theme': 'Thème',
+  'profile.language': 'Langue',
+  'profile.saved': 'Profil enregistré.',
+
+  'update.section': 'Application',
+  'update.currentVersion': 'Version installée',
+  'update.check': 'Vérifier la version',
+  'update.idle': 'Aucune vérification effectuée.',
+  'update.checking': 'Recherche d’une mise à jour…',
+  'update.available': 'Mise à jour disponible :',
+  'update.downloading': 'Téléchargement…',
+  'update.ready': 'Prête à installer :',
+  'update.restart': 'Redémarrer et installer',
+  'update.upToDate': 'Tu es à jour.',
+  'update.unsupported': 'Mises à jour indisponibles en développement. Elles fonctionnent dans l’application installée.',
+  'update.error': 'Impossible de vérifier les mises à jour.',
+
+  'theme.dark': 'Sombre',
+  'theme.light': 'Clair',
+  'theme.system': 'Système',
+
+  'error.AVATAR_TOO_LARGE': "L'image est trop lourde après conversion.",
+  'error.AVATAR_INVALID': "Format d'avatar non pris en charge.",
+  'error.AVATAR_NOT_IMAGE': "Ce fichier n'est pas une image.",
+  'error.AVATAR_SOURCE_TOO_LARGE': 'Image trop lourde : 12 Mo maximum.',
+  'error.AVATAR_DECODE_FAILED': "Impossible de lire cette image.",
+  'error.ACCENT_INVALID': 'Couleur non proposée par la palette.',
+
   'common.cancel': 'Annuler',
+  'common.save': 'Enregistrer',
+  'common.saving': 'Enregistrement…',
+  'common.close': 'Fermer',
   'common.loading': 'Chargement…',
   'common.retry': 'Réessayer'
 } as const
@@ -80,6 +125,9 @@ const en: Record<MessageKey, string> = {
   'auth.signedInAs': 'Signed in as',
   'auth.signOut': 'Sign out',
 
+  'auth.remember': 'Remember me',
+  'auth.rememberHint': 'Stay signed in for 30 days on this computer. Avoid on a shared machine.',
+
   'auth.hint.username': '3 to 32 characters: lowercase, digits, hyphens and underscores',
   'auth.hint.password': 'At least 8 characters. Length matters more than complexity.',
 
@@ -101,7 +149,49 @@ const en: Record<MessageKey, string> = {
   'error.DB_ERROR': 'Local database error.',
   'error.UNKNOWN': 'An unexpected error occurred.',
 
+  'profile.menu': 'Profile menu',
+  'profile.edit': 'Edit profile',
+  'profile.title': 'Profile',
+  'profile.identity': 'Identity',
+  'profile.appearance': 'Appearance',
+  'profile.avatar': 'Picture',
+  'profile.avatarUpload': 'Choose an image',
+  'profile.avatarRemove': 'Remove',
+  'profile.avatarHint': 'Resized to 128 × 128 and stored locally.',
+  'profile.emoji': 'Or an emoji',
+  'profile.accent': 'Accent colour',
+  'profile.theme': 'Theme',
+  'profile.language': 'Language',
+  'profile.saved': 'Profile saved.',
+
+  'update.section': 'Application',
+  'update.currentVersion': 'Installed version',
+  'update.check': 'Check for updates',
+  'update.idle': 'No check performed yet.',
+  'update.checking': 'Looking for an update…',
+  'update.available': 'Update available:',
+  'update.downloading': 'Downloading…',
+  'update.ready': 'Ready to install:',
+  'update.restart': 'Restart and install',
+  'update.upToDate': 'You are up to date.',
+  'update.unsupported': 'Updates are unavailable in development. They work in the installed application.',
+  'update.error': 'Could not check for updates.',
+
+  'theme.dark': 'Dark',
+  'theme.light': 'Light',
+  'theme.system': 'System',
+
+  'error.AVATAR_TOO_LARGE': 'The image is too large after conversion.',
+  'error.AVATAR_INVALID': 'Unsupported avatar format.',
+  'error.AVATAR_NOT_IMAGE': 'That file is not an image.',
+  'error.AVATAR_SOURCE_TOO_LARGE': 'Image too large: 12 MB maximum.',
+  'error.AVATAR_DECODE_FAILED': 'That image could not be read.',
+  'error.ACCENT_INVALID': 'Colour not offered by the palette.',
+
   'common.cancel': 'Cancel',
+  'common.save': 'Save',
+  'common.saving': 'Saving…',
+  'common.close': 'Close',
   'common.loading': 'Loading…',
   'common.retry': 'Retry'
 }

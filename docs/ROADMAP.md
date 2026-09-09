@@ -77,3 +77,12 @@ du processus main. Résolus par `better-sqlite3` ^13 + Electron ^44. Voir ADR-00
 **Phase 2 — état vérifié.** 31 tests passent, typecheck vert sur les deux projets
 TypeScript, build de production complet, application lancée : migration appliquée
 (`user_version = 1`) et écran d'accès rendu.
+
+**Profil (avant Phase 3).** Sélection de profil enrichie et éditeur de profil :
+image redimensionnée à 128 × 128, emoji, pseudo, identifiant, couleur d'accent
+issue d'une palette curatée, thème et langue. Migration 002. Vérifié bout en bout
+sur une base jetable : compte créé, accent modifié, persistance confirmée en base.
+
+**Session mémorisée, installeur et mises à jour (avant Phase 3).** Option
+« se souvenir de moi » (ADR-005), installeur NSIS `setup.exe` et mises à jour par
+releases GitHub avec bouton « Vérifier la version » (ADR-006). Migration 003.

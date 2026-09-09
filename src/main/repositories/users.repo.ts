@@ -15,10 +15,11 @@ interface UserRow {
   display_name: string
   password_hash: string
   avatar: string | null
+  accent_color: string
   created_at: string
 }
 
-const PUBLIC_COLUMNS = 'id, username, display_name, avatar, created_at'
+const PUBLIC_COLUMNS = 'id, username, display_name, avatar, accent_color, created_at'
 
 function toPublic(row: Omit<UserRow, 'password_hash'>): PublicUser {
   return {
@@ -26,6 +27,7 @@ function toPublic(row: Omit<UserRow, 'password_hash'>): PublicUser {
     username: row.username,
     displayName: row.display_name,
     avatar: row.avatar,
+    accentColor: row.accent_color,
     createdAt: row.created_at
   }
 }
@@ -69,6 +71,41 @@ export const usersRepo = {
       .prepare(`SELECT ${PUBLIC_COLUMNS} FROM users ORDER BY created_at ASC`)
       .all() as Omit<UserRow, 'password_hash'>[]
     return rows.map(toPublic)
+  },
+
+  /**
+   * Un AUTRE utilisateur porte-t-il déjà ce nom ?
+   *
+   * L'exclusion de l'identifiant courant est essentielle : sans elle, renommer
+   * son profil sans changer son pseudo se heurterait à sa propre ligne.
+   */
+  usernameTakenByOther(db: Db, username: string, exceptUserId: string): boolean {
+    const row = db
+      .prepare('SELECT 1 AS hit FROM users WHERE username = ? AND id <> ?')
+      .get(username, exceptUserId)
+    return row !== undefined
+  },
+
+  updateProfile(
+    db: Db,
+    userId: string,
+    data: {
+      username: string
+      displayName: string
+      avatar: string | null
+      accentColor: string
+      now: string
+    }
+  ): void {
+    db.prepare(
+      `UPDATE users
+          SET username = @username,
+              display_name = @displayName,
+              avatar = @avatar,
+              accent_color = @accentColor,
+              updated_at = @now
+        WHERE id = @userId`
+    ).run({ ...data, userId })
   },
 
   /** La cascade du schéma efface projets, tâches, tags, objectifs et paramètres. */

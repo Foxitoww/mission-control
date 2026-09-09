@@ -45,7 +45,7 @@ select {
 /* Focus : jamais supprimé, toujours visible. `:focus-visible` le réserve à la
    navigation clavier, donc un clic souris ne laisse pas d'anneau résiduel. */
 :focus-visible {
-  outline: 2px solid var(--mc-blue);
+  outline: 2px solid var(--mc-accent);
   outline-offset: 2px;
   border-radius: var(--mc-radius-control);
 }
@@ -74,7 +74,7 @@ select {
 }
 
 ::selection {
-  background: rgb(61 123 255 / 0.35);
+  background: color-mix(in srgb, var(--mc-accent) 35%, transparent);
 }
 
 /* Accessibilité : quand le système demande moins d'animation, on supprime les

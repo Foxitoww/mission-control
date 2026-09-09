@@ -5,11 +5,14 @@ import { authService } from '@main/services/auth.service'
 import { session } from '@main/services/session.service'
 import { settingsRepo } from '@main/repositories/settings.repo'
 import { AppError, AppErrorCode } from '@shared/errors'
+import { memoryStore } from './helpers'
 
 let db: Db
+let store: ReturnType<typeof memoryStore>
 
 beforeEach(() => {
   db = createTestDatabase()
+  store = memoryStore()
   // La session est un singleton de module : sans remise à zéro, un test hérite
   // de l'utilisateur connecté par le précédent.
   session.clear()
@@ -76,12 +79,12 @@ describe('connexion', () => {
   })
 
   it('accepte le bon mot de passe et ouvre la session', async () => {
-    const user = await authService.login(db, { username: 'alice', password: 'correct-horse' })
+    const user = await authService.login(db, { username: 'alice', password: 'correct-horse' }, store)
     expect(session.userId).toBe(user.id)
   })
 
   it('refuse un mauvais mot de passe sans ouvrir de session', async () => {
-    await expect(authService.login(db, { username: 'alice', password: 'mauvais-mdp' })).rejects.toThrow(
+    await expect(authService.login(db, { username: 'alice', password: 'mauvais-mdp' }, store)).rejects.toThrow(
       expect.objectContaining({ code: AppErrorCode.AUTH_INVALID_CREDENTIALS })
     )
     expect(session.userId).toBeNull()
@@ -91,11 +94,11 @@ describe('connexion', () => {
     // Défense contre l'énumération de comptes : l'erreur ne doit pas révéler
     // si le nom d'utilisateur existe. Voir auth.service.ts.
     const unknownUser = await authService
-      .login(db, { username: 'inconnu', password: 'peu-importe' })
+      .login(db, { username: 'inconnu', password: 'peu-importe' }, store)
       .catch((error: AppError) => error)
 
     const wrongPassword = await authService
-      .login(db, { username: 'alice', password: 'mauvais-mdp' })
+      .login(db, { username: 'alice', password: 'mauvais-mdp' }, store)
       .catch((error: AppError) => error)
 
     expect((unknownUser as AppError).code).toBe(AppErrorCode.AUTH_INVALID_CREDENTIALS)
@@ -104,8 +107,8 @@ describe('connexion', () => {
   })
 
   it('déconnecte', async () => {
-    await authService.login(db, { username: 'alice', password: 'correct-horse' })
-    authService.logout()
+    await authService.login(db, { username: 'alice', password: 'correct-horse' }, store)
+    authService.logout(db, store)
 
     expect(session.userId).toBeNull()
     expect(authService.currentUser(db)).toBeNull()
@@ -114,7 +117,7 @@ describe('connexion', () => {
 
 describe('suppression de compte', () => {
   it('exige une session active', async () => {
-    await expect(authService.deleteAccount(db, { password: 'correct-horse' })).rejects.toThrow(
+    await expect(authService.deleteAccount(db, { password: 'correct-horse' }, store)).rejects.toThrow(
       expect.objectContaining({ code: AppErrorCode.AUTH_REQUIRED })
     )
   })
@@ -122,7 +125,7 @@ describe('suppression de compte', () => {
   it('exige le mot de passe et laisse le compte intact en cas d’échec', async () => {
     const user = await authService.register(db, ALICE)
 
-    await expect(authService.deleteAccount(db, { password: 'mauvais-mdp' })).rejects.toThrow(
+    await expect(authService.deleteAccount(db, { password: 'mauvais-mdp' }, store)).rejects.toThrow(
       expect.objectContaining({ code: AppErrorCode.AUTH_INVALID_CREDENTIALS })
     )
 
@@ -131,7 +134,7 @@ describe('suppression de compte', () => {
 
   it('supprime le compte, ferme la session et efface les paramètres en cascade', async () => {
     const user = await authService.register(db, ALICE)
-    await authService.deleteAccount(db, { password: 'correct-horse' })
+    await authService.deleteAccount(db, { password: 'correct-horse' }, store)
 
     expect(session.userId).toBeNull()
     expect(db.prepare('SELECT COUNT(*) AS n FROM users').get()).toEqual({ n: 0 })

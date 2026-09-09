@@ -120,3 +120,25 @@ fondus — obligatoire, pas optionnel (§24).
 - Drag & drop via **@dnd-kit** : accessible au clavier par défaut (`react-beautiful-dnd`
   est abandonné et non accessible).
 - Toute icône seule porte un `aria-label`.
+
+## 8. Accent piloté par le profil
+
+Les composants ne référencent jamais `--mc-blue` directement : ils utilisent
+`--mc-accent`, qui vaut `var(--mc-blue)` par défaut. À la connexion, la couleur
+choisie par l'utilisateur est écrite sur `documentElement` et recolore l'intégralité
+de l'interface — boutons, focus, liens, sélection de texte — sans qu'aucun composant
+n'ait connaissance de la notion de profil.
+
+Les valeurs dérivées suivent automatiquement grâce à `color-mix` :
+
+```css
+--mc-glow-focus: 0 0 0 3px color-mix(in srgb, var(--mc-accent) 35%, transparent);
+```
+
+La palette est **curatée** (6 teintes, `ACCENT_COLORS`) et non libre : un sélecteur
+de couleur ouvert permettrait des accents illisibles et ferait perdre au produit
+la cohérence qui fait son identité. Chaque teinte est validée par Zod côté main —
+une couleur hors palette est refusée.
+
+Sur l'écran de sélection, chaque carte de profil surcharge `--mc-accent` localement :
+on reconnaît son compte à sa couleur avant même d'en lire le nom.

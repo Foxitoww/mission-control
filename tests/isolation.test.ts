@@ -7,6 +7,7 @@ import { session } from '@main/services/session.service'
 import { settingsRepo } from '@main/repositories/settings.repo'
 import { usersRepo } from '@main/repositories/users.repo'
 import { AppErrorCode } from '@shared/errors'
+import { memoryStore } from './helpers'
 
 /**
  * ISOLATION DES UTILISATEURS — porte bloquante de la Phase 2 (§33, ADR-003).
@@ -20,6 +21,7 @@ import { AppErrorCode } from '@shared/errors'
  */
 
 let db: Db
+let store: ReturnType<typeof memoryStore>
 let alice: string
 let bob: string
 
@@ -43,6 +45,7 @@ function tasksOf(userId: string): string[] {
 
 beforeEach(async () => {
   db = createTestDatabase()
+  store = memoryStore()
   session.clear()
 
   alice = (await authService.register(db, {
@@ -99,8 +102,8 @@ describe('cloisonnement des données', () => {
 
 describe('suppression de compte', () => {
   it('efface toutes les données du compte supprimé et aucune de l’autre', async () => {
-    await authService.login(db, { username: 'alice', password: 'alice-password' })
-    await authService.deleteAccount(db, { password: 'alice-password' })
+    await authService.login(db, { username: 'alice', password: 'alice-password' }, store)
+    await authService.deleteAccount(db, { password: 'alice-password' }, store)
 
     expect(tasksOf(alice)).toEqual([])
     expect(tasksOf(bob)).toEqual(['TASK B'])
@@ -116,8 +119,8 @@ describe('suppression de compte', () => {
       'ETAPE 1'
     )
 
-    await authService.login(db, { username: 'alice', password: 'alice-password' })
-    await authService.deleteAccount(db, { password: 'alice-password' })
+    await authService.login(db, { username: 'alice', password: 'alice-password' }, store)
+    await authService.deleteAccount(db, { password: 'alice-password' }, store)
 
     // Si PRAGMA foreign_keys avait été oublié, ces lignes survivraient en silence.
     expect(db.prepare('SELECT COUNT(*) AS n FROM subtasks').get()).toEqual({ n: 0 })
@@ -134,7 +137,7 @@ describe('session', () => {
   })
 
   it('se connecter en tant que Bob ne donne jamais accès aux données d’Alice', async () => {
-    await authService.login(db, { username: 'bob', password: 'bob-password' })
+    await authService.login(db, { username: 'bob', password: 'bob-password' }, store)
 
     const current = authService.currentUser(db)
     expect(current?.id).toBe(bob)

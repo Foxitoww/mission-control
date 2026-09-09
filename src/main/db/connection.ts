@@ -21,8 +21,17 @@ export function applyPragmas(db: Db): void {
   db.pragma('busy_timeout = 5000')
 }
 
-/** Chemin du fichier de base, dans le dossier de données utilisateur de l'OS. */
+/**
+ * Chemin du fichier de base, dans le dossier de données utilisateur de l'OS.
+ *
+ * `MC_DB_PATH` permet de pointer une base jetable pour une session de test
+ * manuelle, sans toucher aux vraies données. La bascule est refusée dans une
+ * application empaquetée : en production, il ne doit exister qu'un seul endroit
+ * possible pour les données de l'utilisateur.
+ */
 export function databasePath(): string {
+  const override = process.env['MC_DB_PATH']
+  if (override && !app.isPackaged) return override
   return join(app.getPath('userData'), 'mission-control.db')
 }
 

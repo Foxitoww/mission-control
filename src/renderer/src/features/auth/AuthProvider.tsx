@@ -9,6 +9,7 @@ import {
 } from 'react'
 import type { PublicUser } from '@shared/types/domain'
 import type { RegisterInput, LoginInput } from '@shared/schemas/auth.schema'
+import type { UpdateProfileInput } from '@shared/schemas/profile.schema'
 import { unwrap } from '@renderer/lib/ipc'
 
 type Status = 'checking' | 'signed-out' | 'signed-in'
@@ -21,6 +22,7 @@ interface AuthValue {
   signIn: (input: LoginInput) => Promise<void>
   signUp: (input: RegisterInput) => Promise<void>
   signOut: () => Promise<void>
+  updateProfile: (input: UpdateProfileInput) => Promise<void>
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
@@ -69,9 +71,15 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     await refreshProfiles()
   }, [refreshProfiles])
 
+  const updateProfile = useCallback(async (input: UpdateProfileInput) => {
+    // Le main renvoie la ligne relue, donc l'interface reflète ce qui est
+    // réellement stocké plutôt que ce qu'on a cru envoyer.
+    setUser(await unwrap(window.mc.profile.update(input)))
+  }, [])
+
   const value = useMemo<AuthValue>(
-    () => ({ status, user, profiles, refreshProfiles, signIn, signUp, signOut }),
-    [status, user, profiles, refreshProfiles, signIn, signUp, signOut]
+    () => ({ status, user, profiles, refreshProfiles, signIn, signUp, signOut, updateProfile }),
+    [status, user, profiles, refreshProfiles, signIn, signUp, signOut, updateProfile]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

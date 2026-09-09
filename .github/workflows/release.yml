@@ -1,0 +1,32 @@
+name: release
+
+# Déclenché par un tag de version. C'est le sens concret de « mise à jour liée à
+# git » : poser un tag publie une release, et les applications installées la
+# découvrent via latest.yml.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      # La porte de qualité vaut aussi pour une release : on ne publie pas un
+      # binaire dont les tests d'isolation n'ont pas été rejoués.
+      - run: npm test
+
+      - run: npm run package -- --publish always
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

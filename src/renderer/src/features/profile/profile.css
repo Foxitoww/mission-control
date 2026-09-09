@@ -1,0 +1,121 @@
+/* Menu de profil (en-tête) et éditeur de profil (modale). */
+
+.profile-menu {
+  position: relative;
+}
+
+.profile-menu__trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-1) var(--mc-space-2);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--mc-radius-control);
+  cursor: pointer;
+  transition:
+    background var(--mc-duration-instant) var(--mc-ease),
+    border-color var(--mc-duration-instant) var(--mc-ease);
+}
+
+.profile-menu__trigger:hover,
+.profile-menu__trigger[aria-expanded='true'] {
+  background: var(--mc-hull-raised);
+  border-color: var(--mc-grid);
+}
+
+.profile-menu__identity {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  text-align: left;
+  min-width: 0;
+}
+
+.profile-menu__name {
+  font-weight: 550;
+  font-size: 0.875rem;
+}
+
+.profile-menu__username {
+  font-size: 0.6875rem;
+  color: var(--mc-text-muted);
+}
+
+.profile-menu__chevron {
+  color: var(--mc-text-muted);
+  font-size: 0.625rem;
+}
+
+.profile-menu__panel {
+  position: absolute;
+  top: calc(100% + var(--mc-space-2));
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  padding: var(--mc-space-1);
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+  animation: mc-rise var(--mc-duration-base) var(--mc-ease);
+}
+
+.profile-menu__item {
+  padding: var(--mc-space-2) var(--mc-space-3);
+  background: transparent;
+  border: none;
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+  font-size: 0.875rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.profile-menu__item:hover {
+  background: var(--mc-hull);
+}
+
+.profile-menu__item--danger {
+  color: var(--mc-red);
+}
+
+/* --- Éditeur -------------------------------------------------------------- */
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.profile-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.profile-control {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.profile-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+}
+
+.profile-avatar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+/* L'indication passe sous les boutons plutôt qu'à côté : elle ne doit pas
+   comprimer les cibles de clic quand la modale est étroite. */
+.profile-avatar-actions .mc-field__hint {
+  flex-basis: 100%;
+}

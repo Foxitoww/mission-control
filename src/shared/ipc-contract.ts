@@ -1,6 +1,8 @@
 import type { IpcResult } from './errors'
 import type { PublicUser, Settings } from './types/domain'
 import type { RegisterInput, LoginInput, DeleteAccountInput } from './schemas/auth.schema'
+import type { UpdateProfileInput } from './schemas/profile.schema'
+import type { UpdateStatus } from './types/update'
 
 /**
  * Contrat IPC — la surface complète que le renderer peut atteindre.
@@ -17,9 +19,16 @@ export const IpcChannel = {
   AUTH_CURRENT_USER: 'auth:current-user',
   AUTH_LIST_USERS: 'auth:list-users',
   AUTH_DELETE_ACCOUNT: 'auth:delete-account',
+  PROFILE_UPDATE: 'profile:update',
   SETTINGS_GET: 'settings:get',
-  SETTINGS_UPDATE: 'settings:update'
+  SETTINGS_UPDATE: 'settings:update',
+  UPDATE_STATUS: 'update:status',
+  UPDATE_CHECK: 'update:check',
+  UPDATE_INSTALL: 'update:install'
 } as const
+
+/** Canal poussé par le main, hors requête/réponse : progression d'un téléchargement. */
+export const UPDATE_CHANGED_EVENT = 'update:changed'
 
 export type IpcChannel = (typeof IpcChannel)[keyof typeof IpcChannel]
 
@@ -36,9 +45,21 @@ export interface MissionControlApi {
     /** Supprime le compte courant et TOUTES ses données, en une transaction. */
     deleteAccount(input: DeleteAccountInput): Promise<IpcResult<null>>
   }
+  profile: {
+    /** Met à jour le profil de l'utilisateur connecté — jamais celui d'un autre. */
+    update(input: UpdateProfileInput): Promise<IpcResult<PublicUser>>
+  }
   settings: {
     get(): Promise<IpcResult<Settings>>
     update(patch: Partial<Settings>): Promise<IpcResult<Settings>>
+  }
+  update: {
+    status(): Promise<IpcResult<UpdateStatus>>
+    check(): Promise<IpcResult<UpdateStatus>>
+    /** Redémarre sur la version téléchargée. Sans effet si aucune n'est prête. */
+    install(): Promise<IpcResult<null>>
+    /** S'abonne aux changements d'état. Renvoie la fonction de désabonnement. */
+    onChanged(listener: (status: UpdateStatus) => void): () => void
   }
 }
 

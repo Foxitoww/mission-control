@@ -37,11 +37,11 @@
 }
 
 .mc-btn--primary {
-  background: var(--mc-blue);
+  background: var(--mc-accent);
   color: var(--mc-on-accent);
 }
 .mc-btn--primary:hover:not(:disabled) {
-  background: var(--mc-blue-dim);
+  background: color-mix(in srgb, var(--mc-accent) 84%, #000);
 }
 
 .mc-btn--secondary {
@@ -126,7 +126,7 @@
 
 .mc-field__input:focus {
   outline: none;
-  border-color: var(--mc-blue);
+  border-color: var(--mc-accent);
   box-shadow: var(--mc-glow-focus);
 }
 
@@ -178,4 +178,181 @@
   font-size: 0.6875rem;
   letter-spacing: 0.04em;
   color: var(--mc-red);
+}
+
+/* --- Avatar --------------------------------------------------------------- */
+.mc-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-on-accent);
+  font-weight: 650;
+  line-height: 1;
+  object-fit: cover;
+  user-select: none;
+}
+
+/* --- Modale --------------------------------------------------------------- */
+.mc-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: var(--mc-space-6);
+  background: rgb(4 7 14 / 0.62);
+  backdrop-filter: blur(2px);
+  animation: mc-fade var(--mc-duration-base) var(--mc-ease);
+}
+
+.mc-modal {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+  width: 100%;
+  max-width: 460px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: var(--mc-space-6);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-modal);
+  box-shadow: var(--mc-shadow-modal);
+  animation: mc-rise var(--mc-duration-panel) var(--mc-ease);
+}
+
+.mc-modal__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+}
+
+.mc-modal__title {
+  font: var(--mc-text-h2);
+}
+
+/* Collée au bas de la modale : sur un écran court, le contenu défile mais
+   « Enregistrer » reste toujours atteignable. Sans cela, une modale un peu
+   longue cache son propre bouton de validation. Les marges négatives annulent
+   le padding de la modale pour que la barre touche les bords. */
+.mc-modal__actions {
+  position: sticky;
+  bottom: calc(-1 * var(--mc-space-6));
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--mc-space-2);
+  margin: 0 calc(-1 * var(--mc-space-6)) calc(-1 * var(--mc-space-6));
+  padding: var(--mc-space-4) var(--mc-space-6);
+  background: var(--mc-hull);
+  border-top: 1px solid var(--mc-grid);
+}
+
+@keyframes mc-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* L'entrée monte de 8 px : le mouvement dit d'où vient le panneau. Neutralisé
+   par prefers-reduced-motion, qui ne laisse que le fondu. */
+@keyframes mc-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* --- Sélecteur de couleur d'accent ---------------------------------------- */
+.mc-swatches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+}
+
+.mc-swatch {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform var(--mc-duration-instant) var(--mc-ease);
+}
+
+.mc-swatch:hover {
+  transform: scale(1.12);
+}
+
+/* L'état sélectionné porte un anneau ET une coche : la couleur seule ne peut
+   pas signaler « choisi » sur un sélecteur qui n'est fait que de couleurs. */
+.mc-swatch[aria-pressed='true'] {
+  border-color: var(--mc-text);
+  box-shadow: 0 0 0 2px var(--mc-hull) inset;
+}
+
+.mc-swatch[aria-pressed='true']::after {
+  content: '✓';
+  color: var(--mc-on-accent);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* --- Groupe de segments (thème) ------------------------------------------- */
+.mc-segments {
+  display: flex;
+  gap: 2px;
+  padding: 2px;
+  background: var(--mc-void);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+}
+
+.mc-segment {
+  flex: 1;
+  min-height: 32px;
+  padding: 0 var(--mc-space-3);
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--mc-text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.mc-segment[aria-pressed='true'] {
+  background: var(--mc-hull-raised);
+  color: var(--mc-text);
+  font-weight: 600;
+}
+
+/* --- Case à cocher -------------------------------------------------------- */
+.mc-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mc-space-3);
+}
+
+.mc-checkbox input[type='checkbox'] {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  /* `accent-color` recolore la case native avec l'accent du profil : on garde
+     le rendu et l'accessibilité du contrôle système, avec notre palette. */
+  accent-color: var(--mc-accent);
+  cursor: pointer;
+}
+
+.mc-checkbox__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.mc-checkbox label {
+  font-size: 0.875rem;
+  cursor: pointer;
 }

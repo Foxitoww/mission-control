@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import { App } from './App'
 import { I18nProvider } from './i18n'
 import { AuthProvider } from './features/auth/AuthProvider'
+import { SettingsProvider } from './features/settings/SettingsProvider'
 import './styles/global.css'
 import './components/components.css'
 import './styles/shell.css'
@@ -14,7 +15,9 @@ createRoot(container).render(
   <StrictMode>
     <I18nProvider>
       <AuthProvider>
-        <App />
+        <SettingsProvider>
+          <App />
+        </SettingsProvider>
       </AuthProvider>
     </I18nProvider>
   </StrictMode>

@@ -32,6 +32,7 @@ describe('migrations', () => {
     expect(rows.map((r) => r.name).sort()).toEqual([
       'goals',
       'projects',
+      'remembered_sessions',
       'settings',
       'subtasks',
       'tags',

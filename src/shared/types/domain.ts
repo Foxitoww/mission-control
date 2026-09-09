@@ -24,6 +24,27 @@ export const LANGUAGES = ['fr', 'en'] as const
 export type Language = (typeof LANGUAGES)[number]
 
 /**
+ * Palette d'accents proposée au profil.
+ *
+ * Volontairement CURATÉE plutôt qu'un sélecteur libre : chaque teinte est tirée
+ * de la charte et testée pour tenir le contraste AA sur les deux thèmes. Un
+ * choix libre permettrait des accents illisibles ou criards, et ferait perdre au
+ * produit la cohérence qui fait son identité (§20).
+ */
+export const ACCENT_COLORS = [
+  '#3D7BFF', // bleu mission — défaut
+  '#4FD5E8', // cyan télémétrie
+  '#24C38E', // vert nominal
+  '#F5A623', // ambre
+  '#E8334A', // rouge français
+  '#8B7CF6' // violet orbital
+] as const
+
+export type AccentColor = (typeof ACCENT_COLORS)[number]
+
+export const DEFAULT_ACCENT: AccentColor = '#3D7BFF'
+
+/**
  * Représentation d'un utilisateur telle qu'elle traverse l'IPC.
  *
  * `passwordHash` en est volontairement ABSENT. Le type rend l'oubli impossible :
@@ -33,7 +54,9 @@ export interface PublicUser {
   id: string
   username: string
   displayName: string
+  /** Emoji court, ou data URI d'une image redimensionnée. `null` = initiale. */
   avatar: string | null
+  accentColor: string
   createdAt: string
 }
 

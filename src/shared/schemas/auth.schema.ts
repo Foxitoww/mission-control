@@ -43,7 +43,12 @@ export const registerInputSchema = z.object({
 
 export const loginInputSchema = z.object({
   username: usernameSchema,
-  password: z.string().min(1, 'PASSWORD_REQUIRED')
+  password: z.string().min(1, 'PASSWORD_REQUIRED'),
+  /**
+   * « Se souvenir de moi ». Par défaut FALSE — l'utilisateur doit le demander.
+   * Sur un poste partagé, rester connecté est un choix, jamais une surprise.
+   */
+  remember: z.boolean().default(false)
 })
 
 export const deleteAccountInputSchema = z.object({

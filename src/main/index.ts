@@ -2,8 +2,12 @@ import { app, shell, BrowserWindow, session as electronSession } from 'electron'
 import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import { initDatabase } from './db/init'
+import { rememberService } from './services/remember.service'
+import { session } from './services/session.service'
+import { rememberStore } from './lib/remember-store'
 import { closeDatabase } from './db/connection'
 import { registerIpcHandlers } from './ipc'
+import { initUpdater, updateService } from './services/update.service'
 
 /**
  * Politique de sécurité du contenu.
@@ -83,9 +87,22 @@ app.whenReady().then(() => {
   app.on('browser-window-created', (_, window) => optimizer.watchWindowShortcuts(window))
 
   applyContentSecurityPolicy()
-  initDatabase()
+
+  const db = initDatabase()
+  rememberService.purgeExpired(db)
+
+  // Restauration AVANT la création de la fenêtre : le renderer interroge la
+  // session dès son premier rendu, il doit trouver l'état définitif.
+  const rememberedUserId = rememberService.restore(db, rememberStore())
+  if (rememberedUserId) session.start(rememberedUserId)
+
+  initUpdater()
   registerIpcHandlers()
   createWindow()
+
+  // Après la fenêtre : la vérification réseau ne doit jamais retarder le premier
+  // rendu. Elle est différée à l'intérieur du service.
+  updateService.scheduleStartupCheck()
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

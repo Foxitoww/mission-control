@@ -1,4 +1,5 @@
-# MISSION CONTROL — Modèle de données
+| avatar | TEXT | emoji court, OU data URI d'une image 128×128. Jamais une URL distante — voir ci-dessous |
+| accent_color | TEXT NOT NULL DEFAULT '#3D7BFF' | couleur du profil, visible sur l'écran de sélection |# MISSION CONTROL — Modèle de données
 
 ## Décisions transverses
 
@@ -82,3 +83,24 @@ futures sans migration — mais uniquement pour ce qui n'est **jamais interrogé
 
 Tous préfixés par `user_id` : c'est le filtre présent dans **100 %** des requêtes,
 donc il doit être en tête de l'index.
+
+## Avatar : pourquoi les URL distantes sont interdites
+
+`avatar` accepte un emoji court **ou** un data URI `data:image/(png|jpeg|webp);base64,…`,
+et rien d'autre. Le motif de validation rejette explicitement `http(s)`.
+
+Une URL distante serait chargée par `<img src>` au premier rendu du profil :
+l'application cesserait d'être hors ligne, et l'hôte distant apprendrait à quelle
+heure l'utilisateur ouvre son centre de contrôle. Interdire le schéma à la
+validation est plus sûr que d'espérer que personne n'en enregistre une.
+
+L'image est redimensionnée à 128 × 128 dans le renderer avant d'être envoyée.
+Sans ce redimensionnement, une photo de 4 Mo partirait en base64 dans SQLite :
+chaque lecture de profil coûterait 5 Mo et l'export JSON deviendrait inexploitable.
+
+## Pourquoi `accent_color` est sur `users` et non dans `settings`
+
+L'écran de sélection de profil doit teinter chaque carte **avant** toute
+authentification, or `settings` n'est lisible qu'une fois la session ouverte. La
+couleur d'accent fait partie de l'identité visible du profil ; le thème
+clair/sombre, lui, est une préférence privée et reste dans `settings`.

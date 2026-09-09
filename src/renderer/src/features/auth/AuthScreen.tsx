@@ -1,7 +1,9 @@
-import { useEffect, useState, type FormEvent } from 'react'
+import { useEffect, useState, type CSSProperties, type FormEvent } from 'react'
 import { registerInputSchema, loginInputSchema } from '@shared/schemas/auth.schema'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
+import { Avatar } from '@renderer/components/Avatar'
+import { Checkbox } from '@renderer/components/Checkbox'
 import { useI18n, useToggleLanguage } from '@renderer/i18n'
 import { IpcError } from '@renderer/lib/ipc'
 import { useAuth } from './AuthProvider'
@@ -29,6 +31,7 @@ export function AuthScreen(): JSX.Element {
   const [passwordConfirm, setPasswordConfirm] = useState('')
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
+  const [remember, setRemember] = useState(false)
   const [busy, setBusy] = useState(false)
 
   // Premier lancement : aucun profil n'existe, la liste n'aurait rien à montrer.
@@ -74,7 +77,9 @@ export function AuthScreen(): JSX.Element {
     // sans aller-retour IPC. Là-bas c'est pour la sécurité.
     const schema = mode === 'register' ? registerInputSchema : loginInputSchema
     const payload =
-      mode === 'register' ? { username, displayName, password, avatar: null } : { username, password }
+      mode === 'register'
+        ? { username, displayName, password, avatar: null }
+        : { username, password, remember }
 
     const parsed = schema.safeParse(payload)
     if (!parsed.success) {
@@ -136,11 +141,12 @@ export function AuthScreen(): JSX.Element {
                     <button
                       type="button"
                       className="auth__profile"
+                      // Chaque carte porte l'accent de SON profil : on reconnaît
+                      // son compte à la couleur avant même de lire le nom.
+                      style={{ '--mc-accent': profile.accentColor } as CSSProperties}
                       onClick={() => goTo('login', profile.username)}
                     >
-                      <span className="auth__avatar" aria-hidden="true">
-                        {profile.avatar ?? profile.displayName.slice(0, 1).toUpperCase()}
-                      </span>
+                      <Avatar user={profile} size={38} />
                       <span className="auth__profile-text">
                         <span className="auth__profile-name">{profile.displayName}</span>
                         <span className="auth__profile-username mc-data">@{profile.username}</span>
@@ -208,6 +214,16 @@ export function AuthScreen(): JSX.Element {
                   disabled={busy}
                   onChange={(event) => setPasswordConfirm(event.target.value)}
                   error={fieldErrors['passwordConfirm']}
+                />
+              )}
+
+              {mode === 'login' && (
+                <Checkbox
+                  label={t('auth.remember')}
+                  hint={t('auth.rememberHint')}
+                  checked={remember}
+                  disabled={busy}
+                  onChange={(event) => setRemember(event.target.checked)}
                 />
               )}
 

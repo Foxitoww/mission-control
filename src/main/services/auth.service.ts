@@ -4,6 +4,7 @@ import { usersRepo } from '../repositories/users.repo'
 import { settingsRepo } from '../repositories/settings.repo'
 import { hashPassword, verifyPassword, burnEquivalentTime } from './password'
 import { session } from './session.service'
+import { rememberService, type RememberStore } from './remember.service'
 import { parseOrThrow } from '../lib/validate'
 import { AppError, AppErrorCode } from '@shared/errors'
 import type { PublicUser, Language } from '@shared/types/domain'
@@ -52,13 +53,13 @@ export const authService = {
     })()
 
     session.start(id)
-    return {
-      id,
-      username: data.username,
-      displayName: data.displayName,
-      avatar: data.avatar ?? null,
-      createdAt: now
-    }
+
+    // Relecture plutôt que construction manuelle : les valeurs par défaut du
+    // schéma (couleur d'accent, par exemple) sont ainsi toujours incluses, sans
+    // qu'il faille les répéter ici à chaque nouvelle colonne.
+    const created = usersRepo.findById(db, id)
+    if (!created) throw new AppError(AppErrorCode.DB_ERROR, 'DB_ERROR')
+    return created
   },
 
   /**
@@ -69,7 +70,7 @@ export const authService = {
    * lorsqu'aucun utilisateur ne correspond, l'écart de temps entre les deux cas
    * révèle quels noms d'utilisateur existent sur la machine.
    */
-  async login(db: Db, input: unknown): Promise<PublicUser> {
+  async login(db: Db, input: unknown, store: RememberStore): Promise<PublicUser> {
     const data = parseOrThrow(loginInputSchema, input)
     const record = usersRepo.findByUsername(db, data.username)
 
@@ -88,10 +89,20 @@ export const authService = {
     }
 
     session.start(record.id)
+
+    if (data.remember) {
+      rememberService.issue(db, record.id, store)
+    } else {
+      // Se connecter SANS cocher la case révoque une session mémorisée
+      // antérieure : le dernier choix explicite de l'utilisateur fait foi.
+      rememberService.clear(db, store)
+    }
+
     return stripHash(record)
   },
 
-  logout(): void {
+  logout(db: Db, store: RememberStore): void {
+    rememberService.clear(db, store)
     session.clear()
   },
 
@@ -110,7 +121,7 @@ export const authService = {
    * Le mot de passe est redemandé : c'est une action irréversible, et la session
    * peut avoir été laissée ouverte sur un poste partagé.
    */
-  async deleteAccount(db: Db, input: unknown): Promise<void> {
+  async deleteAccount(db: Db, input: unknown, store: RememberStore): Promise<void> {
     const userId = session.requireUserId()
     const data = parseOrThrow(deleteAccountInputSchema, input)
 
@@ -122,6 +133,9 @@ export const authService = {
       throw new AppError(AppErrorCode.AUTH_INVALID_CREDENTIALS, 'AUTH_INVALID_CREDENTIALS')
     }
 
+    // La cascade du schéma efface les lignes de session mémorisée ; le fichier
+    // qui porte le jeton, lui, vit hors de la base et doit être retiré ici.
+    rememberService.clear(db, store)
     usersRepo.deleteById(db, userId)
     session.clear()
   }

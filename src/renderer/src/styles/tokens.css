@@ -28,6 +28,10 @@
   --mc-amber: #f5a623;
   --mc-red: #e8334a;
 
+  /* Accent PILOTÉ PAR LE PROFIL. Les composants ne référencent que cette
+     variable : changer la couleur d'un profil recolore toute l'interface sans
+     qu'aucun composant ne connaisse la notion de profil. */
+  --mc-accent: var(--mc-blue);
   --mc-on-accent: #ffffff;
 
   /* --- Semantique : priorites --- */
@@ -72,7 +76,9 @@
   /* --- Elevation --- */
   --mc-shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.2);
   --mc-shadow-modal: 0 8px 40px rgb(0 0 0 / 0.5);
-  --mc-glow-focus: 0 0 0 3px rgb(61 123 255 / 0.35);
+  /* color-mix dérive la lueur de l'accent courant : une seule source de vérité
+     pour la couleur, quel que soit le profil connecté. */
+  --mc-glow-focus: 0 0 0 3px color-mix(in srgb, var(--mc-accent) 35%, transparent);
 
   /* --- Mouvement --- */
   --mc-ease: cubic-bezier(0.4, 0, 0.2, 1);
