@@ -1,0 +1,91 @@
+@import './tokens.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font: var(--mc-text-body);
+  color: var(--mc-text);
+  background: var(--mc-abyss);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  /* Interface d'application, pas page web : pas de sélection accidentelle du
+     chrome. Les champs et zones marquées restent sélectionnables. */
+  user-select: none;
+  cursor: default;
+}
+
+input,
+textarea,
+[data-selectable] {
+  user-select: text;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+/* Focus : jamais supprimé, toujours visible. `:focus-visible` le réserve à la
+   navigation clavier, donc un clic souris ne laisse pas d'anneau résiduel. */
+:focus-visible {
+  outline: 2px solid var(--mc-blue);
+  outline-offset: 2px;
+  border-radius: var(--mc-radius-control);
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Étiquettes techniques : anglais, majuscules, interlettrage large.
+   C'est la signature typographique de la salle de contrôle. */
+.mc-label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+}
+
+/* Données chiffrées : `tabular-nums` fige la largeur des chiffres, donc un
+   compteur qui s'incrémente ne fait pas tressauter la mise en page. */
+.mc-data {
+  font-family: var(--mc-font-mono);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: rgb(61 123 255 / 0.35);
+}
+
+/* Accessibilité : quand le système demande moins d'animation, on supprime les
+   déplacements et on réduit les transitions à néant. Obligatoire (§24). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

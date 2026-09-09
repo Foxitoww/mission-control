@@ -1,0 +1,107 @@
+/* =============================================================================
+   MISSION CONTROL — Jetons du design system
+   Direction : FRENCH AEROSPACE x NASA MISSION CONTROL
+
+   Le theme sombre est l'identite par defaut. Le rouge francais est un ACCENT :
+   il signale le critique et l'erreur, jamais une surface.
+   ========================================================================== */
+
+:root {
+  /* --- Surfaces (sombre) --- */
+  --mc-void: #0a0e1a;
+  --mc-abyss: #0f1524;
+  --mc-hull: #161d30;
+  --mc-hull-raised: #1e2740;
+  --mc-grid: #2a3552;
+  --mc-grid-strong: #3a4970;
+
+  /* --- Texte --- */
+  --mc-text: #e8ecf4; /* blanc casse, jamais #fff : reduit l'eblouissement */
+  --mc-text-secondary: #a3aec4;
+  --mc-text-muted: #6b7793;
+
+  /* --- Accents --- */
+  --mc-blue: #3d7bff;
+  --mc-blue-dim: #2a5ac4;
+  --mc-cyan: #4fd5e8;
+  --mc-green: #24c38e;
+  --mc-amber: #f5a623;
+  --mc-red: #e8334a;
+
+  --mc-on-accent: #ffffff;
+
+  /* --- Semantique : priorites --- */
+  --mc-priority-low: var(--mc-text-muted);
+  --mc-priority-medium: var(--mc-cyan);
+  --mc-priority-high: var(--mc-amber);
+  --mc-priority-critical: var(--mc-red);
+
+  /* --- Semantique : statuts --- */
+  --mc-status-todo: var(--mc-text-muted);
+  --mc-status-progress: var(--mc-blue);
+  --mc-status-blocked: var(--mc-amber);
+  --mc-status-completed: var(--mc-green);
+  --mc-status-archived: var(--mc-text-muted);
+
+  /* --- Typographie --- */
+  --mc-font-ui: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mc-font-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', monospace;
+
+  --mc-text-display: 700 2rem/1.2 var(--mc-font-ui);
+  --mc-text-h1: 650 1.5rem/1.3 var(--mc-font-ui);
+  --mc-text-h2: 600 1.125rem/1.4 var(--mc-font-ui);
+  --mc-text-body: 400 0.875rem/1.55 var(--mc-font-ui);
+  --mc-text-caption: 400 0.75rem/1.45 var(--mc-font-ui);
+
+  /* --- Espacement : grille de 4 px --- */
+  --mc-space-1: 4px;
+  --mc-space-2: 8px;
+  --mc-space-3: 12px;
+  --mc-space-4: 16px;
+  --mc-space-6: 24px;
+  --mc-space-8: 32px;
+  --mc-space-12: 48px;
+  --mc-space-16: 64px;
+
+  /* --- Rayons : serres, la precision plutot que la rondeur --- */
+  --mc-radius-badge: 2px;
+  --mc-radius-control: 6px;
+  --mc-radius-card: 10px;
+  --mc-radius-modal: 14px;
+
+  /* --- Elevation --- */
+  --mc-shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.2);
+  --mc-shadow-modal: 0 8px 40px rgb(0 0 0 / 0.5);
+  --mc-glow-focus: 0 0 0 3px rgb(61 123 255 / 0.35);
+
+  /* --- Mouvement --- */
+  --mc-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --mc-duration-instant: 120ms;
+  --mc-duration-base: 200ms;
+  --mc-duration-panel: 320ms;
+}
+
+/* --- Theme clair : seules les surfaces et le texte changent, la semantique
+       des accents reste identique pour que la couleur garde le meme sens. --- */
+:root[data-theme='light'] {
+  --mc-void: #e7ebf3;
+  --mc-abyss: #f4f6fa;
+  --mc-hull: #ffffff;
+  --mc-hull-raised: #ffffff;
+  --mc-grid: #dde3ee;
+  --mc-grid-strong: #c3cddf;
+
+  --mc-text: #0f1524;
+  --mc-text-secondary: #4a5670;
+  --mc-text-muted: #6b7793;
+
+  --mc-blue: #1f5fe0;
+  --mc-blue-dim: #17479f;
+  --mc-cyan: #0f8fa5;
+  --mc-green: #0f8f66;
+  --mc-amber: #b9701a;
+  --mc-red: #c81f36;
+
+  --mc-shadow-card: 0 1px 2px rgb(15 21 36 / 0.06), 0 4px 12px rgb(15 21 36 / 0.06);
+  --mc-shadow-modal: 0 8px 40px rgb(15 21 36 / 0.18);
+}

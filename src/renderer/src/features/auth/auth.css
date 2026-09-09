@@ -1,0 +1,210 @@
+/* Écran d'accès — deux panneaux : identité à gauche, formulaire à droite. */
+
+.auth {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: 100%;
+}
+
+/* --- Panneau d'identité --------------------------------------------------- */
+.auth__brand {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: var(--mc-space-16);
+  background: var(--mc-void);
+  border-right: 1px solid var(--mc-grid);
+  overflow: hidden;
+}
+
+/* Grille technique en fond : la référence à la salle de contrôle passe par la
+   géométrie, pas par une illustration. Volontairement à peine visible. */
+.auth__brand-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--mc-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--mc-grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+  opacity: 0.25;
+  mask-image: radial-gradient(ellipse at 30% 40%, #000 0%, transparent 75%);
+}
+
+.auth__brand-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+  max-width: 420px;
+}
+
+.auth__title {
+  font: var(--mc-text-display);
+  letter-spacing: 0.02em;
+}
+
+.auth__tagline {
+  color: var(--mc-text-secondary);
+  max-width: 34ch;
+}
+
+.auth__telemetry {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-8);
+  margin-top: var(--mc-space-8);
+  padding-top: var(--mc-space-6);
+  border-top: 1px solid var(--mc-grid);
+}
+
+.auth__telemetry dd {
+  margin-top: var(--mc-space-1);
+  color: var(--mc-cyan);
+}
+
+/* --- Panneau formulaire --------------------------------------------------- */
+.auth__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--mc-space-8);
+  overflow-y: auto;
+}
+
+.auth__panel-inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+  width: 100%;
+  max-width: 380px;
+}
+
+.auth__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.auth__heading {
+  font: var(--mc-text-h1);
+}
+
+.auth__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+/* --- Liste des profils ---------------------------------------------------- */
+.auth__profiles {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  list-style: none;
+  padding: 0;
+}
+
+.auth__profile {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  width: 100%;
+  padding: var(--mc-space-3);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color var(--mc-duration-instant) var(--mc-ease),
+    background var(--mc-duration-instant) var(--mc-ease);
+}
+
+.auth__profile:hover {
+  background: var(--mc-hull-raised);
+  border-color: var(--mc-grid-strong);
+}
+
+.auth__avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--mc-radius-control);
+  background: var(--mc-blue);
+  color: var(--mc-on-accent);
+  font-weight: 650;
+}
+
+.auth__profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.auth__profile-name {
+  font-weight: 550;
+}
+
+.auth__profile-username {
+  color: var(--mc-text-muted);
+  font-size: 0.75rem;
+}
+
+/* --- Liens et pied -------------------------------------------------------- */
+.auth__switch {
+  font: var(--mc-text-caption);
+  color: var(--mc-text-muted);
+  text-align: center;
+}
+
+.auth__link {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--mc-blue);
+  font-weight: 550;
+  cursor: pointer;
+}
+
+.auth__link:hover:not(:disabled) {
+  text-decoration: underline;
+}
+
+.auth__link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth__footer {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--mc-space-2);
+  border-top: 1px solid var(--mc-grid);
+}
+
+/* --- Adaptation étroite ---------------------------------------------------
+   Sous 900 px, le panneau d'identité n'apporte plus rien d'utile : il devient
+   un simple bandeau et laisse toute la place au formulaire. */
+@media (max-width: 900px) {
+  .auth {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .auth__brand {
+    padding: var(--mc-space-6);
+    border-right: none;
+    border-bottom: 1px solid var(--mc-grid);
+  }
+
+  .auth__telemetry {
+    display: none;
+  }
+
+  .auth__title {
+    font: var(--mc-text-h1);
+  }
+}

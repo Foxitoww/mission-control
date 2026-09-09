@@ -1,0 +1,181 @@
+/* =============================================================================
+   Primitives du design system.
+
+   Un écran ne compose que ces classes — aucun style ad hoc dans les features.
+   Chaque primitive déclare tous ses états : hover, active, focus-visible,
+   disabled, loading, error.
+   ========================================================================== */
+
+/* --- Bouton --------------------------------------------------------------- */
+.mc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  min-height: 38px;
+  padding: 0 var(--mc-space-4);
+  border: 1px solid transparent;
+  border-radius: var(--mc-radius-control);
+  font-weight: 550;
+  font-size: 0.875rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    background var(--mc-duration-instant) var(--mc-ease),
+    border-color var(--mc-duration-instant) var(--mc-ease),
+    transform var(--mc-duration-instant) var(--mc-ease);
+}
+
+.mc-btn:active:not(:disabled) {
+  /* Retour tactile minuscule : perceptible, jamais spectaculaire. */
+  transform: translateY(1px);
+}
+
+.mc-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mc-btn--primary {
+  background: var(--mc-blue);
+  color: var(--mc-on-accent);
+}
+.mc-btn--primary:hover:not(:disabled) {
+  background: var(--mc-blue-dim);
+}
+
+.mc-btn--secondary {
+  background: var(--mc-hull-raised);
+  border-color: var(--mc-grid);
+  color: var(--mc-text);
+}
+.mc-btn--secondary:hover:not(:disabled) {
+  border-color: var(--mc-grid-strong);
+}
+
+.mc-btn--ghost {
+  background: transparent;
+  color: var(--mc-text-secondary);
+}
+.mc-btn--ghost:hover:not(:disabled) {
+  background: var(--mc-hull-raised);
+  color: var(--mc-text);
+}
+
+.mc-btn--danger {
+  background: var(--mc-red);
+  color: var(--mc-on-accent);
+}
+
+.mc-btn--block {
+  width: 100%;
+}
+
+/* Indicateur de chargement : le bouton garde sa largeur, donc la mise en page
+   ne bouge pas pendant l'attente. */
+.mc-btn__spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  animation: mc-spin 700ms linear infinite;
+}
+
+@keyframes mc-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --- Champ de saisie ------------------------------------------------------ */
+.mc-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.mc-field__label {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+}
+
+.mc-field__input {
+  width: 100%;
+  min-height: 40px;
+  padding: 0 var(--mc-space-3);
+  background: var(--mc-void);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+  transition:
+    border-color var(--mc-duration-instant) var(--mc-ease),
+    box-shadow var(--mc-duration-instant) var(--mc-ease);
+}
+
+.mc-field__input::placeholder {
+  color: var(--mc-text-muted);
+}
+
+.mc-field__input:hover:not(:disabled) {
+  border-color: var(--mc-grid-strong);
+}
+
+.mc-field__input:focus {
+  outline: none;
+  border-color: var(--mc-blue);
+  box-shadow: var(--mc-glow-focus);
+}
+
+.mc-field__input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.mc-field--invalid .mc-field__input {
+  border-color: var(--mc-red);
+}
+
+.mc-field__hint {
+  font: var(--mc-text-caption);
+  color: var(--mc-text-muted);
+}
+
+/* L'erreur porte une icône en plus de la couleur : la couleur seule ne doit
+   jamais être l'unique porteuse d'information (§24). */
+.mc-field__error {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-1);
+  font: var(--mc-text-caption);
+  color: var(--mc-red);
+}
+
+.mc-field__error::before {
+  content: '▲';
+  font-size: 0.625rem;
+}
+
+/* --- Bandeau d'alerte ----------------------------------------------------- */
+.mc-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-3);
+  border: 1px solid var(--mc-red);
+  border-left-width: 3px;
+  border-radius: var(--mc-radius-control);
+  background: rgb(232 51 74 / 0.08);
+  color: var(--mc-text);
+  font-size: 0.8125rem;
+}
+
+.mc-alert__code {
+  font-family: var(--mc-font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.04em;
+  color: var(--mc-red);
+}

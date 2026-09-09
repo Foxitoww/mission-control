@@ -14,9 +14,39 @@ aucune télémétrie. Toutes les données vivent dans un fichier SQLite sur ta m
 
 ## Stack
 
-Electron · React 18 · TypeScript · SQLite (better-sqlite3) · Vite
+Electron 44 · React 18 · TypeScript · SQLite (better-sqlite3, Node-API) · Vite
 
-Voir [ADR-001](docs/adr/ADR-001-stack.md) pour le raisonnement.
+Voir [ADR-001](docs/adr/ADR-001-stack.md) pour le choix de la stack et
+[ADR-004](docs/adr/ADR-004-native-modules.md) pour les contraintes de modules natifs.
+
+## Installation
+
+Prérequis : Node.js ≥ 22 (testé sur v24.19).
+
+```bash
+npm install
+node node_modules/electron/install.js
+```
+
+La seconde commande télécharge le binaire Electron. Elle est nécessaire lorsque npm
+bloque les scripts d'installation (`allow-scripts`), ce qui est le cas ici.
+
+## Commandes
+
+| Commande | Effet |
+|---|---|
+| `npm run dev` | Application en développement, rechargement à chaud sur les trois processus |
+| `npm run build` | Typecheck puis build de production dans `out/` |
+| `npm test` | Suite Vitest (SQLite en mémoire) |
+| `npm run typecheck` | Vérification TypeScript des projets Node et Web |
+| `npm run package` | Exécutable Windows via electron-builder |
+
+## Base de données locale
+
+Un unique fichier SQLite dans le dossier de données utilisateur de l'OS
+(`app.getPath('userData')/mission-control.db`), en mode WAL, clés étrangères
+activées. Le schéma est versionné par `PRAGMA user_version` et les migrations
+sont en ajout seul — voir [DATA-MODEL.md](docs/DATA-MODEL.md).
 
 ## Documentation
 
@@ -26,14 +56,11 @@ Voir [ADR-001](docs/adr/ADR-001-stack.md) pour le raisonnement.
 | [Modèle de données](docs/DATA-MODEL.md) | Schéma SQLite, PRAGMAs, index |
 | [Design system](docs/DESIGN-SYSTEM.md) | Palette, typographie, primitives, accessibilité |
 | [Agents](docs/AGENTS.md) | Rôles de revue et définition de « terminé » |
-| [Roadmap](docs/ROADMAP.md) | Phases et dépendances |
+| [Roadmap](docs/ROADMAP.md) | Phases, dépendances, journal d'exécution |
 | [Décisions (ADR)](docs/adr/) | Choix structurants et leurs raisons |
 
 ## État
 
-**Phase 1 terminée** (architecture). Phase 2 (foundation) à venir — l'échafaudage
-applicatif n'existe pas encore.
-
-## Prérequis
-
-Node.js LTS ≥ 20 (installé : v24.19.0).
+**Phases 0 à 2 terminées.** Base locale migrée, authentification multi-utilisateurs
+avec scrypt, session en mémoire, isolation des comptes vérifiée par tests, écran
+d'accès bilingue FR/EN. Phase 3 (dashboard, projets, tâches) à venir.

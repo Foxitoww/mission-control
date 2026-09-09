@@ -4,8 +4,9 @@
 |---|---|
 | 0 — Discovery | ✅ terminée |
 | 1 — Architecture | ✅ terminée |
-| 2 — Foundation | ⏳ suivante |
-| 3 → 6 | à venir |
+| 2 — Foundation | ✅ terminée |
+| 3 — MVP | ⏳ suivante |
+| 4 → 6 | à venir |
 
 ---
 
@@ -15,7 +16,7 @@ Machine vierge (aucun runtime). Dépôt vide (1 commit). Node LTS installé via 
 ## PHASE 1 — ARCHITECTURE ✅
 Architecture, modèle de données, design system initial, système d'agents, roadmap, ADR.
 
-## PHASE 2 — FOUNDATION ⏳
+## PHASE 2 — FOUNDATION ✅
 1. Échafaudage electron-vite + TypeScript strict + ESLint/Prettier
 2. `connection.ts` + PRAGMAs + migrateur `user_version`
 3. Migration `001_init.sql` (schéma complet)
@@ -28,7 +29,7 @@ Architecture, modèle de données, design system initial, système d'agents, roa
 **Critère de sortie :** deux utilisateurs peuvent coexister, se connecter, et il est
 *prouvé par test* qu'aucun ne voit les données de l'autre.
 
-## PHASE 3 — MVP
+## PHASE 3 — MVP ⏳
 Dashboard MISSION CONTROL · projets · tâches · sous-tâches · priorités · tags ·
 filtres · recherche globale · raccourcis clavier.
 
@@ -63,3 +64,16 @@ Tests complets · audits sécurité / architecture / UX · nettoyage · packagin
 **Volontairement absents :** ORM (le SQL explicite reste lisible et indexable),
 bibliothèque de composants (le design system est l'identité du produit),
 client HTTP (aucun réseau), argon2 natif (voir ADR-002).
+
+---
+
+## Journal d'exécution
+
+**Phase 2 — incidents natifs.** Deux échecs enchaînés sur `better-sqlite3` :
+absence de binaire précompilé pour Node 24 (v11), puis chargement impossible du
+binaire Node-API 10 sur Electron 33, qui n'expose que Node-API 9 — plantage muet
+du processus main. Résolus par `better-sqlite3` ^13 + Electron ^44. Voir ADR-004.
+
+**Phase 2 — état vérifié.** 31 tests passent, typecheck vert sur les deux projets
+TypeScript, build de production complet, application lancée : migration appliquée
+(`user_version = 1`) et écran d'accès rendu.
