@@ -1,8 +1,29 @@
 import type { IpcResult } from './errors'
-import type { PublicUser, Settings } from './types/domain'
+import type { PublicUser, Settings, Tag } from './types/domain'
+import type {
+  TaskListItem,
+  TaskDetail,
+  ProjectSummary,
+  DashboardData,
+  SearchResults
+} from './types/views'
+import type { UpdateStatus } from './types/update'
 import type { RegisterInput, LoginInput, DeleteAccountInput } from './schemas/auth.schema'
 import type { UpdateProfileInput } from './schemas/profile.schema'
-import type { UpdateStatus } from './types/update'
+import type {
+  CreateTaskInput,
+  UpdateTaskInput,
+  MoveTaskInput,
+  TaskFilter,
+  CreateSubtaskInput,
+  UpdateSubtaskInput
+} from './schemas/task.schema'
+import type {
+  CreateProjectInput,
+  UpdateProjectInput,
+  CreateTagInput,
+  UpdateTagInput
+} from './schemas/project.schema'
 
 /**
  * Contrat IPC — la surface complète que le renderer peut atteindre.
@@ -19,18 +40,53 @@ export const IpcChannel = {
   AUTH_CURRENT_USER: 'auth:current-user',
   AUTH_LIST_USERS: 'auth:list-users',
   AUTH_DELETE_ACCOUNT: 'auth:delete-account',
+
   PROFILE_UPDATE: 'profile:update',
+
   SETTINGS_GET: 'settings:get',
   SETTINGS_UPDATE: 'settings:update',
+
   UPDATE_STATUS: 'update:status',
   UPDATE_CHECK: 'update:check',
-  UPDATE_INSTALL: 'update:install'
+  UPDATE_INSTALL: 'update:install',
+
+  DASHBOARD_LOAD: 'dashboard:load',
+
+  TASKS_LIST: 'tasks:list',
+  TASKS_GET: 'tasks:get',
+  TASKS_CREATE: 'tasks:create',
+  TASKS_UPDATE: 'tasks:update',
+  TASKS_MOVE: 'tasks:move',
+  TASKS_TOGGLE: 'tasks:toggle',
+  TASKS_DELETE: 'tasks:delete',
+
+  PROJECTS_LIST: 'projects:list',
+  PROJECTS_GET: 'projects:get',
+  PROJECTS_CREATE: 'projects:create',
+  PROJECTS_UPDATE: 'projects:update',
+  PROJECTS_DELETE: 'projects:delete',
+
+  TAGS_LIST: 'tags:list',
+  TAGS_CREATE: 'tags:create',
+  TAGS_UPDATE: 'tags:update',
+  TAGS_DELETE: 'tags:delete',
+
+  SUBTASKS_CREATE: 'subtasks:create',
+  SUBTASKS_UPDATE: 'subtasks:update',
+  SUBTASKS_DELETE: 'subtasks:delete',
+  SUBTASKS_REORDER: 'subtasks:reorder',
+
+  SEARCH_RUN: 'search:run'
 } as const
+
+export type IpcChannel = (typeof IpcChannel)[keyof typeof IpcChannel]
 
 /** Canal poussé par le main, hors requête/réponse : progression d'un téléchargement. */
 export const UPDATE_CHANGED_EVENT = 'update:changed'
 
-export type IpcChannel = (typeof IpcChannel)[keyof typeof IpcChannel]
+export interface TagWithUsage extends Tag {
+  taskCount: number
+}
 
 /** Interface exposée au renderer sous `window.mc`. */
 export interface MissionControlApi {
@@ -60,6 +116,44 @@ export interface MissionControlApi {
     install(): Promise<IpcResult<null>>
     /** S'abonne aux changements d'état. Renvoie la fonction de désabonnement. */
     onChanged(listener: (status: UpdateStatus) => void): () => void
+  }
+  dashboard: {
+    load(): Promise<IpcResult<DashboardData>>
+  }
+  tasks: {
+    list(filter?: Partial<TaskFilter>): Promise<IpcResult<TaskListItem[]>>
+    get(input: { id: string }): Promise<IpcResult<TaskDetail>>
+    create(input: Partial<CreateTaskInput> & { title: string }): Promise<IpcResult<TaskDetail>>
+    update(input: UpdateTaskInput): Promise<IpcResult<TaskDetail>>
+    /** Réordonne et change éventuellement de colonne. */
+    move(input: MoveTaskInput): Promise<IpcResult<TaskDetail>>
+    /** Bascule terminé / à faire. */
+    toggle(input: { id: string }): Promise<IpcResult<TaskDetail>>
+    remove(input: { id: string }): Promise<IpcResult<null>>
+  }
+  projects: {
+    list(): Promise<IpcResult<ProjectSummary[]>>
+    get(input: { id: string }): Promise<IpcResult<ProjectSummary>>
+    create(input: Partial<CreateProjectInput> & { name: string }): Promise<IpcResult<ProjectSummary>>
+    update(input: UpdateProjectInput): Promise<IpcResult<ProjectSummary>>
+    /** Supprime le projet ; ses tâches sont détachées, jamais supprimées. */
+    remove(input: { id: string }): Promise<IpcResult<null>>
+  }
+  tags: {
+    list(): Promise<IpcResult<TagWithUsage[]>>
+    /** Renvoie le tag existant si le nom est déjà pris — la création est idempotente. */
+    create(input: Partial<CreateTagInput> & { name: string }): Promise<IpcResult<Tag>>
+    update(input: UpdateTagInput): Promise<IpcResult<Tag>>
+    remove(input: { id: string }): Promise<IpcResult<null>>
+  }
+  subtasks: {
+    create(input: CreateSubtaskInput): Promise<IpcResult<TaskDetail>>
+    update(input: UpdateSubtaskInput): Promise<IpcResult<TaskDetail>>
+    remove(input: { id: string }): Promise<IpcResult<null>>
+    reorder(input: { taskId: string; orderedIds: string[] }): Promise<IpcResult<TaskDetail>>
+  }
+  search: {
+    run(input: { query: string }): Promise<IpcResult<SearchResults>>
   }
 }
 

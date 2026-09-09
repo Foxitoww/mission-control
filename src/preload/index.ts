@@ -36,6 +36,40 @@ const api: MissionControlApi = {
       ipcRenderer.on(UPDATE_CHANGED_EVENT, handler)
       return () => ipcRenderer.removeListener(UPDATE_CHANGED_EVENT, handler)
     }
+  },
+  dashboard: {
+    load: () => ipcRenderer.invoke(IpcChannel.DASHBOARD_LOAD)
+  },
+  tasks: {
+    list: (filter) => ipcRenderer.invoke(IpcChannel.TASKS_LIST, filter ?? {}),
+    get: (input) => ipcRenderer.invoke(IpcChannel.TASKS_GET, input),
+    create: (input) => ipcRenderer.invoke(IpcChannel.TASKS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.TASKS_UPDATE, input),
+    move: (input) => ipcRenderer.invoke(IpcChannel.TASKS_MOVE, input),
+    toggle: (input) => ipcRenderer.invoke(IpcChannel.TASKS_TOGGLE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.TASKS_DELETE, input)
+  },
+  projects: {
+    list: () => ipcRenderer.invoke(IpcChannel.PROJECTS_LIST),
+    get: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_GET, input),
+    create: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_UPDATE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_DELETE, input)
+  },
+  tags: {
+    list: () => ipcRenderer.invoke(IpcChannel.TAGS_LIST),
+    create: (input) => ipcRenderer.invoke(IpcChannel.TAGS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.TAGS_UPDATE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.TAGS_DELETE, input)
+  },
+  subtasks: {
+    create: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_UPDATE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_DELETE, input),
+    reorder: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_REORDER, input)
+  },
+  search: {
+    run: (input) => ipcRenderer.invoke(IpcChannel.SEARCH_RUN, input)
   }
 }
 
