@@ -431,3 +431,18 @@
   display: flex;
   gap: var(--mc-space-2);
 }
+
+/* --- Récurrence ----------------------------------------------------------- */
+.recurrence__interval {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  font-size: 0.8125rem;
+  color: var(--mc-text-secondary);
+}
+
+/* Champ étroit : un intervalle dépasse rarement deux chiffres, et un champ
+   pleine largeur suggérerait qu'on attend autre chose qu'un nombre. */
+.recurrence__interval input {
+  width: 72px;
+}

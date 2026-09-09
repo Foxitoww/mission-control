@@ -12,7 +12,9 @@ import type {
   TaskDetail,
   ProjectSummary,
   DashboardData,
-  SearchResults
+  SearchResults,
+  GoalSummary,
+  StatsData
 } from '@shared/types/views'
 import type { TaskFilter } from '@shared/schemas/task.schema'
 import { unwrap } from '@renderer/lib/ipc'
@@ -31,7 +33,9 @@ export const keys = {
   projects: ['projects'] as const,
   project: (id: string) => ['project', id] as const,
   tags: ['tags'] as const,
-  search: (query: string) => ['search', query] as const
+  search: (query: string) => ['search', query] as const,
+  goals: ['goals'] as const,
+  stats: (days: number) => ['stats', days] as const
 }
 
 /**
@@ -47,6 +51,8 @@ function invalidateMissions(client: QueryClient, taskId?: string): void {
   void client.invalidateQueries({ queryKey: keys.dashboard })
   void client.invalidateQueries({ queryKey: keys.projects })
   void client.invalidateQueries({ queryKey: keys.tags })
+  void client.invalidateQueries({ queryKey: keys.goals })
+  void client.invalidateQueries({ queryKey: ['stats'] })
   if (taskId) void client.invalidateQueries({ queryKey: keys.task(taskId) })
 }
 
@@ -173,3 +179,33 @@ export const useUpdateSubtask = () =>
 
 export const useDeleteSubtask = () =>
   useMissionMutation((api, input: { id: string }) => unwrap(api.subtasks.remove(input)))
+
+/* --- Objectifs et statistiques -------------------------------------------- */
+
+export function useGoals(): UseQueryResult<GoalSummary[]> {
+  return useQuery({ queryKey: keys.goals, queryFn: () => unwrap(window.mc.goals.list()) })
+}
+
+export function useStats(days: number): UseQueryResult<StatsData> {
+  return useQuery({
+    queryKey: keys.stats(days),
+    queryFn: () => unwrap(window.mc.stats.load({ days })),
+    placeholderData: (previous) => previous
+  })
+}
+
+export const useCreateGoal = () =>
+  useMissionMutation((api, input: Parameters<Api['goals']['create']>[0]) =>
+    unwrap(api.goals.create(input))
+  )
+
+export const useUpdateGoal = () =>
+  useMissionMutation((api, input: Parameters<Api['goals']['update']>[0]) =>
+    unwrap(api.goals.update(input))
+  )
+
+export const useAdvanceGoal = () =>
+  useMissionMutation((api, input: { id: string; by: number }) => unwrap(api.goals.advance(input)))
+
+export const useDeleteGoal = () =>
+  useMissionMutation((api, input: { id: string }) => unwrap(api.goals.remove(input)))

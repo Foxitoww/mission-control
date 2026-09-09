@@ -95,6 +95,75 @@ const fr = {
   'error.AVATAR_DECODE_FAILED': "Impossible de lire cette image.",
   'error.ACCENT_INVALID': 'Couleur non proposée par la palette.',
 
+  'nav.board': 'Tableau',
+  'nav.calendar': 'Calendrier',
+  'nav.goals': 'Objectifs',
+  'nav.stats': 'Télémétrie',
+
+  'kanban.empty': 'Rien ici',
+  'kanban.hint': 'Glisse une carte pour changer sa colonne. Double-clic pour ouvrir.',
+
+  'calendar.today': "Aujourd'hui",
+  'calendar.previous': 'Mois précédent',
+  'calendar.next': 'Mois suivant',
+
+  'recurrence.label': 'Récurrence',
+  'recurrence.none': 'Aucune',
+  'recurrence.DAILY': 'Quotidienne',
+  'recurrence.WEEKLY': 'Hebdomadaire',
+  'recurrence.MONTHLY': 'Mensuelle',
+  'recurrence.every': 'Tous les',
+  'recurrence.unit.DAILY': 'jours',
+  'recurrence.unit.WEEKLY': 'semaines',
+  'recurrence.unit.MONTHLY': 'mois',
+  'recurrence.weekdays': 'Jours de la semaine',
+  'recurrence.hint':
+    "L'occurrence suivante est créée quand tu termines celle-ci. Une échéance est nécessaire.",
+
+  'weekday.0': 'Dim',
+  'weekday.1': 'Lun',
+  'weekday.2': 'Mar',
+  'weekday.3': 'Mer',
+  'weekday.4': 'Jeu',
+  'weekday.5': 'Ven',
+  'weekday.6': 'Sam',
+
+  'goal.new': 'Nouvel objectif',
+  'goal.title': "Intitulé de l'objectif",
+  'goal.target': 'Cible',
+  'goal.targetHint': 'Le nombre à atteindre : 20 opérations, 12 ouvrages…',
+  'goal.increment': 'Avancer d’un',
+  'goal.decrement': 'Reculer d’un',
+  'goal.abandon': 'Abandonner',
+  'goal.emptyTitle': 'Aucun objectif',
+  'goal.emptyHint': 'Un objectif est une cible chiffrée dont la progression se calcule seule.',
+
+  'goalStatus.ACTIVE': 'En cours',
+  'goalStatus.COMPLETED': 'Atteint',
+  'goalStatus.ABANDONED': 'Abandonné',
+
+  'stats.activity': 'Activité quotidienne',
+  'stats.created': 'Créées',
+  'stats.completed': 'Terminées',
+  'stats.byPriority': 'Répartition par priorité',
+  'stats.byProject': 'Progression des missions',
+  'stats.timeCompleted': 'Temps estimé accompli :',
+  'stats.range': 'Période',
+  'stats.days': 'jours',
+  'stats.day': 'Jour',
+  'stats.showTable': 'Voir le tableau',
+  'stats.showChart': 'Voir le graphique',
+
+  'settings.notifications': 'Notifications locales',
+  'settings.notificationsHint':
+    'Rappels pour les échéances proches et les retards. Aucun serveur, aucun envoi.',
+
+  'error.GOAL_NOT_FOUND': 'Objectif introuvable.',
+  'error.TARGET_INVALID': 'La cible doit être un nombre positif.',
+  'error.CURRENT_INVALID': 'La valeur ne peut pas être négative.',
+  'error.INTERVAL_INVALID': "L'intervalle doit valoir au moins 1.",
+  'error.RECURRENCE_NEEDS_DUE_DATE': 'Une tâche récurrente a besoin d’une échéance.',
+
   'recovery.title': 'Clé de récupération',
   'recovery.intro':
     'Tes données sont chiffrées avec ton mot de passe. Cette phrase est le seul autre moyen de les rouvrir.',
@@ -288,6 +357,75 @@ const en: Record<MessageKey, string> = {
   'error.AVATAR_SOURCE_TOO_LARGE': 'Image too large: 12 MB maximum.',
   'error.AVATAR_DECODE_FAILED': 'That image could not be read.',
   'error.ACCENT_INVALID': 'Colour not offered by the palette.',
+
+  'nav.board': 'Board',
+  'nav.calendar': 'Calendar',
+  'nav.goals': 'Objectives',
+  'nav.stats': 'Telemetry',
+
+  'kanban.empty': 'Nothing here',
+  'kanban.hint': 'Drag a card to change its column. Double-click to open.',
+
+  'calendar.today': 'Today',
+  'calendar.previous': 'Previous month',
+  'calendar.next': 'Next month',
+
+  'recurrence.label': 'Recurrence',
+  'recurrence.none': 'None',
+  'recurrence.DAILY': 'Daily',
+  'recurrence.WEEKLY': 'Weekly',
+  'recurrence.MONTHLY': 'Monthly',
+  'recurrence.every': 'Every',
+  'recurrence.unit.DAILY': 'days',
+  'recurrence.unit.WEEKLY': 'weeks',
+  'recurrence.unit.MONTHLY': 'months',
+  'recurrence.weekdays': 'Days of the week',
+  'recurrence.hint':
+    'The next occurrence is created when you complete this one. A due date is required.',
+
+  'weekday.0': 'Sun',
+  'weekday.1': 'Mon',
+  'weekday.2': 'Tue',
+  'weekday.3': 'Wed',
+  'weekday.4': 'Thu',
+  'weekday.5': 'Fri',
+  'weekday.6': 'Sat',
+
+  'goal.new': 'New objective',
+  'goal.title': 'Objective title',
+  'goal.target': 'Target',
+  'goal.targetHint': 'The number to reach: 20 operations, 12 books…',
+  'goal.increment': 'Advance by one',
+  'goal.decrement': 'Step back by one',
+  'goal.abandon': 'Abandon',
+  'goal.emptyTitle': 'No objectives',
+  'goal.emptyHint': 'An objective is a numeric target whose progress computes itself.',
+
+  'goalStatus.ACTIVE': 'In progress',
+  'goalStatus.COMPLETED': 'Reached',
+  'goalStatus.ABANDONED': 'Abandoned',
+
+  'stats.activity': 'Daily activity',
+  'stats.created': 'Created',
+  'stats.completed': 'Completed',
+  'stats.byPriority': 'Breakdown by priority',
+  'stats.byProject': 'Mission progress',
+  'stats.timeCompleted': 'Estimated time completed:',
+  'stats.range': 'Range',
+  'stats.days': 'days',
+  'stats.day': 'Day',
+  'stats.showTable': 'Show table',
+  'stats.showChart': 'Show chart',
+
+  'settings.notifications': 'Local notifications',
+  'settings.notificationsHint':
+    'Reminders for upcoming deadlines and overdue work. No server, nothing sent.',
+
+  'error.GOAL_NOT_FOUND': 'Objective not found.',
+  'error.TARGET_INVALID': 'The target must be a positive number.',
+  'error.CURRENT_INVALID': 'The value cannot be negative.',
+  'error.INTERVAL_INVALID': 'The interval must be at least 1.',
+  'error.RECURRENCE_NEEDS_DUE_DATE': 'A recurring task needs a due date.',
 
   'recovery.title': 'Recovery key',
   'recovery.intro':

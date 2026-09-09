@@ -96,3 +96,12 @@ les tags, ni les sous-tâches, ni les résultats de recherche d'un autre.
 l'identité visible, un coffre `vaults/<userId>.mcv` chiffré en AES-256-GCM par
 compte. Clé enveloppe, phrase de récupération, scellement DPAPI optionnel.
 Vérifié : le fichier ne contient aucun texte des tâches, ni même l'en-tête SQLite.
+
+**Phase 4 — Productivity.** Kanban avec glisser-déposer accessible au clavier,
+calendrier mensuel, tâches récurrentes (quotidienne, hebdomadaire avec jours
+choisis, mensuelle, intervalle personnalisé), objectifs chiffrés, page de
+télémétrie et notifications locales. 30 tests supplémentaires.
+
+Les couleurs de graphique sont des jetons DISTINCTS des couleurs sémantiques et
+ont été validées (bande de luminosité, écart CVD, contraste) contre chaque
+surface, en mode clair comme en mode sombre — pas choisies à l'œil.

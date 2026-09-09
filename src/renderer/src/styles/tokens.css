@@ -34,6 +34,16 @@
   --mc-accent: var(--mc-blue);
   --mc-on-accent: #ffffff;
 
+  /* --- Jetons de GRAPHIQUE ---------------------------------------------
+     Distincts des couleurs semantiques : une teinte lisible en texte ne l'est
+     pas forcement en aplat sur la surface d'un graphique. Ces valeurs sont
+     VALIDEES (bande de luminosite, ecart CVD, contraste) contre la surface
+     --mc-hull, et non choisies a l'oeil. Le vert de graphique differe donc du
+     vert de statut : meme rampe, pas le meme cran. */
+  --mc-chart-1: #3d7bff; /* creees */
+  --mc-chart-2: #12a87a; /* terminees */
+  --mc-chart-grid: #2a3552;
+
   /* --- Semantique : priorites --- */
   --mc-priority-low: var(--mc-text-muted);
   --mc-priority-medium: var(--mc-cyan);
@@ -110,4 +120,10 @@
 
   --mc-shadow-card: 0 1px 2px rgb(15 21 36 / 0.06), 0 4px 12px rgb(15 21 36 / 0.06);
   --mc-shadow-modal: 0 8px 40px rgb(15 21 36 / 0.18);
+
+  /* Crans valides contre une surface claire, pas un simple eclaircissement
+     des valeurs sombres : le mode clair se choisit, il ne se deduit pas. */
+  --mc-chart-1: #1f5fe0;
+  --mc-chart-2: #0f8f66;
+  --mc-chart-grid: #dde3ee;
 }

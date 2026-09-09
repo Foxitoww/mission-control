@@ -1,0 +1,116 @@
+/* Calendrier mensuel — six semaines fixes, du lundi au dimanche. */
+
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+}
+
+.calendar__weekdays,
+.calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+
+.calendar__weekdays span {
+  padding: var(--mc-space-1) var(--mc-space-2);
+  text-align: center;
+}
+
+.calendar__day {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+  min-height: 104px;
+  padding: var(--mc-space-2);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+}
+
+/* Les jours des mois voisins restent visibles mais s'effacent : la grille garde
+   sa forme rectangulaire sans que ces jours n'attirent l'œil. */
+.calendar__day--outside {
+  background: var(--mc-void);
+  opacity: 0.45;
+}
+
+.calendar__day--today {
+  border-color: var(--mc-accent);
+  box-shadow: inset 0 2px 0 var(--mc-accent);
+}
+
+.calendar__number {
+  color: var(--mc-text-muted);
+  font-size: 0.6875rem;
+}
+
+.calendar__day--today .calendar__number {
+  color: var(--mc-accent);
+  font-weight: 700;
+}
+
+.calendar__tasks {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+  min-width: 0;
+}
+
+.calendar__task {
+  display: block;
+  width: 100%;
+  padding: 2px 6px;
+  background: var(--mc-hull-raised);
+  border: none;
+  border-left: 2px solid var(--mc-priority-low);
+  border-radius: 3px;
+  color: var(--mc-text-secondary);
+  font-size: 0.6875rem;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.calendar__task:hover {
+  color: var(--mc-text);
+}
+
+.calendar__task--medium {
+  border-left-color: var(--mc-priority-medium);
+}
+.calendar__task--high {
+  border-left-color: var(--mc-priority-high);
+}
+.calendar__task--critical {
+  border-left-color: var(--mc-priority-critical);
+}
+
+.calendar__task--done {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.calendar__more {
+  padding-left: 6px;
+  color: var(--mc-text-muted);
+  font-size: 0.625rem;
+}
+
+/* Sous 760 px, la grille défile horizontalement : sept colonnes de 40 px
+   seraient illisibles. */
+@media (max-width: 760px) {
+  .calendar {
+    overflow-x: auto;
+  }
+
+  .calendar__weekdays,
+  .calendar__grid {
+    min-width: 660px;
+  }
+}

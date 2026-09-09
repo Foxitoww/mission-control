@@ -1,0 +1,192 @@
+/* Graphiques — marques fines, grille en retrait, texte en jetons de texte.
+   Le texte ne porte JAMAIS la couleur d'une série : c'est la pastille à côté
+   qui porte l'identité. */
+
+.chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-4);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+}
+
+.chart__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-3);
+}
+
+.chart__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+  font-size: 0.75rem;
+  color: var(--mc-text-secondary);
+}
+
+.chart__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.chart__swatch {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.chart__toggle {
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--mc-accent);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.chart__toggle:hover {
+  text-decoration: underline;
+}
+
+.chart__plot {
+  position: relative;
+}
+
+.chart__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Grille et axes : présents, jamais dominants. */
+.chart__grid {
+  stroke: var(--mc-chart-grid);
+  stroke-width: 1;
+  stroke-dasharray: 2 4;
+}
+
+.chart__baseline {
+  stroke: var(--mc-grid-strong);
+  stroke-width: 1;
+}
+
+.chart__axis {
+  fill: var(--mc-text-muted);
+  font-family: var(--mc-font-mono);
+  font-size: 9px;
+}
+
+.chart__hit {
+  fill: transparent;
+  cursor: crosshair;
+}
+
+.chart__hit--on {
+  fill: color-mix(in srgb, var(--mc-accent) 8%, transparent);
+}
+
+.chart__tooltip {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--mc-space-2) var(--mc-space-3);
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid-strong);
+  border-radius: var(--mc-radius-control);
+  box-shadow: var(--mc-shadow-card);
+  font-size: 0.75rem;
+  pointer-events: none;
+}
+
+.chart__tooltip span {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.chart__tooltip-date {
+  color: var(--mc-text-muted);
+  font-size: 0.6875rem;
+}
+
+/* --- Vue tabulaire -------------------------------------------------------- */
+.chart__table-wrap {
+  max-height: 260px;
+  overflow: auto;
+}
+
+.chart__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+
+.chart__table th,
+.chart__table td {
+  padding: var(--mc-space-1) var(--mc-space-2);
+  text-align: left;
+  border-bottom: 1px solid var(--mc-grid);
+}
+
+.chart__table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--mc-hull);
+  color: var(--mc-text-muted);
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.chart__table tbody th {
+  color: var(--mc-text-secondary);
+  font-weight: 400;
+}
+
+/* --- Barres horizontales par priorité ------------------------------------- */
+.priority-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.priority-bar {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--mc-space-3);
+  font-size: 0.8125rem;
+}
+
+/* Le nom de la priorité est écrit à côté de chaque barre : la couleur de
+   statut ne circule jamais seule (§24). */
+.priority-bar__label {
+  color: var(--mc-text-secondary);
+}
+
+.priority-bar__track {
+  height: 10px;
+  background: var(--mc-void);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.priority-bar__fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width var(--mc-duration-base) var(--mc-ease);
+}
+
+.priority-bar__value {
+  color: var(--mc-text-muted);
+}

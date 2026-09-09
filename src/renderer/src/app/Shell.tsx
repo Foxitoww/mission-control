@@ -16,7 +16,11 @@ import './shell.css'
 const NAV = [
   { to: '/', label: 'Dashboard', key: 'd', end: true },
   { to: '/operations', label: 'Operations', key: 'o', end: false },
+  { to: '/board', label: 'Board', key: 'b', end: false },
+  { to: '/calendar', label: 'Calendar', key: 'c', end: false },
   { to: '/missions', label: 'Missions', key: 'm', end: false },
+  { to: '/objectives', label: 'Objectives', key: 'g', end: false },
+  { to: '/telemetry', label: 'Telemetry', key: 's', end: false },
   { to: '/tags', label: 'Tags', key: 't', end: false }
 ] as const
 

@@ -1,0 +1,140 @@
+/* Tableau Kanban — quatre colonnes, glisser-déposer accessible au clavier. */
+
+.page--wide {
+  max-width: none;
+}
+
+.kanban {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(220px, 1fr));
+  gap: var(--mc-space-3);
+  align-items: start;
+}
+
+.kanban-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-3);
+  background: var(--mc-void);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  transition: border-color var(--mc-duration-instant) var(--mc-ease);
+}
+
+/* La colonne survolée s'éclaire : sans ce retour, on dépose à l'aveugle. */
+.kanban-column--over {
+  border-color: var(--mc-accent);
+  background: color-mix(in srgb, var(--mc-accent) 6%, var(--mc-void));
+}
+
+.kanban-column__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-bottom: var(--mc-space-2);
+  border-bottom: 1px solid var(--mc-grid);
+}
+
+/* Chaque colonne porte la couleur sémantique de son statut (design system). */
+.kanban-column__label--todo {
+  color: var(--mc-status-todo);
+}
+.kanban-column__label--in_progress {
+  color: var(--mc-status-progress);
+}
+.kanban-column__label--blocked {
+  color: var(--mc-status-blocked);
+}
+.kanban-column__label--completed {
+  color: var(--mc-status-completed);
+}
+
+.kanban-column__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  list-style: none;
+  padding: 0;
+  /* Hauteur minimale : une colonne vide doit rester une cible de dépôt visible. */
+  min-height: 72px;
+}
+
+.kanban-column__empty {
+  padding: var(--mc-space-4) var(--mc-space-2);
+  color: var(--mc-text-muted);
+  font-size: 0.75rem;
+  text-align: center;
+}
+
+.kanban-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-3) var(--mc-space-3) var(--mc-space-3) var(--mc-space-4);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  cursor: grab;
+  touch-action: none;
+}
+
+.kanban-card:hover {
+  border-color: var(--mc-grid-strong);
+}
+
+.kanban-card--dragging {
+  opacity: 0.35;
+}
+
+.kanban-card--overlay {
+  cursor: grabbing;
+  border-color: var(--mc-accent);
+  box-shadow: var(--mc-shadow-modal);
+}
+
+/* Barre de priorité sur le bord gauche de la carte. */
+.kanban-card__priority {
+  position: absolute;
+  left: 0;
+  top: var(--mc-space-3);
+  bottom: var(--mc-space-3);
+  width: 3px;
+  border-radius: 0 2px 2px 0;
+  background: var(--mc-priority-low);
+}
+.kanban-card__priority--medium {
+  background: var(--mc-priority-medium);
+}
+.kanban-card__priority--high {
+  background: var(--mc-priority-high);
+}
+.kanban-card__priority--critical {
+  background: var(--mc-priority-critical);
+}
+
+.kanban-card__title {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.kanban-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+  font-size: 0.6875rem;
+  color: var(--mc-text-muted);
+}
+
+/* Sous 1000 px, les colonnes défilent horizontalement plutôt que de se
+   comprimer jusqu'à l'illisible. */
+@media (max-width: 1000px) {
+  .kanban {
+    grid-auto-flow: column;
+    grid-auto-columns: 260px;
+    grid-template-columns: none;
+    overflow-x: auto;
+    padding-bottom: var(--mc-space-2);
+  }
+}

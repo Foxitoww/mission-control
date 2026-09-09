@@ -4,6 +4,7 @@ import { updateProfileInputSchema } from '@shared/schemas/profile.schema'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
+import { Checkbox } from '@renderer/components/Checkbox'
 import { Avatar } from '@renderer/components/Avatar'
 import { useI18n } from '@renderer/i18n'
 import { IpcError } from '@renderer/lib/ipc'
@@ -31,6 +32,7 @@ export function ProfileEditor({ onClose }: { onClose: () => void }): JSX.Element
   const [accentColor, setAccentColor] = useState(user?.accentColor ?? ACCENT_COLORS[0])
   const [theme, setTheme] = useState<Theme>(settings?.theme ?? 'dark')
   const [language, setLanguage] = useState<Language>(settings?.language ?? 'fr')
+  const [notifications, setNotifications] = useState(settings?.notificationsEnabled ?? true)
 
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({})
   const [formError, setFormError] = useState<string | null>(null)
@@ -82,8 +84,12 @@ export function ProfileEditor({ onClose }: { onClose: () => void }): JSX.Element
       await updateProfile(parsed.data)
       // Les préférences sont une table distincte : deux appels, mais l'ordre
       // compte peu — aucun des deux ne dépend du résultat de l'autre.
-      if (theme !== settings?.theme || language !== settings?.language) {
-        await updateSettings({ theme, language })
+      if (
+        theme !== settings?.theme ||
+        language !== settings?.language ||
+        notifications !== settings?.notificationsEnabled
+      ) {
+        await updateSettings({ theme, language, notificationsEnabled: notifications })
       }
       onClose()
     } catch (error) {
@@ -206,6 +212,16 @@ export function ProfileEditor({ onClose }: { onClose: () => void }): JSX.Element
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="profile-control">
+            <Checkbox
+              label={t('settings.notifications')}
+              hint={t('settings.notificationsHint')}
+              checked={notifications}
+              disabled={busy}
+              onChange={(event) => setNotifications(event.target.checked)}
+            />
           </div>
 
           <div className="profile-control">

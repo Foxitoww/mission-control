@@ -5,6 +5,10 @@ import { OperationsPage } from './pages/OperationsPage'
 import { MissionsPage } from './pages/MissionsPage'
 import { MissionDetailPage } from './pages/MissionDetailPage'
 import { TagsPage } from './pages/TagsPage'
+import { KanbanPage } from './pages/KanbanPage'
+import { CalendarPage } from './pages/CalendarPage'
+import { GoalsPage } from './pages/GoalsPage'
+import { StatsPage } from './pages/StatsPage'
 import { AuthScreen } from './features/auth/AuthScreen'
 import { RecoveryPhraseScreen } from './features/auth/RecoveryPhraseScreen'
 import { useAuth } from './features/auth/AuthProvider'
@@ -41,6 +45,10 @@ export function App(): JSX.Element {
           <Route path="operations" element={<OperationsPage />} />
           <Route path="missions" element={<MissionsPage />} />
           <Route path="missions/:id" element={<MissionDetailPage />} />
+          <Route path="board" element={<KanbanPage />} />
+          <Route path="calendar" element={<CalendarPage />} />
+          <Route path="objectives" element={<GoalsPage />} />
+          <Route path="telemetry" element={<StatsPage />} />
           <Route path="tags" element={<TagsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>

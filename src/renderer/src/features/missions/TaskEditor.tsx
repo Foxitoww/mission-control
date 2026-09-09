@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { TASK_STATUSES, TASK_PRIORITIES } from '@shared/types/domain'
 import type { TaskStatus, TaskPriority } from '@shared/types/domain'
 import type { TaskDetail } from '@shared/types/views'
+import { FREQUENCIES, type Frequency } from '@shared/schemas/recurrence.schema'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
@@ -20,6 +21,9 @@ import {
   useDeleteSubtask
 } from './queries'
 import './missions.css'
+
+/** Lundi d'abord : convention francaise, et non l'ordre 0-6 de getDay(). */
+const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0] as const
 
 interface TaskEditorProps {
   /** `null` = création. Un identifiant = édition. */
@@ -99,6 +103,12 @@ function EditorForm({
   const [subtaskTitle, setSubtaskTitle] = useState('')
   const [error, setError] = useState<string | null>(null)
 
+  // Une fréquence vide signifie « tâche ponctuelle ». On évite un booléen
+  // séparé : deux états pour une seule information finissent par diverger.
+  const [freq, setFreq] = useState<Frequency | ''>(task?.recurrence?.freq ?? '')
+  const [interval, setInterval] = useState(String(task?.recurrence?.interval ?? 1))
+  const [weekdays, setWeekdays] = useState<number[]>(task?.recurrence?.weekdays ?? [])
+
   const busy = createTask.isPending || updateTask.isPending
 
   function toggleTag(id: string): void {
@@ -119,7 +129,11 @@ function EditorForm({
       priority,
       dueDate: dateInputToIso(dueDate),
       estimatedMinutes: estimate === '' ? null : Number(estimate),
-      tagIds
+      tagIds,
+      recurrence:
+        freq === ''
+          ? null
+          : { freq, interval: Math.max(1, Number(interval) || 1), weekdays }
     }
 
     try {
@@ -272,6 +286,71 @@ function EditorForm({
             </div>
           </div>
         )}
+
+        <div className="editor__row">
+          <span className="mc-field__label">{t('recurrence.label')}</span>
+
+          <div className="filters__row">
+            <select
+              className="editor__select"
+              value={freq}
+              disabled={busy}
+              aria-label={t('recurrence.label')}
+              onChange={(event) => setFreq(event.target.value as Frequency | '')}
+            >
+              <option value="">{t('recurrence.none')}</option>
+              {FREQUENCIES.map((value) => (
+                <option key={value} value={value}>
+                  {t(`recurrence.${value}`)}
+                </option>
+              ))}
+            </select>
+
+            {freq !== '' && (
+              <label className="recurrence__interval">
+                {t('recurrence.every')}
+                <input
+                  className="mc-field__input"
+                  type="number"
+                  min={1}
+                  max={365}
+                  value={interval}
+                  disabled={busy}
+                  onChange={(event) => setInterval(event.target.value)}
+                />
+                {t(`recurrence.unit.${freq}`)}
+              </label>
+            )}
+          </div>
+
+          {/* Les jours ne s'affichent que pour la fréquence hebdomadaire :
+              proposer « lundi, mercredi » sur une récurrence mensuelle
+              inviterait à un réglage sans effet. */}
+          {freq === 'WEEKLY' && (
+            <div className="filters__group" role="group" aria-label={t('recurrence.weekdays')}>
+              {WEEKDAY_ORDER.map((day) => (
+                <button
+                  key={day}
+                  type="button"
+                  className="chip"
+                  aria-pressed={weekdays.includes(day)}
+                  disabled={busy}
+                  onClick={() =>
+                    setWeekdays((current) =>
+                      current.includes(day)
+                        ? current.filter((value) => value !== day)
+                        : [...current, day]
+                    )
+                  }
+                >
+                  {t(`weekday.${day}`)}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {freq !== '' && <span className="mc-field__hint">{t('recurrence.hint')}</span>}
+        </div>
 
         {/* Les sous-tâches ne sont éditables qu'après création : elles ont besoin
             d'un identifiant de tâche parente pour exister. */}
