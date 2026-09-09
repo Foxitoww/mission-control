@@ -18,6 +18,8 @@ interface AuthValue {
   status: Status
   user: PublicUser | null
   profiles: PublicUser[]
+  /** Distingue « pas encore chargés » de « aucun profil ». */
+  profilesLoaded: boolean
   refreshProfiles: () => Promise<void>
   signIn: (input: LoginInput) => Promise<void>
   signUp: (input: RegisterInput) => Promise<void>
@@ -31,9 +33,11 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   const [status, setStatus] = useState<Status>('checking')
   const [user, setUser] = useState<PublicUser | null>(null)
   const [profiles, setProfiles] = useState<PublicUser[]>([])
+  const [profilesLoaded, setProfilesLoaded] = useState(false)
 
   const refreshProfiles = useCallback(async () => {
     setProfiles(await unwrap(window.mc.auth.listUsers()))
+    setProfilesLoaded(true)
   }, [])
 
   // Au démarrage : la session vit en mémoire du processus main (voir
@@ -43,9 +47,12 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     void (async () => {
       try {
         const current = await unwrap(window.mc.auth.currentUser())
+        // Les profils sont chargés dans TOUS les cas : après une déconnexion,
+        // l'écran d'accès s'affiche immédiatement et doit déjà connaître la
+        // liste, sinon il croit qu'aucun compte n'existe.
+        await refreshProfiles()
         setUser(current)
         setStatus(current ? 'signed-in' : 'signed-out')
-        if (!current) await refreshProfiles()
       } catch {
         setStatus('signed-out')
       }
@@ -66,9 +73,11 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
 
   const signOut = useCallback(async () => {
     await unwrap(window.mc.auth.logout())
+    // Rafraîchir AVANT de basculer l'état : sinon l'écran d'accès se monte avec
+    // une liste vide et se croit au tout premier lancement.
+    await refreshProfiles()
     setUser(null)
     setStatus('signed-out')
-    await refreshProfiles()
   }, [refreshProfiles])
 
   const updateProfile = useCallback(async (input: UpdateProfileInput) => {
@@ -78,8 +87,18 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   }, [])
 
   const value = useMemo<AuthValue>(
-    () => ({ status, user, profiles, refreshProfiles, signIn, signUp, signOut, updateProfile }),
-    [status, user, profiles, refreshProfiles, signIn, signUp, signOut, updateProfile]
+    () => ({
+      status,
+      user,
+      profiles,
+      profilesLoaded,
+      refreshProfiles,
+      signIn,
+      signUp,
+      signOut,
+      updateProfile
+    }),
+    [status, user, profiles, profilesLoaded, refreshProfiles, signIn, signUp, signOut, updateProfile]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

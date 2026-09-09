@@ -22,7 +22,7 @@ function fieldFor(key: string): 'username' | 'displayName' | 'password' | null {
 export function AuthScreen(): JSX.Element {
   const { t, tError, language } = useI18n()
   const toggleLanguage = useToggleLanguage()
-  const { profiles, signIn, signUp } = useAuth()
+  const { profiles, profilesLoaded, signIn, signUp } = useAuth()
 
   const [mode, setMode] = useState<Mode>('profiles')
   const [username, setUsername] = useState('')
@@ -36,9 +36,15 @@ export function AuthScreen(): JSX.Element {
 
   // Premier lancement : aucun profil n'existe, la liste n'aurait rien à montrer.
   // On ouvre directement la création de compte plutôt qu'un écran vide.
+  //
+  // Le garde `profilesLoaded` est essentiel : sans lui, l'écran se monte avec une
+  // liste encore vide, bascule en création de compte, et n'en revient jamais —
+  // l'utilisateur ne retrouve plus son profil après une déconnexion.
   useEffect(() => {
-    if (profiles.length === 0) setMode((current) => (current === 'profiles' ? 'register' : current))
-  }, [profiles.length])
+    if (profilesLoaded && profiles.length === 0) {
+      setMode((current) => (current === 'profiles' ? 'register' : current))
+    }
+  }, [profilesLoaded, profiles.length])
 
   function resetErrors(): void {
     setFieldErrors({})

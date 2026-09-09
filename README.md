@@ -1,4 +1,5 @@
-# MISSION CONTROL
+| [Décisions (ADR)](docs/adr/) | Choix structurants et leurs raisons |
+| [Contribuer](CONTRIBUTING.md) | Politique de branches et procédure de release |# MISSION CONTROL
 
 Application de productivité **local-first**, inspirée des centres de contrôle spatial.
 
