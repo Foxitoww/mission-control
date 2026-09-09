@@ -14,7 +14,8 @@ import type {
   DashboardData,
   SearchResults,
   GoalSummary,
-  StatsData
+  StatsData,
+  TimelineData
 } from '@shared/types/views'
 import type { TaskFilter } from '@shared/schemas/task.schema'
 import { unwrap } from '@renderer/lib/ipc'
@@ -35,7 +36,8 @@ export const keys = {
   tags: ['tags'] as const,
   search: (query: string) => ['search', query] as const,
   goals: ['goals'] as const,
-  stats: (days: number) => ['stats', days] as const
+  stats: (days: number) => ['stats', days] as const,
+  timeline: ['timeline'] as const
 }
 
 /**
@@ -53,6 +55,7 @@ function invalidateMissions(client: QueryClient, taskId?: string): void {
   void client.invalidateQueries({ queryKey: keys.tags })
   void client.invalidateQueries({ queryKey: keys.goals })
   void client.invalidateQueries({ queryKey: ['stats'] })
+  void client.invalidateQueries({ queryKey: keys.timeline })
   if (taskId) void client.invalidateQueries({ queryKey: keys.task(taskId) })
 }
 
@@ -209,3 +212,7 @@ export const useAdvanceGoal = () =>
 
 export const useDeleteGoal = () =>
   useMissionMutation((api, input: { id: string }) => unwrap(api.goals.remove(input)))
+
+export function useTimeline(): UseQueryResult<TimelineData> {
+  return useQuery({ queryKey: keys.timeline, queryFn: () => unwrap(window.mc.timeline.load()) })
+}

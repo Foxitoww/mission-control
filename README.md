@@ -79,5 +79,5 @@ phrase de récupération — voir [ADR-007](docs/adr/ADR-007-encryption-at-rest.
 Kanban, calendrier, tâches récurrentes, objectifs et télémétrie. Interface polie : états d'erreur partout, frontière d'erreur React, notifications
 de confirmation, polices embarquées, lien d'évitement, micro-interactions
 neutralisées par `prefers-reduced-motion`. Export et import JSON avec validation stricte. Audits de sécurité et
-d'architecture automatisés en tests. **Non livré :** la vue Timeline (§10) et
-l'expérience mobile (§23) — voir la roadmap.
+d'architecture automatisés en tests. Vue chronologique des missions. **Non livré :** l'expérience mobile (§23) —
+l'application est une fenêtre de bureau, largeur minimale 560 px.

@@ -9,6 +9,7 @@ import { dashboardService } from '../services/dashboard.service'
 import { searchService } from '../services/search.service'
 import { goalsService } from '../services/goals.service'
 import { statsService } from '../services/stats.service'
+import { timelineService } from '../services/timeline.service'
 import type { Db } from '../db/connection'
 
 /** Lecture : le coffre déchiffré, jamais le fichier. */
@@ -66,6 +67,7 @@ export function registerMissionHandlers(): void {
   write(IpcChannel.GOALS_DELETE, (db, input) => goalsService.remove(db, input))
 
   read(IpcChannel.STATS_LOAD, (db, input) => statsService.load(db, input))
+  read(IpcChannel.TIMELINE_LOAD, (db) => timelineService.load(db))
 
   read(IpcChannel.SEARCH_RUN, (db, input) => searchService.run(db, input))
 }

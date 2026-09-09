@@ -125,6 +125,20 @@ const fr = {
   'toast.failed': 'L’action a échoué.',
 
   'nav.skip': 'Aller au contenu',
+  'nav.timeline': 'Chronologie',
+
+  'timeline.scope': 'Étendue',
+  'timeline.months': 'mois',
+  'timeline.all': 'Tout',
+  'timeline.mission': 'Mission',
+  'timeline.unassigned': 'Sans mission',
+  'timeline.offscreen': 'hors de la fenêtre',
+  'timeline.emptyTitle': 'Rien à situer dans le temps',
+  'timeline.emptyHint':
+    'Une mission apparaît ici dès qu’elle a une échéance, ou qu’une de ses opérations en a une.',
+  'timeline.hint':
+    'Un trait tireté signale une fin déduite des échéances, pas une date limite déclarée. Les losanges sont les échéances des opérations.',
+
   'nav.board': 'Tableau',
   'nav.calendar': 'Calendrier',
   'nav.goals': 'Objectifs',
@@ -418,6 +432,20 @@ const en: Record<MessageKey, string> = {
   'toast.failed': 'The action failed.',
 
   'nav.skip': 'Skip to content',
+  'nav.timeline': 'Timeline',
+
+  'timeline.scope': 'Range',
+  'timeline.months': 'months',
+  'timeline.all': 'All',
+  'timeline.mission': 'Mission',
+  'timeline.unassigned': 'No mission',
+  'timeline.offscreen': 'outside the window',
+  'timeline.emptyTitle': 'Nothing to place in time',
+  'timeline.emptyHint':
+    'A mission appears here as soon as it has a deadline, or one of its operations does.',
+  'timeline.hint':
+    'A dashed edge means the end was inferred from due dates, not declared. Diamonds are operation due dates.',
+
   'nav.board': 'Board',
   'nav.calendar': 'Calendar',
   'nav.goals': 'Objectives',

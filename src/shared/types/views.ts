@@ -1,4 +1,13 @@
-import type { Task, Project, Tag, Subtask, GoalStatus, TaskPriority } from './domain'
+import type {
+  Task,
+  Project,
+  Tag,
+  Subtask,
+  GoalStatus,
+  TaskPriority,
+  TaskStatus,
+  ProjectStatus
+} from './domain'
 import type { RecurrenceRule } from '../schemas/recurrence.schema'
 
 /**
@@ -107,4 +116,48 @@ export interface StatsData {
   streak: number
   /** Minutes estimées sur les opérations terminées de la période. */
   estimatedMinutesCompleted: number
+}
+
+/** Jalon posé sur une barre de mission : une échéance de tâche. */
+export interface TimelineMilestone {
+  id: string
+  title: string
+  dueDate: string
+  status: TaskStatus
+  priority: TaskPriority
+}
+
+/**
+ * Une mission sur l'axe du temps (§10).
+ *
+ * `start` et `end` sont DÉDUITS, jamais inventés :
+ *   · début — la première échéance de ses tâches, à défaut sa date de création ;
+ *   · fin   — sa date limite si elle en a une, sinon la dernière échéance.
+ *
+ * `end` vaut `null` quand rien ne permet de la situer. L'interface affiche
+ * alors un repère ponctuel et non une barre : une mission sans horizon n'a pas
+ * de durée, et lui en dessiner une serait un mensonge graphique.
+ */
+export interface TimelineEntry {
+  id: string
+  name: string
+  color: string
+  icon: string | null
+  status: ProjectStatus
+  start: string
+  end: string | null
+  /** Vrai quand `end` vient de la date limite déclarée, pas d'une déduction. */
+  hasDeadline: boolean
+  taskTotal: number
+  taskCompleted: number
+  progress: number
+  milestones: TimelineMilestone[]
+}
+
+export interface TimelineData {
+  entries: TimelineEntry[]
+  /** Opérations sans mission, mais datées : elles méritent aussi leur ligne. */
+  unassigned: TimelineMilestone[]
+  /** Bornes réelles des données, pour cadrer l'axe sans tronquer. */
+  range: { from: string; to: string } | null
 }

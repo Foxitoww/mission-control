@@ -1,0 +1,240 @@
+/* Vue temporelle des missions (§10).
+   Une colonne d'étiquettes fixe, une piste proportionnelle. Tout ce qui est
+   positionné dans la piste l'est en POURCENTAGE de la fenêtre temporelle, ce
+   qui rend le rendu indépendant de la largeur réelle. */
+
+.timeline {
+  --timeline-label: 200px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-hull);
+  overflow: hidden;
+}
+
+.timeline__row {
+  display: grid;
+  grid-template-columns: var(--timeline-label) minmax(0, 1fr);
+  align-items: center;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border-bottom: 1px solid var(--mc-grid);
+}
+
+.timeline__row:last-child {
+  border-bottom: none;
+}
+
+.timeline__row--axis {
+  background: var(--mc-void);
+  padding-top: var(--mc-space-1);
+  padding-bottom: var(--mc-space-1);
+}
+
+/* Les opérations sans mission vivent au-dessous d'un trait plus marqué : ce
+   n'est pas une mission de plus, c'est une catégorie différente. */
+.timeline__row--loose {
+  border-top: 1px solid var(--mc-grid-strong);
+}
+
+.timeline__label {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-width: 0;
+  font-size: 0.8125rem;
+  color: var(--mc-text-secondary);
+}
+
+.timeline__label--action {
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.timeline__label--action:hover .timeline__name {
+  color: var(--mc-text);
+}
+
+.timeline__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.timeline__track {
+  position: relative;
+  height: 26px;
+}
+
+/* --- Repères ---------------------------------------------------------------
+   La couche couvre exactement la piste : elle démarre après la colonne
+   d'étiquettes et s'arrête au padding droit, comme les barres. */
+.timeline__body {
+  position: relative;
+}
+
+.timeline__overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--timeline-label) + var(--mc-space-3) + var(--mc-space-3));
+  right: var(--mc-space-3);
+  pointer-events: none;
+}
+
+.timeline__gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--mc-grid);
+}
+
+/* Aujourd'hui : plein, en accent, au-dessus de la grille pointillée. */
+.timeline__today {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--mc-accent);
+  opacity: 0.7;
+}
+
+/* Posée dans l'axe, alignée sur la ligne : elle ne recouvre plus aucune barre.
+   Le fond opaque la garde lisible quand un libelle de mois passe dessous. */
+.timeline__today-label {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  margin-left: 4px;
+  padding: 0 4px;
+  background: var(--mc-void);
+  border-radius: 2px;
+  font-size: 0.5625rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mc-accent);
+  white-space: nowrap;
+}
+
+.timeline__tick {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  padding-left: 4px;
+  font-size: 0.625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+  white-space: nowrap;
+}
+
+/* --- Barres de mission ----------------------------------------------------- */
+.timeline__bar {
+  position: absolute;
+  top: 4px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--mc-void);
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+/* Sans date limite déclarée, la fin est déduite : le trait devient tireté pour
+   que l'utilisateur sache que l'horizon n'est pas une promesse. */
+.timeline__bar--open {
+  border-style: dashed;
+}
+
+/* Débordement : l'extrémité coupée est carrée et marquée, jamais arrondie —
+   un bord arrondi laisserait croire que la barre s'arrête vraiment là. */
+.timeline__bar--clip-start {
+  border-left: none;
+  border-radius: 0 4px 4px 0;
+  box-shadow: inset 3px 0 0 var(--mc-text-muted);
+}
+
+.timeline__bar--clip-end {
+  border-right: none;
+  border-radius: 4px 0 0 4px;
+  box-shadow: inset -3px 0 0 var(--mc-text-muted);
+}
+
+.timeline__bar--clip-start.timeline__bar--clip-end {
+  border-radius: 0;
+}
+
+.timeline__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  opacity: 0.28;
+  transition: width var(--mc-duration-base) var(--mc-ease);
+}
+
+.timeline__ratio {
+  position: relative;
+  padding: 0 6px;
+  font-size: 0.625rem;
+  color: var(--mc-text-secondary);
+  white-space: nowrap;
+}
+
+.timeline__offscreen {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.625rem;
+  color: var(--mc-text-muted);
+}
+
+/* --- Jalons ---------------------------------------------------------------- */
+.timeline__dot {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4px;
+  padding: 0;
+  transform: translateY(-50%) rotate(45deg);
+  background: var(--mc-priority-low);
+  border: 1px solid var(--mc-hull);
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+/* Losange plutôt que rond : un jalon se distingue au premier coup d'œil de la
+   barre qu'il ponctue, même en noir et blanc. */
+.timeline__dot--medium {
+  background: var(--mc-priority-medium);
+}
+.timeline__dot--high {
+  background: var(--mc-priority-high);
+}
+.timeline__dot--critical {
+  background: var(--mc-priority-critical);
+}
+
+.timeline__dot--done {
+  opacity: 0.4;
+}
+
+.timeline__dot:hover {
+  transform: translateY(-50%) rotate(45deg) scale(1.35);
+}
+
+/* Sous 900 px, la colonne d'étiquettes se réduit : la piste doit rester
+   majoritaire, c'est elle qui porte l'information. */
+@media (max-width: 900px) {
+  .timeline {
+    --timeline-label: 120px;
+  }
+}

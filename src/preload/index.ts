@@ -80,6 +80,9 @@ const api: MissionControlApi = {
   stats: {
     load: (input) => ipcRenderer.invoke(IpcChannel.STATS_LOAD, input ?? {})
   },
+  timeline: {
+    load: () => ipcRenderer.invoke(IpcChannel.TIMELINE_LOAD)
+  },
   backup: {
     export: () => ipcRenderer.invoke(IpcChannel.BACKUP_EXPORT),
     import: (options) => ipcRenderer.invoke(IpcChannel.BACKUP_IMPORT, options ?? {}),

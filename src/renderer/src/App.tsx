@@ -7,6 +7,7 @@ import { MissionDetailPage } from './pages/MissionDetailPage'
 import { TagsPage } from './pages/TagsPage'
 import { KanbanPage } from './pages/KanbanPage'
 import { CalendarPage } from './pages/CalendarPage'
+import { TimelinePage } from './pages/TimelinePage'
 import { GoalsPage } from './pages/GoalsPage'
 import { StatsPage } from './pages/StatsPage'
 import { AuthScreen } from './features/auth/AuthScreen'
@@ -47,6 +48,7 @@ export function App(): JSX.Element {
           <Route path="missions/:id" element={<MissionDetailPage />} />
           <Route path="board" element={<KanbanPage />} />
           <Route path="calendar" element={<CalendarPage />} />
+          <Route path="timeline" element={<TimelinePage />} />
           <Route path="objectives" element={<GoalsPage />} />
           <Route path="telemetry" element={<StatsPage />} />
           <Route path="tags" element={<TagsPage />} />

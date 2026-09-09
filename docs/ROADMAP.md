@@ -150,6 +150,27 @@ mort ou une abstraction à usage unique (§39) — supprimés.
 maintenant, avec 14 tests couvrant l'aller-retour, les conflits, et cinq formes
 de fichier invalide.
 
-*Reste non livré.* La vue **Timeline** du §10 (liste, Kanban, calendrier livrés)
-et l'expérience **mobile** du §23 — l'application est une fenêtre de bureau, sa
-largeur minimale est de 560 px.
+*Reste non livré.* L'expérience **mobile** du §23 — l'application est une
+fenêtre de bureau, sa largeur minimale est de 560 px.
+
+**Vue chronologique (§10).** La quatrième vue des tâches, livrée après la
+Phase 6. Elle situe les MISSIONS dans le temps, non les opérations une à une.
+
+Ce qui s'y décide :
+
+- Une mission n'a pas de date de début stockée — la question n'a pas de réponse
+  universelle. Elle est déduite de la première échéance de ses opérations, à
+  défaut de sa date de création. Stocker une quatrième source de vérité la
+  ferait diverger dès la première tâche déplacée.
+- La fin déclarée l'emporte sur la fin déduite, et un drapeau distingue les
+  deux : l'interface trace un trait plein pour une date limite promise, tireté
+  pour un horizon simplement observé.
+- Une mission sans aucune date n'a **pas** de barre. Lui en dessiner une serait
+  un mensonge graphique ; elle affiche « sans horizon ».
+- Une barre qui déborde la fenêtre est coupée à angle droit avec un repère, et
+  jamais comprimée : un bord arrondi laisserait croire qu'elle s'arrête là.
+- Les échéances d'opérations sont des losanges posés sur la barre — une forme,
+  pas seulement une couleur, pour rester lisibles en noir et blanc.
+
+15 tests couvrent la déduction des bornes, les jalons, la progression et
+l'isolation.

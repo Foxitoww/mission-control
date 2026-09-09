@@ -7,7 +7,8 @@ import type {
   DashboardData,
   SearchResults,
   GoalSummary,
-  StatsData
+  StatsData,
+  TimelineData
 } from './types/views'
 import type { UpdateStatus } from './types/update'
 import type {
@@ -115,6 +116,7 @@ export const IpcChannel = {
   GOALS_DELETE: 'goals:delete',
 
   STATS_LOAD: 'stats:load',
+  TIMELINE_LOAD: 'timeline:load',
 
   BACKUP_EXPORT: 'backup:export',
   BACKUP_IMPORT: 'backup:import',
@@ -210,6 +212,9 @@ export interface MissionControlApi {
   }
   stats: {
     load(input?: { days?: number }): Promise<IpcResult<StatsData>>
+  }
+  timeline: {
+    load(): Promise<IpcResult<TimelineData>>
   }
   backup: {
     /** Ouvre une boite d'enregistrement. `null` si l'utilisateur annule. */

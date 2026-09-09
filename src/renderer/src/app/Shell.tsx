@@ -18,6 +18,7 @@ const NAV = [
   { to: '/operations', label: 'Operations', key: 'o', end: false },
   { to: '/board', label: 'Board', key: 'b', end: false },
   { to: '/calendar', label: 'Calendar', key: 'c', end: false },
+  { to: '/timeline', label: 'Timeline', key: 'l', end: false },
   { to: '/missions', label: 'Missions', key: 'm', end: false },
   { to: '/objectives', label: 'Objectives', key: 'g', end: false },
   { to: '/telemetry', label: 'Telemetry', key: 's', end: false },
