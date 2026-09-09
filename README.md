@@ -1,5 +1,4 @@
-| [Décisions (ADR)](docs/adr/) | Choix structurants et leurs raisons |
-| [Contribuer](CONTRIBUTING.md) | Politique de branches et procédure de release |# MISSION CONTROL
+# MISSION CONTROL
 
 Application de productivité **local-first**, inspirée des centres de contrôle spatial.
 
@@ -66,6 +65,7 @@ sont en ajout seul — voir [DATA-MODEL.md](docs/DATA-MODEL.md).
 | [Agents](docs/AGENTS.md) | Rôles de revue et définition de « terminé » |
 | [Roadmap](docs/ROADMAP.md) | Phases, dépendances, journal d'exécution |
 | [Décisions (ADR)](docs/adr/) | Choix structurants et leurs raisons |
+| [Contribuer](CONTRIBUTING.md) | Politique de branches et procédure de release |
 
 ## État
 
