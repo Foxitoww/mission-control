@@ -1,4 +1,4 @@
-import { randomBytes, scryptSync, createCipheriv, createDecipheriv, timingSafeEqual } from 'node:crypto'
+import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from 'node:crypto'
 
 /**
  * Primitives de chiffrement du coffre (ADR-007).
@@ -119,9 +119,4 @@ export function normalizeRecoveryPhrase(input: string): string {
     .replace(/O/g, '0')
     .replace(/[IL]/g, '1')
     .replace(/U/g, 'V')
-}
-
-/** Comparaison à temps constant, pour tout ce qui ressemble à un secret. */
-export function secretsMatch(a: Buffer, b: Buffer): boolean {
-  return a.length === b.length && timingSafeEqual(a, b)
 }

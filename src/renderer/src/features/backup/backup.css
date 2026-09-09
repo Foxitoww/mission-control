@@ -1,0 +1,16 @@
+/* Section de sauvegarde. */
+
+.backup__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-3);
+}
+
+/* L'avertissement reste affiché en permanence : le fichier produit est en
+   clair, et ce n'est pas une information à ne donner qu'une fois. */
+.backup__warning {
+  border-left-color: var(--mc-amber);
+  border-color: var(--mc-amber);
+  background: color-mix(in srgb, var(--mc-amber) 8%, transparent);
+}

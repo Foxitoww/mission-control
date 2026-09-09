@@ -95,6 +95,24 @@ const fr = {
   'error.AVATAR_DECODE_FAILED': "Impossible de lire cette image.",
   'error.ACCENT_INVALID': 'Couleur non proposée par la palette.',
 
+  'backup.section': 'Sauvegarde',
+  'backup.warning':
+    'Le fichier exporté n’est PAS chiffré. Range-le comme tu rangerais tes notes : quiconque l’ouvre lit tout.',
+  'backup.export': 'Exporter les données',
+  'backup.exportHint': 'Un fichier JSON lisible, réimportable ici ou ailleurs.',
+  'backup.exported': 'Sauvegarde écrite. Opérations :',
+  'backup.import': 'Importer une sauvegarde',
+  'backup.imported': 'Restauré :',
+  'backup.skipped': 'ignorés :',
+  'backup.mode': 'Mode d’import',
+  'backup.merge': 'Fusionner',
+  'backup.replace': 'Remplacer',
+  'backup.mergeHint': 'Ajoute ce qui manque. Rien n’est écrasé ni supprimé.',
+  'backup.replaceHint':
+    'EFFACE d’abord toutes tes données actuelles, puis restaure le fichier. Irréversible.',
+
+  'error.BACKUP_UNREADABLE': 'Ce fichier n’est pas une sauvegarde valide.',
+
   'state.errorTitle': 'Impossible de charger ces données',
   'state.errorHint': 'Le coffre est peut-être fermé. Réessaie, ou reconnecte-toi.',
   'state.emptyTitle': 'Rien à afficher',
@@ -369,6 +387,24 @@ const en: Record<MessageKey, string> = {
   'error.AVATAR_SOURCE_TOO_LARGE': 'Image too large: 12 MB maximum.',
   'error.AVATAR_DECODE_FAILED': 'That image could not be read.',
   'error.ACCENT_INVALID': 'Colour not offered by the palette.',
+
+  'backup.section': 'Backup',
+  'backup.warning':
+    'The exported file is NOT encrypted. Store it as you would store your notes: anyone who opens it reads everything.',
+  'backup.export': 'Export data',
+  'backup.exportHint': 'A readable JSON file, re-importable here or elsewhere.',
+  'backup.exported': 'Backup written. Operations:',
+  'backup.import': 'Import a backup',
+  'backup.imported': 'Restored:',
+  'backup.skipped': 'skipped:',
+  'backup.mode': 'Import mode',
+  'backup.merge': 'Merge',
+  'backup.replace': 'Replace',
+  'backup.mergeHint': 'Adds what is missing. Nothing is overwritten or deleted.',
+  'backup.replaceHint':
+    'ERASES all your current data first, then restores the file. Irreversible.',
+
+  'error.BACKUP_UNREADABLE': 'That file is not a valid backup.',
 
   'state.errorTitle': 'Could not load this data',
   'state.errorHint': 'The vault may be closed. Try again, or sign in once more.',

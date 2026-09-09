@@ -38,6 +38,11 @@ import type {
   UpdateGoalInput,
   AdvanceGoalInput
 } from './schemas/goal.schema'
+import type {
+  ExportReport,
+  ImportReport,
+  ImportMode
+} from './schemas/backup.schema'
 
 /**
  * Résultat d'une inscription.
@@ -110,6 +115,10 @@ export const IpcChannel = {
   GOALS_DELETE: 'goals:delete',
 
   STATS_LOAD: 'stats:load',
+
+  BACKUP_EXPORT: 'backup:export',
+  BACKUP_IMPORT: 'backup:import',
+  BACKUP_PREVIEW: 'backup:preview',
 
   SEARCH_RUN: 'search:run'
 } as const
@@ -201,6 +210,14 @@ export interface MissionControlApi {
   }
   stats: {
     load(input?: { days?: number }): Promise<IpcResult<StatsData>>
+  }
+  backup: {
+    /** Ouvre une boite d'enregistrement. `null` si l'utilisateur annule. */
+    export(): Promise<IpcResult<ExportReport | null>>
+    /** Ouvre une boite d'ouverture. `null` si l'utilisateur annule. */
+    import(options?: { mode?: ImportMode }): Promise<IpcResult<ImportReport | null>>
+    /** Compte ce qui serait exporte, sans ecrire de fichier. */
+    preview(): Promise<IpcResult<{ tasks: number; projects: number }>>
   }
   search: {
     run(input: { query: string }): Promise<IpcResult<SearchResults>>

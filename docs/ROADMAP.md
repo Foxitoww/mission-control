@@ -127,3 +127,29 @@ projets. Remplacées par un agrégat groupé joint une fois — **80,8 ms → 1,
 Un fichier `performance.test.ts` verrouille le résultat : plans de requête
 (déterministes) et bornes de durée larges (dix fois la mesure), pour attraper un
 retour au motif quadratique sans être sensible à la machine.
+
+**Phase 6 — Quality.** Audits, corrections issues des audits, et comblement du
+dernier manque du cahier des charges.
+
+*Audit sécurité.* Un test structurel (`sql-audit.test.ts`) lit les sources et
+vérifie que toute requête sur une table possédée porte un filtre `user_id`. Il a
+trouvé **deux vrais défauts**, corrigés :
+
+1. `tagsByTask` joignait `tags` sans filtre utilisateur. La requête était sûre
+   *par son contexte d'appel* — elle ne l'est plus par accident : le filtre y
+   est désormais écrit, redondant et explicite.
+2. Dans `tasksRepo.list`, le filtre `user_id` était enfoui dans `buildFilter`.
+   Toujours présent, mais absent du texte SQL, donc invérifiable par relecture.
+   Il est remonté dans la requête. **Une garantie qu'on ne peut pas voir est une
+   garantie qu'on finira par retirer sans s'en apercevoir.**
+
+*Audit architecture.* `secretsMatch` et la variable `conflict` étaient du code
+mort ou une abstraction à usage unique (§39) — supprimés.
+
+*Manque comblé.* Le **§18 (export / import)** n'était pas implémenté. Il l'est
+maintenant, avec 14 tests couvrant l'aller-retour, les conflits, et cinq formes
+de fichier invalide.
+
+*Reste non livré.* La vue **Timeline** du §10 (liste, Kanban, calendrier livrés)
+et l'expérience **mobile** du §23 — l'application est une fenêtre de bureau, sa
+largeur minimale est de 560 px.

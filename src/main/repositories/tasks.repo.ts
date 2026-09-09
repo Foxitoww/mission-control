@@ -70,20 +70,25 @@ function toItem(row: TaskRow, tags: Tag[]): TaskListItem {
  * La version naïve — une requête de tags par tâche — coûte 200 allers-retours
  * pour une liste de 200 tâches. Ici, c'en est un.
  */
-function tagsByTask(db: Db, taskIds: string[]): Map<string, Tag[]> {
+function tagsByTask(db: Db, userId: string, taskIds: string[]): Map<string, Tag[]> {
   const map = new Map<string, Tag[]>()
   if (taskIds.length === 0) return map
 
   const placeholders = taskIds.map(() => '?').join(', ')
   const rows = db
     .prepare(
+      // `g.user_id` est REDONDANT : les identifiants de tâches proviennent déjà
+      // d'une requête filtrée par utilisateur. Il est présent quand même, pour
+      // que la sûreté de CETTE requête ne dépende pas de son appelant. C'est
+      // exactement ce qu'a relevé l'audit structurel : une requête sûre par
+      // contexte cesse de l'être au premier appelant distrait.
       `SELECT tt.task_id, g.id, g.name, g.color
          FROM task_tags tt
          JOIN tags g ON g.id = tt.tag_id
-        WHERE tt.task_id IN (${placeholders})
+        WHERE g.user_id = ? AND tt.task_id IN (${placeholders})
         ORDER BY g.name`
     )
-    .all(...taskIds) as { task_id: string; id: string; name: string; color: string }[]
+    .all(userId, ...taskIds) as { task_id: string; id: string; name: string; color: string }[]
 
   for (const row of rows) {
     const list = map.get(row.task_id) ?? []
@@ -93,9 +98,10 @@ function tagsByTask(db: Db, taskIds: string[]): Map<string, Tag[]> {
   return map
 }
 
-function hydrate(db: Db, rows: TaskRow[]): TaskListItem[] {
+function hydrate(db: Db, userId: string, rows: TaskRow[]): TaskListItem[] {
   const tags = tagsByTask(
     db,
+    userId,
     rows.map((row) => row.id)
   )
   return rows.map((row) => toItem(row, tags.get(row.id) ?? []))
@@ -108,9 +114,14 @@ function hydrate(db: Db, rows: TaskRow[]): TaskListItem[] {
  * dans le SQL. Les seuls morceaux interpolés sont des séries de `?`, dont la
  * longueur vient de tableaux déjà validés par Zod.
  */
-function buildFilter(userId: string, filter: TaskFilter): { sql: string; params: unknown[] } {
-  const clauses = ['t.user_id = ?']
-  const params: unknown[] = [userId]
+function buildFilter(filter: TaskFilter): { sql: string; params: unknown[] } {
+  // Le filtre par utilisateur n'est PLUS ajouté ici : il est écrit en toutes
+  // lettres dans chaque requête appelante. Enfoui dans cette fonction, il était
+  // certes toujours présent, mais invisible dans le texte SQL — donc invérifiable
+  // par relecture comme par l'audit structurel. Une garantie qu'on ne peut pas
+  // voir est une garantie qu'on finira par retirer sans s'en apercevoir.
+  const clauses: string[] = []
+  const params: unknown[] = []
 
   if (!filter.includeArchived) clauses.push("t.status <> 'ARCHIVED'")
 
@@ -162,7 +173,9 @@ function buildFilter(userId: string, filter: TaskFilter): { sql: string; params:
     params.push(...filter.tagIds, filter.tagIds.length)
   }
 
-  return { sql: clauses.join(' AND '), params }
+  // `1 = 1` quand aucun filtre n'est actif : l'appelant peut alors toujours
+  // écrire « WHERE t.user_id = ? AND <filtre> » sans cas particulier.
+  return { sql: clauses.length > 0 ? clauses.join(' AND ') : '1 = 1', params }
 }
 
 const POSITION_STEP = 1000
@@ -211,7 +224,7 @@ export const tasksRepo = {
       .get(userId, id) as TaskRow | undefined
     if (!row) return null
 
-    const [item] = hydrate(db, [row])
+    const [item] = hydrate(db, userId, [row])
     if (!item) return null
 
     const subtasks = db
@@ -233,11 +246,11 @@ export const tasksRepo = {
   },
 
   list(db: Db, userId: string, filter: TaskFilter, limit = 500): TaskListItem[] {
-    const { sql, params } = buildFilter(userId, filter)
+    const { sql, params } = buildFilter(filter)
     const rows = db
-      .prepare(`${SELECT_TASK} WHERE ${sql} ORDER BY t.position ASC LIMIT ?`)
-      .all(...params, limit) as TaskRow[]
-    return hydrate(db, rows)
+      .prepare(`${SELECT_TASK} WHERE t.user_id = ? AND ${sql} ORDER BY t.position ASC LIMIT ?`)
+      .all(userId, ...params, limit) as TaskRow[]
+    return hydrate(db, userId, rows)
   },
 
   /** Requête libre pour le tableau de bord : clause et ordre fournis par le service. */
@@ -245,7 +258,7 @@ export const tasksRepo = {
     const rows = db
       .prepare(`${SELECT_TASK} WHERE t.user_id = ? AND ${where} ORDER BY ${order} LIMIT ?`)
       .all(userId, ...params, limit) as TaskRow[]
-    return hydrate(db, rows)
+    return hydrate(db, userId, rows)
   },
 
   update(db: Db, userId: string, id: string, fields: Partial<Record<string, unknown>>, now: string): boolean {

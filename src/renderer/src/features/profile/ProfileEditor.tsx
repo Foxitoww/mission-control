@@ -11,6 +11,7 @@ import { IpcError } from '@renderer/lib/ipc'
 import { useAuth } from '@renderer/features/auth/AuthProvider'
 import { useSettings } from '@renderer/features/settings/SettingsProvider'
 import { UpdateSection } from '@renderer/features/update/UpdateSection'
+import { BackupSection } from '@renderer/features/backup/BackupSection'
 import { fileToAvatarDataUri, AvatarImageError } from './avatar-image'
 import './profile.css'
 
@@ -242,6 +243,8 @@ export function ProfileEditor({ onClose }: { onClose: () => void }): JSX.Element
             </div>
           </div>
         </section>
+
+        <BackupSection />
 
         <UpdateSection />
 

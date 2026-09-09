@@ -104,3 +104,30 @@ L'écran de sélection de profil doit teinter chaque carte **avant** toute
 authentification, or `settings` n'est lisible qu'une fois la session ouverte. La
 couleur d'accent fait partie de l'identité visible du profil ; le thème
 clair/sombre, lui, est une préférence privée et reste dans `settings`.
+
+## Sauvegarde : le seul artefact non chiffré
+
+L'export (§18) produit un JSON **en clair**, et c'est délibéré. Une sauvegarde
+qu'on ne peut ouvrir qu'avec le mot de passe perdu ne sauvegarde rien — or
+ADR-007 rend la perte du mot de passe *et* de la phrase de récupération
+définitive. L'export est donc le filet de sécurité de l'utilisateur, et
+l'interface affiche l'avertissement en permanence, pas seulement au clic.
+
+Il contient l'identité **visible** (nom affiché, avatar, couleur) et toutes les
+données métier. Il ne contient **jamais** l'empreinte du mot de passe, une clé
+enveloppée, un sel ou la phrase de récupération : un fichier de sauvegarde ne
+doit ni permettre d'usurper un compte, ni d'ouvrir un coffre. Un test le vérifie
+en cherchant ces chaînes dans le document produit.
+
+L'import valide **tout** avant d'écrire quoi que ce soit, puis applique en une
+seule transaction. Deux modes :
+
+- **fusion** — ajoute ce qui manque ; toute ligne dont l'identifiant (ou, pour
+  une étiquette, le nom) existe déjà est ignorée et comptée. Fusionner deux
+  versions d'une même tâche demanderait un arbitrage que l'application ne peut
+  pas rendre à la place de l'utilisateur ;
+- **remplacement** — efface les données de l'utilisateur, puis restaure.
+
+L'invariant `COMPLETED ⟺ completed_at` est réappliqué à l'import : un fichier
+édité à la main pourrait le violer, et la contrainte `CHECK` ferait alors
+échouer la restauration entière pour une seule ligne.

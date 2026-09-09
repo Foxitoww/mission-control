@@ -2,6 +2,7 @@ import { registerAuthHandlers } from './auth.ipc'
 import { registerProfileHandlers } from './profile.ipc'
 import { registerSettingsHandlers } from './settings.ipc'
 import { registerUpdateHandlers } from './update.ipc'
+import { registerBackupHandlers } from './backup.ipc'
 import { registerMissionHandlers } from './missions.ipc'
 
 export function registerIpcHandlers(): void {
@@ -9,5 +10,6 @@ export function registerIpcHandlers(): void {
   registerProfileHandlers()
   registerSettingsHandlers()
   registerUpdateHandlers()
+  registerBackupHandlers()
   registerMissionHandlers()
 }
