@@ -1,0 +1,180 @@
+/* Coque applicative : navigation latérale fixe, contenu défilant. */
+
+.shell {
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  height: 100%;
+}
+
+/* --- Navigation ----------------------------------------------------------- */
+.shell__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+  padding: var(--mc-space-4);
+  background: var(--mc-void);
+  border-right: 1px solid var(--mc-grid);
+}
+
+.shell__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-2);
+}
+
+/* Marque géométrique : un anneau orbital, repris de l'icône de l'application. */
+.shell__brand-mark {
+  width: 18px;
+  height: 18px;
+  border: 3px solid var(--mc-accent);
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.shell__brand-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.shell__nav-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+}
+
+.shell__nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: background var(--mc-duration-instant) var(--mc-ease);
+}
+
+.shell__nav-item:hover {
+  background: var(--mc-hull);
+  color: var(--mc-text);
+}
+
+/* L'onglet actif porte une barre d'accent en plus de la couleur : la couleur
+   seule ne suffit jamais à signaler un état (§24). */
+.shell__nav-item--active {
+  background: var(--mc-hull);
+  color: var(--mc-text);
+  font-weight: 600;
+  box-shadow: inset 2px 0 0 var(--mc-accent);
+}
+
+.shell__key {
+  padding: 1px 5px;
+  border: 1px solid var(--mc-grid);
+  border-radius: 3px;
+  background: var(--mc-abyss);
+  color: var(--mc-text-muted);
+  font-family: var(--mc-font-mono);
+  font-size: 0.625rem;
+}
+
+.shell__key--on-accent {
+  background: rgb(255 255 255 / 0.16);
+  border-color: transparent;
+  color: var(--mc-on-accent);
+}
+
+.shell__nav-footer {
+  margin-top: auto;
+}
+
+.shell__search {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--mc-space-2) var(--mc-space-3);
+  background: var(--mc-abyss);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text-muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.shell__search:hover {
+  border-color: var(--mc-grid-strong);
+  color: var(--mc-text);
+}
+
+/* --- Zone principale ------------------------------------------------------ */
+.shell__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.shell__header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--mc-space-4);
+  padding: var(--mc-space-3) var(--mc-space-6);
+  background: var(--mc-hull);
+  border-bottom: 1px solid var(--mc-grid);
+}
+
+.shell__content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--mc-space-8) var(--mc-space-6);
+}
+
+/* --- Démarrage ------------------------------------------------------------ */
+.booting {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  height: 100%;
+}
+
+.booting__status {
+  color: var(--mc-cyan);
+}
+
+/* --- Écran étroit ---------------------------------------------------------
+   Sous 860 px, la navigation passe en barre horizontale au-dessus du contenu :
+   une colonne de 232 px consommerait un quart de la largeur utile. */
+@media (max-width: 860px) {
+  .shell {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+
+  .shell__nav {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--mc-space-4);
+    border-right: none;
+    border-bottom: 1px solid var(--mc-grid);
+    overflow-x: auto;
+  }
+
+  .shell__nav-list {
+    flex-direction: row;
+  }
+
+  .shell__key,
+  .shell__brand-text,
+  .shell__nav-footer {
+    display: none;
+  }
+}

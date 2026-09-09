@@ -1,0 +1,433 @@
+/* Listes d'opérations, cartes de mission, panneaux. */
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  list-style: none;
+  padding: 0;
+}
+
+.task-row {
+  display: flex;
+  align-items: stretch;
+  gap: var(--mc-space-3);
+  padding: 0 var(--mc-space-3);
+  background: var(--mc-hull);
+  border: 1px solid transparent;
+  border-radius: var(--mc-radius-control);
+  transition:
+    background var(--mc-duration-instant) var(--mc-ease),
+    border-color var(--mc-duration-instant) var(--mc-ease);
+}
+
+.task-row:hover {
+  background: var(--mc-hull-raised);
+  border-color: var(--mc-grid);
+}
+
+/* Terminée : estompée mais toujours lisible. Barrer le titre en plus de la
+   griser rendrait la ligne pénible à relire quand on veut la rouvrir. */
+.task-row--done {
+  opacity: 0.55;
+}
+
+.task-row--done .task-row__title {
+  text-decoration: line-through;
+  text-decoration-color: var(--mc-text-muted);
+}
+
+.task-row__check {
+  flex-shrink: 0;
+  align-self: center;
+  width: 17px;
+  height: 17px;
+  accent-color: var(--mc-accent);
+  cursor: pointer;
+}
+
+.task-row__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-4);
+  flex: 1;
+  min-width: 0;
+  padding: var(--mc-space-3) 0;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.task-row__main {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  min-width: 0;
+}
+
+/* Barre de priorité : 3 px suffisent à créer une colonne lisible sans que la
+   couleur ne domine la ligne (§20 — le rouge reste un accent). */
+.task-row__priority {
+  flex-shrink: 0;
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--mc-priority-low);
+}
+.task-row__priority--medium {
+  background: var(--mc-priority-medium);
+}
+.task-row__priority--high {
+  background: var(--mc-priority-high);
+}
+.task-row__priority--critical {
+  background: var(--mc-priority-critical);
+}
+
+.task-row__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.task-row__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  flex-shrink: 0;
+  font-size: 0.75rem;
+  color: var(--mc-text-muted);
+}
+
+.task-row__code {
+  font-size: 0.6875rem;
+  color: var(--mc-text-muted);
+}
+
+.task-row__project {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-1);
+  color: var(--mc-text-secondary);
+}
+
+.task-row__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.task-row__tag {
+  padding: 1px 7px;
+  border: 1px solid;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  color: var(--mc-text-secondary);
+}
+
+.task-row__due--today {
+  color: var(--mc-amber);
+}
+.task-row__due--overdue {
+  color: var(--mc-red);
+  font-weight: 600;
+}
+.task-row__due--soon {
+  color: var(--mc-cyan);
+}
+
+/* --- Sections et cartes --------------------------------------------------- */
+.panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mc-space-3);
+  padding-bottom: var(--mc-space-2);
+  border-bottom: 1px solid var(--mc-grid);
+}
+
+.panel__count {
+  color: var(--mc-text-muted);
+}
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-8);
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--mc-space-4);
+  flex-wrap: wrap;
+}
+
+.page__title {
+  font: var(--mc-text-display);
+  margin-top: var(--mc-space-1);
+}
+
+/* --- États : vide, chargement, erreur ------------------------------------- */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-12) var(--mc-space-4);
+  text-align: center;
+  color: var(--mc-text-muted);
+}
+
+.state__title {
+  color: var(--mc-text-secondary);
+  font-weight: 550;
+}
+
+.state--error {
+  color: var(--mc-red);
+}
+
+.skeleton {
+  height: 44px;
+  border-radius: var(--mc-radius-control);
+  background: linear-gradient(
+    90deg,
+    var(--mc-hull) 0%,
+    var(--mc-hull-raised) 50%,
+    var(--mc-hull) 100%
+  );
+  background-size: 200% 100%;
+  animation: mc-shimmer 1.4s linear infinite;
+}
+
+@keyframes mc-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* --- Statistiques du tableau de bord -------------------------------------- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--mc-space-3);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+  padding: var(--mc-space-4);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+}
+
+.stat__value {
+  font-family: var(--mc-font-mono);
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.stat__value--alert {
+  color: var(--mc-red);
+}
+
+.stat__value--nominal {
+  color: var(--mc-green);
+}
+
+/* --- Cartes de mission (projets) ------------------------------------------ */
+.mission-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--mc-space-3);
+}
+
+.mission-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-4);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-top: 2px solid var(--mc-accent);
+  border-radius: var(--mc-radius-card);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--mc-duration-instant) var(--mc-ease);
+}
+
+.mission-card:hover {
+  border-color: var(--mc-grid-strong);
+}
+
+.mission-card__name {
+  font-weight: 600;
+}
+
+.mission-card__desc {
+  font-size: 0.8125rem;
+  color: var(--mc-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mission-card__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-2);
+  margin-top: auto;
+  font-size: 0.75rem;
+  color: var(--mc-text-muted);
+}
+
+.progress {
+  height: 4px;
+  overflow: hidden;
+  background: var(--mc-void);
+  border-radius: 999px;
+}
+
+.progress__bar {
+  height: 100%;
+  background: var(--mc-accent);
+  transition: width var(--mc-duration-base) var(--mc-ease);
+}
+
+/* --- Éditeur d'opération -------------------------------------------------- */
+.editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-5, 20px);
+}
+
+.editor__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--mc-space-3);
+}
+
+.editor__row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.editor__select {
+  min-height: 40px;
+  padding: 0 var(--mc-space-2);
+  background: var(--mc-void);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+}
+
+.editor__select:focus {
+  outline: none;
+  border-color: var(--mc-accent);
+  box-shadow: var(--mc-glow-focus);
+}
+
+.editor__textarea {
+  min-height: 84px;
+  padding: var(--mc-space-2) var(--mc-space-3);
+  background: var(--mc-void);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+  resize: vertical;
+  font-family: inherit;
+}
+
+.editor__textarea:focus {
+  outline: none;
+  border-color: var(--mc-accent);
+  box-shadow: var(--mc-glow-focus);
+}
+
+.editor__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+}
+
+.tag-toggle {
+  padding: 3px 10px;
+  background: transparent;
+  border: 1px solid var(--mc-grid);
+  border-radius: 999px;
+  color: var(--mc-text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.tag-toggle[aria-pressed='true'] {
+  color: var(--mc-text);
+  font-weight: 550;
+}
+
+.subtasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  list-style: none;
+  padding: 0;
+}
+
+.subtask {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.subtask input[type='checkbox'] {
+  width: 15px;
+  height: 15px;
+  accent-color: var(--mc-accent);
+  cursor: pointer;
+}
+
+.subtask__title {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.875rem;
+}
+
+.subtask--done .subtask__title {
+  color: var(--mc-text-muted);
+  text-decoration: line-through;
+}
+
+.subtask__remove {
+  background: none;
+  border: none;
+  color: var(--mc-text-muted);
+  cursor: pointer;
+  padding: 0 var(--mc-space-1);
+}
+
+.subtask__remove:hover {
+  color: var(--mc-red);
+}
+
+.inline-add {
+  display: flex;
+  gap: var(--mc-space-2);
+}

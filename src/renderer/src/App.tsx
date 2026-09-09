@@ -1,35 +1,13 @@
-import { useAuth } from './features/auth/AuthProvider'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Shell } from './app/Shell'
+import { DashboardPage } from './pages/DashboardPage'
+import { OperationsPage } from './pages/OperationsPage'
+import { MissionsPage } from './pages/MissionsPage'
+import { MissionDetailPage } from './pages/MissionDetailPage'
+import { TagsPage } from './pages/TagsPage'
 import { AuthScreen } from './features/auth/AuthScreen'
-import { ProfileMenu } from './features/profile/ProfileMenu'
+import { useAuth } from './features/auth/AuthProvider'
 import { useI18n } from './i18n'
-
-/**
- * Sol provisoire de la Phase 2 : confirme que la session tient et que le profil
- * pilote bien l'apparence. Remplacé par le vrai tableau de bord en Phase 3.
- */
-function DashboardPlaceholder(): JSX.Element {
-  const { t } = useI18n()
-
-  return (
-    <div className="shell">
-      <header className="shell__header">
-        <div>
-          <span className="mc-label">Mission control</span>
-          <h1 className="shell__title">{t('app.name')}</h1>
-        </div>
-        <ProfileMenu />
-      </header>
-
-      <section className="shell__body">
-        <span className="mc-label">Phase 2 — foundation</span>
-        <p className="shell__note">
-          Base locale, migrations, authentification, session et profil opérationnels. Le tableau de
-          bord arrive en Phase 3.
-        </p>
-      </section>
-    </div>
-  )
-}
 
 /** Écran d'attente pendant l'interrogation de la session, côté main. */
 function Booting(): JSX.Element {
@@ -47,5 +25,22 @@ export function App(): JSX.Element {
 
   if (status === 'checking') return <Booting />
   if (status === 'signed-out') return <AuthScreen />
-  return <DashboardPlaceholder />
+
+  return (
+    // HashRouter et non BrowserRouter : l'application empaquetée est servie
+    // depuis file://, où un chemin comme /missions ne correspond à aucun
+    // fichier. Le fragment reste côté client et fonctionne partout.
+    <HashRouter>
+      <Routes>
+        <Route element={<Shell />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="operations" element={<OperationsPage />} />
+          <Route path="missions" element={<MissionsPage />} />
+          <Route path="missions/:id" element={<MissionDetailPage />} />
+          <Route path="tags" element={<TagsPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </HashRouter>
+  )
 }

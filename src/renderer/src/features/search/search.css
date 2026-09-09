@@ -1,0 +1,91 @@
+/* Palette de recherche globale, ouverte par « / ». */
+
+.palette-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: flex;
+  justify-content: center;
+  /* Ancrée haut plutôt que centrée : la liste s'allonge vers le bas sans que
+     le champ de saisie ne se déplace sous les doigts. */
+  padding: 12vh var(--mc-space-6) var(--mc-space-6);
+  background: rgb(4 7 14 / 0.62);
+  backdrop-filter: blur(2px);
+  animation: mc-fade var(--mc-duration-base) var(--mc-ease);
+}
+
+.palette {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 560px;
+  max-height: 70vh;
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-modal);
+  box-shadow: var(--mc-shadow-modal);
+  overflow: hidden;
+  animation: mc-rise var(--mc-duration-panel) var(--mc-ease);
+}
+
+.palette__input {
+  padding: var(--mc-space-4);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--mc-grid);
+  color: var(--mc-text);
+  font-size: 1rem;
+}
+
+.palette__input:focus {
+  outline: none;
+}
+
+.palette__results {
+  overflow-y: auto;
+  padding: var(--mc-space-2);
+}
+
+.palette__group {
+  display: block;
+  padding: var(--mc-space-2) var(--mc-space-3) var(--mc-space-1);
+}
+
+.palette__item {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  width: 100%;
+  padding: var(--mc-space-2) var(--mc-space-3);
+  background: none;
+  border: none;
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.palette__item:hover {
+  background: var(--mc-hull-raised);
+}
+
+.palette__item-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.875rem;
+}
+
+.palette__item-meta {
+  color: var(--mc-text-muted);
+  font-size: 0.6875rem;
+}
+
+.palette__hint {
+  padding: var(--mc-space-6);
+  text-align: center;
+  color: var(--mc-text-muted);
+  font-size: 0.8125rem;
+}

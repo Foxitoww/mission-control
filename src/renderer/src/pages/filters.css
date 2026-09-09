@@ -1,0 +1,81 @@
+/* Barre de filtres et pastilles de sélection. */
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-4);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+}
+
+.filters__search {
+  max-width: 420px;
+}
+
+.filters__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-3);
+}
+
+.filters__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-1);
+}
+
+/* Pastille de filtre : l'état sélectionné se lit à la bordure ET au poids du
+   texte, pas seulement à la couleur (§24). */
+.chip {
+  padding: 4px 10px;
+  background: transparent;
+  border: 1px solid var(--mc-grid);
+  border-radius: 999px;
+  color: var(--mc-text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition:
+    border-color var(--mc-duration-instant) var(--mc-ease),
+    color var(--mc-duration-instant) var(--mc-ease);
+}
+
+.chip:hover {
+  border-color: var(--mc-grid-strong);
+  color: var(--mc-text-secondary);
+}
+
+.chip[aria-pressed='true'] {
+  border-color: var(--mc-accent);
+  background: color-mix(in srgb, var(--mc-accent) 14%, transparent);
+  color: var(--mc-text);
+  font-weight: 600;
+}
+
+/* Les pastilles de priorité reprennent la sémantique de couleur du design
+   system quand elles sont actives — le rouge reste réservé à CRITICAL. */
+.chip--high[aria-pressed='true'] {
+  border-color: var(--mc-priority-high);
+  background: color-mix(in srgb, var(--mc-priority-high) 14%, transparent);
+}
+
+.chip--critical[aria-pressed='true'] {
+  border-color: var(--mc-priority-critical);
+  background: color-mix(in srgb, var(--mc-priority-critical) 14%, transparent);
+}
+
+.filters__reset {
+  margin-left: auto;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--mc-accent);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.filters__reset:hover {
+  text-decoration: underline;
+}
