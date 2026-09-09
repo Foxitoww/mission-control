@@ -1,15 +1,18 @@
 import { useState, type FormEvent } from 'react'
 import { ACCENT_COLORS } from '@shared/types/domain'
 import { Button } from '@renderer/components/Button'
+import { QueryState } from '@renderer/components/QueryState'
 import { useTags, useCreateTag, useDeleteTag } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
+import { useToast } from '@renderer/components/Toast'
 import { IpcError } from '@renderer/lib/ipc'
 import '@renderer/features/missions/missions.css'
 import './filters.css'
 
 export function TagsPage(): JSX.Element {
   const { t, tError } = useI18n()
-  const { data: tags = [], isPending } = useTags()
+  const toast = useToast()
+  const { data: tags = [], isPending, isError, refetch } = useTags()
   const createTag = useCreateTag()
   const deleteTag = useDeleteTag()
 
@@ -52,6 +55,7 @@ export function TagsPage(): JSX.Element {
             value={name}
             maxLength={32}
             placeholder={t('tag.newPlaceholder')}
+            aria-label={t('tag.newPlaceholder')}
             onChange={(event) => setName(event.target.value)}
           />
 
@@ -75,14 +79,14 @@ export function TagsPage(): JSX.Element {
         </div>
       </form>
 
-      {isPending ? (
-        <div className="skeleton" style={{ height: 120 }} />
-      ) : tags.length === 0 ? (
-        <div className="state">
-          <span className="state__title">{t('tag.emptyTitle')}</span>
-          <span>{t('tag.emptyHint')}</span>
-        </div>
-      ) : (
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        isEmpty={tags.length === 0}
+        retry={() => void refetch()}
+        emptyTitle={t('tag.emptyTitle')}
+        emptyHint={t('tag.emptyHint')}
+      >
         <ul className="task-list">
           {tags.map((tag) => (
             <li key={tag.id} className="task-row">
@@ -106,7 +110,15 @@ export function TagsPage(): JSX.Element {
                     type="button"
                     className="subtask__remove"
                     aria-label={`${t('common.delete')} ${tag.name}`}
-                    onClick={() => deleteTag.mutate({ id: tag.id })}
+                    onClick={() =>
+                      deleteTag.mutate(
+                        { id: tag.id },
+                        {
+                          onSuccess: () => toast.success(t('toast.tagDeleted')),
+                          onError: () => toast.error(t('toast.failed'))
+                        }
+                      )
+                    }
                   >
                     ×
                   </button>
@@ -115,7 +127,7 @@ export function TagsPage(): JSX.Element {
             </li>
           ))}
         </ul>
-      )}
+      </QueryState>
     </div>
   )
 }

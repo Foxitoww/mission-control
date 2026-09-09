@@ -18,6 +18,7 @@ import type { TaskListItem } from '@shared/types/views'
 import type { TaskFilter } from '@shared/schemas/task.schema'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { Button } from '@renderer/components/Button'
+import { QueryState } from '@renderer/components/QueryState'
 import { useTasks, useMoveTask } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
 import { formatDue } from '@renderer/lib/format'
@@ -115,7 +116,7 @@ function Column({
 
 export function KanbanPage(): JSX.Element {
   const { t } = useI18n()
-  const { data: tasks = [], isPending } = useTasks(FILTER)
+  const { data: tasks = [], isPending, isError, refetch } = useTasks(FILTER)
   const move = useMoveTask()
 
   const [openTask, setOpenTask] = useState<string | null>(null)
@@ -186,13 +187,13 @@ export function KanbanPage(): JSX.Element {
         <Button onClick={() => setComposing(true)}>{t('task.new')}</Button>
       </header>
 
-      {isPending ? (
-        <div className="kanban">
-          {COLUMNS.map((status) => (
-            <div key={status} className="skeleton" style={{ height: 240 }} />
-          ))}
-        </div>
-      ) : (
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        retry={() => void refetch()}
+        skeletonHeight={240}
+        skeletonCount={4}
+      >
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -220,7 +221,7 @@ export function KanbanPage(): JSX.Element {
             )}
           </DragOverlay>
         </DndContext>
-      )}
+      </QueryState>
 
       <p className="mc-field__hint">{t('kanban.hint')}</p>
 

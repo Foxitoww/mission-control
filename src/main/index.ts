@@ -40,8 +40,12 @@ function createWindow(): BrowserWindow {
   const window = new BrowserWindow({
     width: 1440,
     height: 900,
-    minWidth: 900,
-    minHeight: 600,
+    // 560 px, et non 900 : les mises en page etroites du design system
+    // (navigation horizontale, colonnes Kanban defilantes, calendrier
+    // scrollable) etaient inatteignables tant que la fenetre ne pouvait pas
+    // descendre. Cote a cote avec une autre application est un usage reel.
+    minWidth: 560,
+    minHeight: 480,
     show: false,
     // Couleur --mc-abyss : évite le flash blanc entre l'ouverture de la
     // fenêtre et le premier rendu React.

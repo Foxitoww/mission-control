@@ -4,6 +4,7 @@ import type { TaskFilter } from '@shared/schemas/task.schema'
 import { TaskList } from '@renderer/features/missions/TaskRow'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { Button } from '@renderer/components/Button'
+import { QueryState } from '@renderer/components/QueryState'
 import {
   useProjects,
   useTasks,
@@ -11,6 +12,7 @@ import {
   useUpdateProject
 } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
+import { useToast } from '@renderer/components/Toast'
 import { formatPercent, formatDue } from '@renderer/lib/format'
 import '@renderer/features/missions/missions.css'
 
@@ -18,8 +20,9 @@ export function MissionDetailPage(): JSX.Element {
   const { id = '' } = useParams()
   const navigate = useNavigate()
   const { t, language } = useI18n()
+  const toast = useToast()
 
-  const { data: projects = [], isPending } = useProjects()
+  const { data: projects = [], isPending, isError, refetch } = useProjects()
   const project = projects.find((item) => item.id === id)
 
   const filter = useMemo<Partial<TaskFilter>>(() => ({ projectId: id }), [id])
@@ -31,7 +34,15 @@ export function MissionDetailPage(): JSX.Element {
   const [composing, setComposing] = useState(false)
   const [confirming, setConfirming] = useState(false)
 
-  if (isPending) return <div className="skeleton" style={{ height: 200 }} />
+  if (isPending || isError) {
+    return (
+      <div className="page">
+        <QueryState isPending={isPending} isError={isError} retry={() => void refetch()} skeletonHeight={200}>
+          <span />
+        </QueryState>
+      </div>
+    )
+  }
 
   if (!project) {
     return (
@@ -47,8 +58,13 @@ export function MissionDetailPage(): JSX.Element {
   const due = formatDue(project.deadline, language)
 
   async function remove(): Promise<void> {
-    await deleteProject.mutateAsync({ id })
-    navigate('/missions')
+    try {
+      await deleteProject.mutateAsync({ id })
+      toast.success(t('toast.projectDeleted'))
+      navigate('/missions')
+    } catch {
+      toast.error(t('toast.failed'))
+    }
   }
 
   return (

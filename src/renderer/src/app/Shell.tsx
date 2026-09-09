@@ -47,6 +47,11 @@ export function Shell(): JSX.Element {
 
   return (
     <div className="shell">
+      {/* Premier element focalisable : permet de sauter la navigation. */}
+      <a className="shell__skip" href="#mc-content">
+        {t('nav.skip')}
+      </a>
+
       <nav className="shell__nav" aria-label={t('nav.label')}>
         <div className="shell__brand">
           <span className="shell__brand-mark" aria-hidden="true" />
@@ -89,7 +94,7 @@ export function Shell(): JSX.Element {
           <ProfileMenu />
         </header>
 
-        <main className="shell__content">
+        <main className="shell__content" id="mc-content" tabIndex={-1}>
           <Outlet />
         </main>
       </div>

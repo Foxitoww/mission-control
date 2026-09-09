@@ -95,6 +95,18 @@ const fr = {
   'error.AVATAR_DECODE_FAILED': "Impossible de lire cette image.",
   'error.ACCENT_INVALID': 'Couleur non proposée par la palette.',
 
+  'state.errorTitle': 'Impossible de charger ces données',
+  'state.errorHint': 'Le coffre est peut-être fermé. Réessaie, ou reconnecte-toi.',
+  'state.emptyTitle': 'Rien à afficher',
+
+  'toast.taskDeleted': 'Opération supprimée.',
+  'toast.tagDeleted': 'Étiquette supprimée.',
+  'toast.goalDeleted': 'Objectif supprimé.',
+  'toast.projectDeleted': 'Mission supprimée. Ses opérations ont été détachées.',
+  'toast.profileSaved': 'Profil enregistré.',
+  'toast.failed': 'L’action a échoué.',
+
+  'nav.skip': 'Aller au contenu',
   'nav.board': 'Tableau',
   'nav.calendar': 'Calendrier',
   'nav.goals': 'Objectifs',
@@ -358,6 +370,18 @@ const en: Record<MessageKey, string> = {
   'error.AVATAR_DECODE_FAILED': 'That image could not be read.',
   'error.ACCENT_INVALID': 'Colour not offered by the palette.',
 
+  'state.errorTitle': 'Could not load this data',
+  'state.errorHint': 'The vault may be closed. Try again, or sign in once more.',
+  'state.emptyTitle': 'Nothing to show',
+
+  'toast.taskDeleted': 'Operation deleted.',
+  'toast.tagDeleted': 'Tag deleted.',
+  'toast.goalDeleted': 'Objective deleted.',
+  'toast.projectDeleted': 'Mission deleted. Its operations were detached.',
+  'toast.profileSaved': 'Profile saved.',
+  'toast.failed': 'The action failed.',
+
+  'nav.skip': 'Skip to content',
   'nav.board': 'Board',
   'nav.calendar': 'Calendar',
   'nav.goals': 'Objectives',

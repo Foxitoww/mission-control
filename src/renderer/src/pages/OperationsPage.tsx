@@ -5,6 +5,7 @@ import type { TaskFilter } from '@shared/schemas/task.schema'
 import { TaskList } from '@renderer/features/missions/TaskRow'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { Button } from '@renderer/components/Button'
+import { QueryState } from '@renderer/components/QueryState'
 import { useTasks, useTags, useProjects } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
 import '@renderer/features/missions/missions.css'
@@ -45,7 +46,7 @@ export function OperationsPage(): JSX.Element {
     [search, statuses, priorities, projectId, tagIds, overdue, includeArchived]
   )
 
-  const { data: tasks = [], isPending } = useTasks(filter)
+  const { data: tasks = [], isPending, isError, refetch } = useTasks(filter)
 
   const active =
     search !== '' ||
@@ -85,6 +86,7 @@ export function OperationsPage(): JSX.Element {
           className="mc-field__input filters__search"
           value={search}
           placeholder={t('filters.search')}
+          aria-label={t('filters.search')}
           onChange={(event) => setSearch(event.target.value)}
         />
 
@@ -179,27 +181,19 @@ export function OperationsPage(): JSX.Element {
         </div>
       </div>
 
-      {isPending ? (
-        <div className="task-list">
-          <div className="skeleton" />
-          <div className="skeleton" />
-          <div className="skeleton" />
-        </div>
-      ) : tasks.length === 0 ? (
-        <div className="state">
-          <span className="state__title">
-            {active ? t('filters.noMatch') : t('task.emptyTitle')}
-          </span>
-          <span>{active ? t('filters.noMatchHint') : t('task.emptyHint')}</span>
-        </div>
-      ) : (
-        <>
-          <span className="mc-data panel__count">
-            {String(tasks.length).padStart(2, '0')} {t('task.results')}
-          </span>
-          <TaskList tasks={tasks} onOpen={setOpenTask} showCode />
-        </>
-      )}
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        isEmpty={tasks.length === 0}
+        retry={() => void refetch()}
+        emptyTitle={active ? t('filters.noMatch') : t('task.emptyTitle')}
+        emptyHint={active ? t('filters.noMatchHint') : t('task.emptyHint')}
+      >
+        <span className="mc-data panel__count">
+          {String(tasks.length).padStart(2, '0')} {t('task.results')}
+        </span>
+        <TaskList tasks={tasks} onOpen={setOpenTask} showCode />
+      </QueryState>
 
       {composing && <TaskEditor onClose={() => setComposing(false)} />}
       {openTask && <TaskEditor taskId={openTask} onClose={() => setOpenTask(null)} />}

@@ -69,12 +69,14 @@ sont en ajout seul — voir [DATA-MODEL.md](docs/DATA-MODEL.md).
 
 ## État
 
-**Phases 0 à 4 terminées.** Base locale migrée, authentification multi-utilisateurs
+**Phases 0 à 5 terminées.** Base locale migrée, authentification multi-utilisateurs
 avec scrypt, session en mémoire, isolation des comptes vérifiée par tests, écran
 d'accès bilingue FR/EN, sélection de profil et éditeur de profil (image, emoji,
 pseudo, couleur d'accent, thème, langue), option « se souvenir de moi ».
 Dashboard, projets, tâches, sous-tâches, tags, filtres, recherche et raccourcis
 clavier. Données chiffrées au repos (AES-256-GCM, un coffre par compte) avec
 phrase de récupération — voir [ADR-007](docs/adr/ADR-007-encryption-at-rest.md).
-Kanban, calendrier, tâches récurrentes, objectifs et télémétrie. Phase 5 (polish :
-animations, responsive, accessibilité, performance) à venir.
+Kanban, calendrier, tâches récurrentes, objectifs et télémétrie. Interface polie : états d'erreur partout, frontière d'erreur React, notifications
+de confirmation, polices embarquées, lien d'évitement, micro-interactions
+neutralisées par `prefers-reduced-motion`. Phase 6 (audits finaux, packaging)
+à venir.

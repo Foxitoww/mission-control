@@ -178,3 +178,37 @@
     display: none;
   }
 }
+
+/* --- Lien d'évitement -----------------------------------------------------
+   Premier élément focalisable de la page, invisible jusqu'à ce qu'il reçoive le
+   focus. Sans lui, chaque changement de page impose de retraverser les huit
+   entrées de navigation à la tabulation avant d'atteindre le contenu (§24). */
+.shell__skip {
+  position: absolute;
+  top: var(--mc-space-2);
+  left: var(--mc-space-2);
+  z-index: 300;
+  padding: var(--mc-space-2) var(--mc-space-4);
+  background: var(--mc-accent);
+  color: var(--mc-on-accent);
+  border: none;
+  border-radius: var(--mc-radius-control);
+  font-size: 0.8125rem;
+  transform: translateY(-200%);
+}
+
+.shell__skip:focus {
+  transform: translateY(0);
+}
+
+/* Transition de page : un fondu court à chaque changement de route. Il signale
+   que le contenu a changé — utile quand deux pages se ressemblent. */
+.shell__content > * {
+  animation: mc-page-in var(--mc-duration-base) var(--mc-ease);
+}
+
+@keyframes mc-page-in {
+  from {
+    opacity: 0;
+  }
+}

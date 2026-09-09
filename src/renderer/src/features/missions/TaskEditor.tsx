@@ -7,6 +7,7 @@ import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
 import { useI18n } from '@renderer/i18n'
+import { useToast } from '@renderer/components/Toast'
 import { IpcError } from '@renderer/lib/ipc'
 import { dateInputToIso, isoToDateInput, missionCode } from '@renderer/lib/format'
 import {
@@ -80,6 +81,7 @@ function EditorForm({
   onClose: () => void
 }): JSX.Element {
   const { t, tError } = useI18n()
+  const toast = useToast()
   const { data: projects = [] } = useProjects()
   const { data: tags = [] } = useTags()
 
@@ -147,8 +149,15 @@ function EditorForm({
 
   async function removeTask(): Promise<void> {
     if (!taskId) return
-    await deleteTask.mutateAsync({ id: taskId })
-    onClose()
+    try {
+      await deleteTask.mutateAsync({ id: taskId })
+      // Une suppression silencieuse laisse un doute : la tâche a-t-elle disparu
+      // ou l'action a-t-elle échoué ? La confirmation lève l'ambiguïté.
+      toast.success(t('toast.taskDeleted'))
+      onClose()
+    } catch {
+      toast.error(t('toast.failed'))
+    }
   }
 
   return (
@@ -389,6 +398,7 @@ function EditorForm({
                 className="mc-field__input"
                 value={subtaskTitle}
                 placeholder={t('task.addSubtask')}
+                aria-label={t('task.addSubtask')}
                 onChange={(event) => setSubtaskTitle(event.target.value)}
                 onKeyDown={(event) => {
                   // Entrée ajoute la sous-tâche SANS soumettre le formulaire :

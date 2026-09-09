@@ -446,3 +446,49 @@
 .recurrence__interval input {
   width: 72px;
 }
+
+/* --- Micro-interactions (§22) ---------------------------------------------
+   L'animation doit EXPLIQUER un changement d'état, jamais décorer. Chacune de
+   celles-ci est neutralisée par prefers-reduced-motion (voir global.css). */
+
+.task-row {
+  /* La transition d'opacité fait « reculer » la ligne terminée au lieu de la
+     faire disparaître d'un coup : on comprend qu'elle est toujours là. */
+  transition:
+    background var(--mc-duration-instant) var(--mc-ease),
+    border-color var(--mc-duration-instant) var(--mc-ease),
+    opacity var(--mc-duration-base) var(--mc-ease);
+}
+
+/* Repère de complétion : une brève pulsation d'accent au moment où la case est
+   cochée. Elle dure 320 ms et ne retarde rien — le changement est déjà écrit. */
+.task-row__check:checked {
+  animation: mc-check var(--mc-duration-panel) var(--mc-ease);
+}
+
+@keyframes mc-check {
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+/* Entrée des lignes de liste : léger décalage vertical, pour que l'ajout d'une
+   opération se voie sans qu'on ait à chercher où elle est apparue. */
+.task-list > .task-row {
+  animation: mc-row-in var(--mc-duration-base) var(--mc-ease);
+}
+
+@keyframes mc-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px);
+  }
+}
+
+/* Barres de progression : la largeur est déjà animée, mais la couleur aussi —
+   un objectif qui passe au vert doit se voir virer, pas sauter. */
+.progress__bar {
+  transition:
+    width var(--mc-duration-base) var(--mc-ease),
+    background var(--mc-duration-panel) var(--mc-ease);
+}

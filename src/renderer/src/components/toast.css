@@ -1,0 +1,55 @@
+/* Notifications éphémères — confirmation d'une action, jamais un dialogue. */
+
+.toasts {
+  position: fixed;
+  right: var(--mc-space-6);
+  bottom: var(--mc-space-6);
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  /* Le conteneur ne bloque jamais le clic : seules les bulles le font, et
+     elles n'ont aucune action. */
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  max-width: 340px;
+  padding: var(--mc-space-3) var(--mc-space-4);
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid);
+  border-left-width: 3px;
+  border-radius: var(--mc-radius-control);
+  box-shadow: var(--mc-shadow-card);
+  font-size: 0.8125rem;
+  animation: mc-toast-in var(--mc-duration-base) var(--mc-ease);
+}
+
+/* Le signe (✓ / ▲) double la couleur : le ton se lit même sans la percevoir. */
+.toast--success {
+  border-left-color: var(--mc-green);
+}
+.toast--success .toast__mark {
+  color: var(--mc-green);
+}
+
+.toast--error {
+  border-left-color: var(--mc-red);
+}
+.toast--error .toast__mark {
+  color: var(--mc-red);
+}
+
+.toast__mark {
+  font-size: 0.75rem;
+}
+
+@keyframes mc-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ActivityChart } from '@renderer/features/stats/ActivityChart'
 import { useStats } from '@renderer/features/missions/queries'
+import { QueryState } from '@renderer/components/QueryState'
 import { useI18n } from '@renderer/i18n'
 import { formatPercent, formatDuration } from '@renderer/lib/format'
 import '@renderer/features/missions/missions.css'
@@ -20,13 +21,19 @@ const PRIORITY_COLOR: Record<string, string> = {
 export function StatsPage(): JSX.Element {
   const { t } = useI18n()
   const [days, setDays] = useState<number>(30)
-  const { data, isPending } = useStats(days)
+  const { data, isPending, isError, refetch } = useStats(days)
 
-  if (isPending || !data) {
+  if (isPending || isError || !data) {
     return (
       <div className="page">
-        <div className="skeleton" style={{ height: 96 }} />
-        <div className="skeleton" style={{ height: 220 }} />
+        <QueryState
+          isPending={isPending}
+          isError={isError || !data}
+          retry={() => void refetch()}
+          skeletonHeight={110}
+        >
+          <span />
+        </QueryState>
       </div>
     )
   }

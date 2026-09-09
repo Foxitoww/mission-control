@@ -5,6 +5,20 @@ import { App } from './App'
 import { I18nProvider } from './i18n'
 import { AuthProvider } from './features/auth/AuthProvider'
 import { SettingsProvider } from './features/settings/SettingsProvider'
+import { ErrorBoundary } from './components/ErrorBoundary'
+import { ToastProvider } from './components/Toast'
+
+/**
+ * Polices EMBARQUÉES, jamais chargées depuis un CDN.
+ *
+ * Le design system prescrit Inter et JetBrains Mono ; les servir depuis Google
+ * Fonts ferait une requête réseau à chaque démarrage — l'application cesserait
+ * d'être hors ligne, et l'hôte distant apprendrait quand elle est ouverte.
+ * Les variantes variables tiennent en un seul fichier par famille.
+ */
+import '@fontsource-variable/inter'
+import '@fontsource-variable/jetbrains-mono'
+
 import './styles/global.css'
 import './components/components.css'
 
@@ -31,14 +45,20 @@ if (!container) throw new Error('Élément #root introuvable')
 
 createRoot(container).render(
   <StrictMode>
-    <I18nProvider>
-      <AuthProvider>
-        <SettingsProvider>
-          <QueryClientProvider client={queryClient}>
-            <App />
-          </QueryClientProvider>
-        </SettingsProvider>
-      </AuthProvider>
-    </I18nProvider>
+    {/* La frontière d'erreur enveloppe TOUT, y compris les fournisseurs : une
+        exception dans l'un d'eux doit produire un écran, pas une page blanche. */}
+    <ErrorBoundary>
+      <I18nProvider>
+        <ToastProvider>
+          <AuthProvider>
+            <SettingsProvider>
+              <QueryClientProvider client={queryClient}>
+                <App />
+              </QueryClientProvider>
+            </SettingsProvider>
+          </AuthProvider>
+        </ToastProvider>
+      </I18nProvider>
+    </ErrorBoundary>
   </StrictMode>
 )

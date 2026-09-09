@@ -74,6 +74,7 @@ export function SearchPalette({ onClose }: { onClose: () => void }): JSX.Element
           value={query}
           autoFocus
           placeholder={t('search.placeholder')}
+          aria-label={t('search.placeholder')}
           onChange={(event) => setQuery(event.target.value)}
         />
 

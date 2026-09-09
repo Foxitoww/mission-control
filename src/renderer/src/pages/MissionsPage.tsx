@@ -5,6 +5,7 @@ import type { ProjectStatus } from '@shared/types/domain'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
+import { QueryState } from '@renderer/components/QueryState'
 import { useProjects, useCreateProject } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
 import { IpcError } from '@renderer/lib/ipc'
@@ -138,7 +139,7 @@ function ProjectComposer({ onClose }: { onClose: () => void }): JSX.Element {
 export function MissionsPage(): JSX.Element {
   const { t, language } = useI18n()
   const navigate = useNavigate()
-  const { data: projects = [], isPending } = useProjects()
+  const { data: projects = [], isPending, isError, refetch } = useProjects()
   const [composing, setComposing] = useState(false)
 
   return (
@@ -151,17 +152,16 @@ export function MissionsPage(): JSX.Element {
         <Button onClick={() => setComposing(true)}>{t('project.new')}</Button>
       </header>
 
-      {isPending ? (
-        <div className="mission-grid">
-          <div className="skeleton" style={{ height: 130 }} />
-          <div className="skeleton" style={{ height: 130 }} />
-        </div>
-      ) : projects.length === 0 ? (
-        <div className="state">
-          <span className="state__title">{t('project.emptyTitle')}</span>
-          <span>{t('project.emptyHint')}</span>
-        </div>
-      ) : (
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        isEmpty={projects.length === 0}
+        retry={() => void refetch()}
+        emptyTitle={t('project.emptyTitle')}
+        emptyHint={t('project.emptyHint')}
+        skeletonHeight={130}
+        skeletonCount={2}
+      >
         <div className="mission-grid">
           {projects.map((project) => (
             <button
@@ -203,7 +203,7 @@ export function MissionsPage(): JSX.Element {
             </button>
           ))}
         </div>
-      )}
+      </QueryState>
 
       {composing && <ProjectComposer onClose={() => setComposing(false)} />}
     </div>

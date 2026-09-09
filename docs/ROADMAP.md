@@ -105,3 +105,25 @@ télémétrie et notifications locales. 30 tests supplémentaires.
 Les couleurs de graphique sont des jetons DISTINCTS des couleurs sémantiques et
 ont été validées (bande de luminosité, écart CVD, contraste) contre chaque
 surface, en mode clair comme en mode sombre — pas choisies à l'œil.
+
+**Phase 5 — Polish.** Menée comme un AUDIT, pas comme un ajout de
+fonctionnalités. Ce que l'audit a trouvé, et ce qui a été corrigé :
+
+| Constat | Correction |
+|---|---|
+| 7 pages traitaient chargement et vide, **aucune** l'erreur | Composant `QueryState` : les quatre états au même endroit |
+| Aucune frontière d'erreur React — un plantage de rendu = fenêtre blanche | `ErrorBoundary` enveloppant jusqu'aux fournisseurs |
+| Suppressions silencieuses | Notifications éphémères, avec signe en plus de la couleur |
+| Polices déclarées mais jamais embarquées | `@fontsource-variable` en woff2 local, aucun CDN |
+| 4 champs n'avaient qu'un placeholder | `aria-label` ajouté ; un placeholder n'est pas un nom |
+| Aucun lien d'évitement | 8 entrées de navigation à retraverser à chaque page, corrigé |
+| Fenêtre bloquée à 900 px | Abaissée à 560 px : les mises en page étroites étaient inatteignables |
+| Tableau de bord à **90 ms** sur 5000 tâches | **7 ms** — voir ci-dessous |
+
+**Le point de performance.** Mesuré avant d'optimiser : tout répondait en 2–6 ms
+*sauf* le tableau de bord, dont 81 des 90 ms venaient de `projectsRepo.list`.
+Cause : deux sous-requêtes corrélées par projet, soit 400 balayages pour 200
+projets. Remplacées par un agrégat groupé joint une fois — **80,8 ms → 1,7 ms**.
+Un fichier `performance.test.ts` verrouille le résultat : plans de requête
+(déterministes) et bornes de durée larges (dix fois la mesure), pour attraper un
+retour au motif quadratique sans être sensible à la machine.

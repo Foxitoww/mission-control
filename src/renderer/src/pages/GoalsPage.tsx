@@ -3,6 +3,7 @@ import type { GoalSummary } from '@shared/types/views'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
+import { QueryState } from '@renderer/components/QueryState'
 import {
   useGoals,
   useProjects,
@@ -12,6 +13,7 @@ import {
   useUpdateGoal
 } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
+import { useToast } from '@renderer/components/Toast'
 import { IpcError } from '@renderer/lib/ipc'
 import { formatPercent, formatDue, dateInputToIso } from '@renderer/lib/format'
 import '@renderer/features/missions/missions.css'
@@ -126,6 +128,7 @@ function GoalComposer({ onClose }: { onClose: () => void }): JSX.Element {
 
 function GoalCard({ goal }: { goal: GoalSummary }): JSX.Element {
   const { t, language } = useI18n()
+  const toast = useToast()
   const advance = useAdvanceGoal()
   const update = useUpdateGoal()
   const remove = useDeleteGoal()
@@ -199,7 +202,18 @@ function GoalCard({ goal }: { goal: GoalSummary }): JSX.Element {
             {t('goal.abandon')}
           </Button>
         )}
-        <Button variant="ghost" onClick={() => remove.mutate({ id: goal.id })}>
+        <Button
+          variant="ghost"
+          onClick={() =>
+            remove.mutate(
+              { id: goal.id },
+              {
+                onSuccess: () => toast.success(t('toast.goalDeleted')),
+                onError: () => toast.error(t('toast.failed'))
+              }
+            )
+          }
+        >
           {t('common.delete')}
         </Button>
       </div>
@@ -209,7 +223,7 @@ function GoalCard({ goal }: { goal: GoalSummary }): JSX.Element {
 
 export function GoalsPage(): JSX.Element {
   const { t } = useI18n()
-  const { data: goals = [], isPending } = useGoals()
+  const { data: goals = [], isPending, isError, refetch } = useGoals()
   const [composing, setComposing] = useState(false)
 
   return (
@@ -222,20 +236,22 @@ export function GoalsPage(): JSX.Element {
         <Button onClick={() => setComposing(true)}>{t('goal.new')}</Button>
       </header>
 
-      {isPending ? (
-        <div className="skeleton" style={{ height: 160 }} />
-      ) : goals.length === 0 ? (
-        <div className="state">
-          <span className="state__title">{t('goal.emptyTitle')}</span>
-          <span>{t('goal.emptyHint')}</span>
-        </div>
-      ) : (
+      <QueryState
+        isPending={isPending}
+        isError={isError}
+        isEmpty={goals.length === 0}
+        retry={() => void refetch()}
+        emptyTitle={t('goal.emptyTitle')}
+        emptyHint={t('goal.emptyHint')}
+        skeletonHeight={160}
+        skeletonCount={2}
+      >
         <div className="goal-grid">
           {goals.map((goal) => (
             <GoalCard key={goal.id} goal={goal} />
           ))}
         </div>
-      )}
+      </QueryState>
 
       {composing && <GoalComposer onClose={() => setComposing(false)} />}
     </div>
