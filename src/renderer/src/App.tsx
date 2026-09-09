@@ -6,6 +6,7 @@ import { MissionsPage } from './pages/MissionsPage'
 import { MissionDetailPage } from './pages/MissionDetailPage'
 import { TagsPage } from './pages/TagsPage'
 import { AuthScreen } from './features/auth/AuthScreen'
+import { RecoveryPhraseScreen } from './features/auth/RecoveryPhraseScreen'
 import { useAuth } from './features/auth/AuthProvider'
 import { useI18n } from './i18n'
 
@@ -25,6 +26,9 @@ export function App(): JSX.Element {
 
   if (status === 'checking') return <Booting />
   if (status === 'signed-out') return <AuthScreen />
+  // Le compte est créé, mais on ne laisse pas entrer avant que la phrase de
+  // récupération ait été vue et acquittée : elle ne sera plus jamais lisible.
+  if (status === 'recovery-pending') return <RecoveryPhraseScreen />
 
   return (
     // HashRouter et non BrowserRouter : l'application empaquetée est servie

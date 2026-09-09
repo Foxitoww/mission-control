@@ -1,86 +1,85 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
 import { randomUUID } from 'node:crypto'
-import Database from 'better-sqlite3'
-import { applyPragmas, type Db } from '@main/db/connection'
-import { createTestDatabase } from '@main/db/init'
+import type { Db } from '@main/db/connection'
+import { createTestAccountsDb, createTestVaultDb } from '@main/db/init'
 import { migrate, currentVersion } from '@main/db/migrator'
-import { migrations } from '@main/db/migrations'
+import { accountMigrations } from '@main/db/migrations/accounts'
+import { vaultMigrations } from '@main/db/migrations/vault'
 
-let db: Db
+let accounts: Db
+let vault: Db
 
 beforeEach(() => {
-  db = createTestDatabase()
+  accounts = createTestAccountsDb()
+  vault = createTestVaultDb()
 })
 
-afterEach(() => db.close())
+afterEach(() => {
+  accounts.close()
+  vault.close()
+})
 
 describe('migrations', () => {
-  it('porte la base à la dernière version', () => {
-    const latest = Math.max(...migrations.map((m) => m.version))
-    expect(currentVersion(db)).toBe(latest)
+  it('porte chaque base à sa dernière version', () => {
+    expect(currentVersion(accounts)).toBe(Math.max(...accountMigrations.map((m) => m.version)))
+    expect(currentVersion(vault)).toBe(Math.max(...vaultMigrations.map((m) => m.version)))
   })
 
   it('est idempotent : rejouer n’applique rien', () => {
-    expect(migrate(db, migrations)).toBe(0)
+    expect(migrate(accounts, accountMigrations)).toBe(0)
+    expect(migrate(vault, vaultMigrations)).toBe(0)
   })
 
-  it('crée toutes les tables attendues', () => {
-    const rows = db
-      .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
-      .all() as { name: string }[]
+  it('sépare strictement les comptes des données', () => {
+    const tablesOf = (db: Db): string[] =>
+      (
+        db
+          .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+          .all() as { name: string }[]
+      )
+        .map((row) => row.name)
+        .sort()
 
-    expect(rows.map((r) => r.name).sort()).toEqual([
+    // La base des comptes ne contient AUCUNE donnée métier : quiconque la lit
+    // apprend qui a un compte sur la machine, et rien d'autre (ADR-007).
+    expect(tablesOf(accounts)).toEqual(['remembered_sessions', 'users'])
+
+    expect(tablesOf(vault)).toEqual([
       'goals',
       'projects',
-      'remembered_sessions',
       'settings',
       'subtasks',
       'tags',
       'task_tags',
-      'tasks',
-      'users'
+      'tasks'
     ])
   })
 
-  it('crée les index préfixés par user_id', () => {
-    const rows = db
+  it('crée les index du coffre, préfixés par user_id', () => {
+    const rows = vault
       .prepare("SELECT name FROM sqlite_master WHERE type = 'index' AND name LIKE 'idx_%'")
       .all() as { name: string }[]
 
     expect(rows.length).toBeGreaterThanOrEqual(9)
-    expect(rows.map((r) => r.name)).toContain('idx_tasks_user_status')
+    expect(rows.map((row) => row.name)).toContain('idx_tasks_user_status')
   })
 })
 
 describe('pragmas', () => {
-  it('active les clés étrangères — sans quoi les cascades seraient inopérantes', () => {
-    expect(db.pragma('foreign_keys', { simple: true })).toBe(1)
-  })
-
-  it('utilise le mode WAL sur un fichier réel', () => {
-    // WAL exige un fichier : une base :memory: reste en mode "memory".
-    const file = new Database(':memory:')
-    expect(() => applyPragmas(file)).not.toThrow()
-    file.close()
+  it('active les clés étrangères sur les DEUX bases', () => {
+    // Sans ce PRAGMA, toutes les cascades seraient silencieusement inopérantes.
+    expect(accounts.pragma('foreign_keys', { simple: true })).toBe(1)
+    expect(vault.pragma('foreign_keys', { simple: true })).toBe(1)
   })
 })
 
 describe('contraintes du schéma', () => {
   const now = new Date().toISOString()
-
-  function makeUser(): string {
-    const id = randomUUID()
-    db.prepare(
-      `INSERT INTO users (id, username, display_name, password_hash, created_at, updated_at)
-       VALUES (?, ?, 'X', 'scrypt$x', ?, ?)`
-    ).run(id, `u${id.slice(0, 8)}`, now, now)
-    return id
-  }
+  const userId = randomUUID()
 
   it('refuse un statut de tâche inconnu', () => {
-    const userId = makeUser()
     expect(() =>
-      db
+      vault
         .prepare(
           `INSERT INTO tasks (id, user_id, title, status, position, created_at, updated_at)
            VALUES (?, ?, 'X', 'LAUNCHED', 0, ?, ?)`
@@ -92,9 +91,8 @@ describe('contraintes du schéma', () => {
   it('refuse une tâche COMPLETED sans date de complétion', () => {
     // Invariant du schéma : le statut et la date ne peuvent pas diverger, sinon
     // les statistiques mentiraient.
-    const userId = makeUser()
     expect(() =>
-      db
+      vault
         .prepare(
           `INSERT INTO tasks (id, user_id, title, status, position, created_at, updated_at)
            VALUES (?, ?, 'X', 'COMPLETED', 0, ?, ?)`
@@ -103,33 +101,47 @@ describe('contraintes du schéma', () => {
     ).toThrow(/CHECK constraint/i)
   })
 
-  it('refuse une tâche rattachée à un utilisateur inexistant', () => {
-    expect(() =>
-      db
-        .prepare(
-          `INSERT INTO tasks (id, user_id, title, position, created_at, updated_at)
-           VALUES (?, 'utilisateur-fantome', 'X', 0, ?, ?)`
-        )
-        .run(randomUUID(), now, now)
-    ).toThrow(/FOREIGN KEY/i)
-  })
-
   it('détache les tâches quand leur projet est supprimé, sans les détruire', () => {
-    const userId = makeUser()
     const projectId = randomUUID()
-    db.prepare(
-      `INSERT INTO projects (id, user_id, name, created_at, updated_at) VALUES (?, ?, 'P', ?, ?)`
-    ).run(projectId, userId, now, now)
+    vault
+      .prepare(
+        `INSERT INTO projects (id, user_id, name, created_at, updated_at) VALUES (?, ?, 'P', ?, ?)`
+      )
+      .run(projectId, userId, now, now)
 
     const taskId = randomUUID()
-    db.prepare(
-      `INSERT INTO tasks (id, user_id, project_id, title, position, created_at, updated_at)
-       VALUES (?, ?, ?, 'X', 0, ?, ?)`
-    ).run(taskId, userId, projectId, now, now)
+    vault
+      .prepare(
+        `INSERT INTO tasks (id, user_id, project_id, title, position, created_at, updated_at)
+         VALUES (?, ?, ?, 'X', 0, ?, ?)`
+      )
+      .run(taskId, userId, projectId, now, now)
 
-    db.prepare('DELETE FROM projects WHERE id = ?').run(projectId)
+    vault.prepare('DELETE FROM projects WHERE id = ?').run(projectId)
 
-    const task = db.prepare('SELECT project_id FROM tasks WHERE id = ?').get(taskId)
-    expect(task).toEqual({ project_id: null })
+    expect(vault.prepare('SELECT project_id FROM tasks WHERE id = ?').get(taskId)).toEqual({
+      project_id: null
+    })
+  })
+
+  it('supprimer un compte efface ses sessions mémorisées', () => {
+    const id = randomUUID()
+    accounts
+      .prepare(
+        `INSERT INTO users (id, username, display_name, password_hash, kdf_salt, dek_password,
+                            recovery_salt, dek_recovery, created_at, updated_at)
+         VALUES (?, 'u', 'U', 'scrypt$x', x'00', x'00', x'00', x'00', ?, ?)`
+      )
+      .run(id, now, now)
+
+    accounts
+      .prepare(
+        `INSERT INTO remembered_sessions (id, user_id, token_hash, created_at, expires_at)
+         VALUES (?, ?, 'hash', ?, ?)`
+      )
+      .run(randomUUID(), id, now, now)
+
+    accounts.prepare('DELETE FROM users WHERE id = ?').run(id)
+    expect(accounts.prepare('SELECT COUNT(*) AS n FROM remembered_sessions').get()).toEqual({ n: 0 })
   })
 })

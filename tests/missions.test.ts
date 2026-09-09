@@ -1,8 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { createTestDatabase } from '@main/db/init'
 import type { Db } from '@main/db/connection'
-import { authService } from '@main/services/auth.service'
-import { session } from '@main/services/session.service'
 import { tasksService } from '@main/services/tasks.service'
 import { projectsService } from '@main/services/projects.service'
 import { tagsService } from '@main/services/tags.service'
@@ -10,10 +7,11 @@ import { subtasksService } from '@main/services/subtasks.service'
 import { dashboardService } from '@main/services/dashboard.service'
 import { searchService } from '@main/services/search.service'
 import { AppErrorCode } from '@shared/errors'
-import { memoryStore } from './helpers'
+import { createTestEnv, seedUser, signIn, type TestEnv } from './helpers'
 
+let env: TestEnv
+/** Le coffre : c'est lui que reçoivent tous les services du domaine. */
 let db: Db
-let store: ReturnType<typeof memoryStore>
 let aliceId: string
 let bobId: string
 
@@ -23,40 +21,19 @@ function daysFromNow(days: number): string {
   return date.toISOString()
 }
 
-async function signInAs(username: string): Promise<void> {
-  session.clear()
-  await authService.login(db, { username, password: `${username}-password` }, store)
-}
+beforeEach(() => {
+  env = createTestEnv()
+  db = env.vault
 
-beforeEach(async () => {
-  db = createTestDatabase()
-  store = memoryStore()
-  session.clear()
-
-  aliceId = (
-    await authService.register(db, {
-      username: 'alice',
-      displayName: 'Alice',
-      password: 'alice-password',
-      avatar: null
-    })
-  ).id
-  session.clear()
-
-  bobId = (
-    await authService.register(db, {
-      username: 'bob',
-      displayName: 'Bob',
-      password: 'bob-password',
-      avatar: null
-    })
-  ).id
-  session.clear()
-
-  await signInAs('alice')
+  // Alice et Bob partagent DÉLIBÉRÉMENT le même coffre de test : c'est ainsi
+  // que les tests d'isolation éprouvent le filtrage par user_id, et non la
+  // simple séparation des fichiers qui existe en production.
+  aliceId = seedUser(env, 'alice')
+  bobId = seedUser(env, 'bob')
+  signIn(env, aliceId)
 })
 
-afterEach(() => db.close())
+afterEach(() => env.close())
 
 describe('tâches — cycle de vie', () => {
   it('crée une tâche avec les valeurs par défaut du schéma', () => {
@@ -367,14 +344,14 @@ describe('recherche globale', () => {
 describe('isolation entre utilisateurs', () => {
   it('Bob ne voit aucune tâche d’Alice', async () => {
     tasksService.create(db, { title: 'Secret Alice' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     expect(tasksService.list(db, {})).toEqual([])
   })
 
   it('Bob ne peut pas lire une tâche d’Alice par son identifiant', async () => {
     const task = tasksService.create(db, { title: 'Secret Alice' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     expect(() => tasksService.get(db, { id: task.id })).toThrow(
       expect.objectContaining({ code: AppErrorCode.NOT_FOUND })
@@ -383,7 +360,7 @@ describe('isolation entre utilisateurs', () => {
 
   it('Bob ne peut ni modifier ni supprimer une tâche d’Alice', async () => {
     const task = tasksService.create(db, { title: 'Secret Alice' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     expect(() => tasksService.update(db, { id: task.id, title: 'Détourné' })).toThrow(
       expect.objectContaining({ code: AppErrorCode.NOT_FOUND })
@@ -395,7 +372,7 @@ describe('isolation entre utilisateurs', () => {
 
   it('Bob ne peut pas rattacher sa tâche à un projet d’Alice', async () => {
     const project = projectsService.create(db, { name: 'Projet Alice' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     expect(() => tasksService.create(db, { title: 'Intrusion', projectId: project.id })).toThrow(
       expect.objectContaining({ code: AppErrorCode.NOT_FOUND })
@@ -404,7 +381,7 @@ describe('isolation entre utilisateurs', () => {
 
   it('Bob ne peut pas poser un tag d’Alice sur sa propre tâche', async () => {
     const tag = tagsService.create(db, { name: 'privé' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     expect(() => tasksService.create(db, { title: 'Intrusion', tagIds: [tag.id] })).toThrow(
       expect.objectContaining({ code: AppErrorCode.NOT_FOUND })
@@ -413,7 +390,7 @@ describe('isolation entre utilisateurs', () => {
 
   it('Bob ne peut pas ajouter de sous-tâche à une tâche d’Alice', async () => {
     const task = tasksService.create(db, { title: 'Secret Alice' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     expect(() => subtasksService.create(db, { taskId: task.id, title: 'Intrusion' })).toThrow(
       expect.objectContaining({ code: AppErrorCode.NOT_FOUND })
@@ -423,7 +400,7 @@ describe('isolation entre utilisateurs', () => {
   it('la recherche de Bob ne remonte jamais les données d’Alice', async () => {
     tasksService.create(db, { title: 'Trajectoire Alice' })
     projectsService.create(db, { name: 'Trajectoire projet' })
-    await signInAs('bob')
+    signIn(env, bobId)
 
     const results = searchService.run(db, { query: 'trajectoire' })
     expect(results.tasks).toEqual([])

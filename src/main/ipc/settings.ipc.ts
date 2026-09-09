@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { IpcChannel } from '@shared/ipc-contract'
 import { handle } from './registry'
-import { getDb } from '../db/connection'
 import { settingsRepo } from '../repositories/settings.repo'
 import { session } from '../services/session.service'
 import { parseOrThrow } from '../lib/validate'
@@ -15,8 +14,9 @@ const settingsPatchSchema = z.object({
   preferences: z.record(z.unknown()).optional()
 })
 
+/** Les préférences vivent DANS le coffre : elles sont donc chiffrées au repos. */
 function read(userId: string): Settings {
-  const settings = settingsRepo.get(getDb(), userId)
+  const settings = settingsRepo.get(session.requireVault(), userId)
   if (!settings) throw new AppError(AppErrorCode.NOT_FOUND, 'SETTINGS_NOT_FOUND')
   return settings
 }
@@ -26,7 +26,8 @@ export function registerSettingsHandlers(): void {
 
   handle(IpcChannel.SETTINGS_UPDATE, (patch: unknown) => {
     const userId = session.requireUserId()
-    settingsRepo.update(getDb(), userId, parseOrThrow(settingsPatchSchema, patch))
+    settingsRepo.update(session.requireVault(), userId, parseOrThrow(settingsPatchSchema, patch))
+    session.persist()
     return read(userId)
   })
 }

@@ -1,46 +1,61 @@
 import { IpcChannel } from '@shared/ipc-contract'
 import { handle } from './registry'
-import { getDb } from '../db/connection'
+import { session } from '../services/session.service'
 import { tasksService } from '../services/tasks.service'
 import { projectsService } from '../services/projects.service'
 import { tagsService } from '../services/tags.service'
 import { subtasksService } from '../services/subtasks.service'
 import { dashboardService } from '../services/dashboard.service'
 import { searchService } from '../services/search.service'
+import type { Db } from '../db/connection'
+
+/** Lecture : le coffre déchiffré, jamais le fichier. */
+function read<TResult>(channel: string, fn: (db: Db, input: unknown) => TResult): void {
+  handle(channel, (input: unknown) => fn(session.requireVault(), input))
+}
 
 /**
- * Handlers du domaine métier.
+ * Écriture : la même chose, suivie d'une réécriture du coffre chiffré.
  *
- * Chacun se réduit à « prendre la base, passer l'entrée au service ». La session,
- * la validation et les règles vivent dans les services : cette couche ne fait que
- * relier des canaux, ce qui la rend triviale à relire.
+ * La persistance est ici plutôt que dans chaque service : un service qui
+ * oublierait d'appeler `persist` produirait une modification visible à l'écran
+ * mais absente du disque au prochain démarrage. En la plaçant sur le canal, on
+ * ne peut pas l'oublier — écrire passe forcément par cette fonction.
  */
+function write<TResult>(channel: string, fn: (db: Db, input: unknown) => TResult): void {
+  handle(channel, (input: unknown) => {
+    const result = fn(session.requireVault(), input)
+    session.persist()
+    return result
+  })
+}
+
 export function registerMissionHandlers(): void {
-  handle(IpcChannel.DASHBOARD_LOAD, () => dashboardService.load(getDb()))
+  read(IpcChannel.DASHBOARD_LOAD, (db) => dashboardService.load(db))
 
-  handle(IpcChannel.TASKS_LIST, (input: unknown) => tasksService.list(getDb(), input))
-  handle(IpcChannel.TASKS_GET, (input: unknown) => tasksService.get(getDb(), input))
-  handle(IpcChannel.TASKS_CREATE, (input: unknown) => tasksService.create(getDb(), input))
-  handle(IpcChannel.TASKS_UPDATE, (input: unknown) => tasksService.update(getDb(), input))
-  handle(IpcChannel.TASKS_MOVE, (input: unknown) => tasksService.move(getDb(), input))
-  handle(IpcChannel.TASKS_TOGGLE, (input: unknown) => tasksService.toggle(getDb(), input))
-  handle(IpcChannel.TASKS_DELETE, (input: unknown) => tasksService.remove(getDb(), input))
+  read(IpcChannel.TASKS_LIST, (db, input) => tasksService.list(db, input))
+  read(IpcChannel.TASKS_GET, (db, input) => tasksService.get(db, input))
+  write(IpcChannel.TASKS_CREATE, (db, input) => tasksService.create(db, input))
+  write(IpcChannel.TASKS_UPDATE, (db, input) => tasksService.update(db, input))
+  write(IpcChannel.TASKS_MOVE, (db, input) => tasksService.move(db, input))
+  write(IpcChannel.TASKS_TOGGLE, (db, input) => tasksService.toggle(db, input))
+  write(IpcChannel.TASKS_DELETE, (db, input) => tasksService.remove(db, input))
 
-  handle(IpcChannel.PROJECTS_LIST, () => projectsService.list(getDb()))
-  handle(IpcChannel.PROJECTS_GET, (input: unknown) => projectsService.get(getDb(), input))
-  handle(IpcChannel.PROJECTS_CREATE, (input: unknown) => projectsService.create(getDb(), input))
-  handle(IpcChannel.PROJECTS_UPDATE, (input: unknown) => projectsService.update(getDb(), input))
-  handle(IpcChannel.PROJECTS_DELETE, (input: unknown) => projectsService.remove(getDb(), input))
+  read(IpcChannel.PROJECTS_LIST, (db) => projectsService.list(db))
+  read(IpcChannel.PROJECTS_GET, (db, input) => projectsService.get(db, input))
+  write(IpcChannel.PROJECTS_CREATE, (db, input) => projectsService.create(db, input))
+  write(IpcChannel.PROJECTS_UPDATE, (db, input) => projectsService.update(db, input))
+  write(IpcChannel.PROJECTS_DELETE, (db, input) => projectsService.remove(db, input))
 
-  handle(IpcChannel.TAGS_LIST, () => tagsService.list(getDb()))
-  handle(IpcChannel.TAGS_CREATE, (input: unknown) => tagsService.create(getDb(), input))
-  handle(IpcChannel.TAGS_UPDATE, (input: unknown) => tagsService.update(getDb(), input))
-  handle(IpcChannel.TAGS_DELETE, (input: unknown) => tagsService.remove(getDb(), input))
+  read(IpcChannel.TAGS_LIST, (db) => tagsService.list(db))
+  write(IpcChannel.TAGS_CREATE, (db, input) => tagsService.create(db, input))
+  write(IpcChannel.TAGS_UPDATE, (db, input) => tagsService.update(db, input))
+  write(IpcChannel.TAGS_DELETE, (db, input) => tagsService.remove(db, input))
 
-  handle(IpcChannel.SUBTASKS_CREATE, (input: unknown) => subtasksService.create(getDb(), input))
-  handle(IpcChannel.SUBTASKS_UPDATE, (input: unknown) => subtasksService.update(getDb(), input))
-  handle(IpcChannel.SUBTASKS_DELETE, (input: unknown) => subtasksService.remove(getDb(), input))
-  handle(IpcChannel.SUBTASKS_REORDER, (input: unknown) => subtasksService.reorder(getDb(), input))
+  write(IpcChannel.SUBTASKS_CREATE, (db, input) => subtasksService.create(db, input))
+  write(IpcChannel.SUBTASKS_UPDATE, (db, input) => subtasksService.update(db, input))
+  write(IpcChannel.SUBTASKS_DELETE, (db, input) => subtasksService.remove(db, input))
+  write(IpcChannel.SUBTASKS_REORDER, (db, input) => subtasksService.reorder(db, input))
 
-  handle(IpcChannel.SEARCH_RUN, (input: unknown) => searchService.run(getDb(), input))
+  read(IpcChannel.SEARCH_RUN, (db, input) => searchService.run(db, input))
 }

@@ -55,6 +55,26 @@ export const deleteAccountInputSchema = z.object({
   password: z.string().min(1, 'PASSWORD_REQUIRED')
 })
 
+/**
+ * Réinitialisation par phrase de récupération.
+ *
+ * La phrase est normalisée avant dérivation (majuscules, tirets retirés,
+ * confusions O/0 et I/1 corrigées) : elle est recopiée à la main, souvent des
+ * mois après, et refuser une saisie pour un tiret manquant serait absurde.
+ */
+export const recoverInputSchema = z.object({
+  username: usernameSchema,
+  recoveryPhrase: z.string().trim().min(10, 'RECOVERY_INVALID').max(120),
+  newPassword: passwordSchema
+})
+
+export const changePasswordInputSchema = z.object({
+  currentPassword: z.string().min(1, 'PASSWORD_REQUIRED'),
+  newPassword: passwordSchema
+})
+
 export type RegisterInput = z.infer<typeof registerInputSchema>
 export type LoginInput = z.infer<typeof loginInputSchema>
 export type DeleteAccountInput = z.infer<typeof deleteAccountInputSchema>
+export type RecoverInput = z.infer<typeof recoverInputSchema>
+export type ChangePasswordInput = z.infer<typeof changePasswordInputSchema>

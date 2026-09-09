@@ -86,3 +86,13 @@ sur une base jetable : compte créé, accent modifié, persistance confirmée en
 **Session mémorisée, installeur et mises à jour (avant Phase 3).** Option
 « se souvenir de moi » (ADR-005), installeur NSIS `setup.exe` et mises à jour par
 releases GitHub avec bouton « Vérifier la version » (ADR-006). Migration 003.
+
+**Phase 3 — MVP.** Dashboard, projets, tâches, sous-tâches, priorités, tags,
+filtres, recherche globale, raccourcis clavier. 41 tests de domaine, dont 7
+vérifiant qu'un utilisateur ne peut atteindre ni les tâches, ni les projets, ni
+les tags, ni les sous-tâches, ni les résultats de recherche d'un autre.
+
+**Chiffrement au repos (ADR-007).** Bases séparées : `accounts.db` en clair pour
+l'identité visible, un coffre `vaults/<userId>.mcv` chiffré en AES-256-GCM par
+compte. Clé enveloppe, phrase de récupération, scellement DPAPI optionnel.
+Vérifié : le fichier ne contient aucun texte des tâches, ni même l'en-tête SQLite.

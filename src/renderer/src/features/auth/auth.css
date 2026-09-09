@@ -196,3 +196,19 @@
     font: var(--mc-text-h1);
   }
 }
+
+/* --- Phrase de récupération ------------------------------------------------
+   Monospace, très espacée, sur fond sombre : elle est faite pour être recopiée
+   à la main sans erreur, pas pour être jolie. */
+.recovery__phrase {
+  padding: var(--mc-space-4);
+  background: var(--mc-void);
+  border: 1px solid var(--mc-grid-strong);
+  border-radius: var(--mc-radius-card);
+  color: var(--mc-cyan);
+  font-size: 1rem;
+  letter-spacing: 0.14em;
+  line-height: 1.9;
+  text-align: center;
+  word-break: break-all;
+}

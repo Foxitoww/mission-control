@@ -16,7 +16,9 @@ const api: MissionControlApi = {
     logout: () => ipcRenderer.invoke(IpcChannel.AUTH_LOGOUT),
     currentUser: () => ipcRenderer.invoke(IpcChannel.AUTH_CURRENT_USER),
     listUsers: () => ipcRenderer.invoke(IpcChannel.AUTH_LIST_USERS),
-    deleteAccount: (input) => ipcRenderer.invoke(IpcChannel.AUTH_DELETE_ACCOUNT, input)
+    deleteAccount: (input) => ipcRenderer.invoke(IpcChannel.AUTH_DELETE_ACCOUNT, input),
+    recover: (input) => ipcRenderer.invoke(IpcChannel.AUTH_RECOVER, input),
+    changePassword: (input) => ipcRenderer.invoke(IpcChannel.AUTH_CHANGE_PASSWORD, input)
   },
   profile: {
     update: (input) => ipcRenderer.invoke(IpcChannel.PROFILE_UPDATE, input)

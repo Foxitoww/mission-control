@@ -1,11 +1,12 @@
 import { app, shell, BrowserWindow, session as electronSession } from 'electron'
 import { join } from 'node:path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
-import { initDatabase } from './db/init'
+import { initAccounts } from './db/init'
 import { rememberService } from './services/remember.service'
-import { session } from './services/session.service'
+import { authService } from './services/auth.service'
 import { rememberStore } from './lib/remember-store'
-import { closeDatabase } from './db/connection'
+import { session } from './services/session.service'
+import { closeAccountsDb } from './db/connection'
 import { registerIpcHandlers } from './ipc'
 import { initUpdater, updateService } from './services/update.service'
 
@@ -88,13 +89,13 @@ app.whenReady().then(() => {
 
   applyContentSecurityPolicy()
 
-  const db = initDatabase()
-  rememberService.purgeExpired(db)
+  const accounts = initAccounts()
+  rememberService.purgeExpired(accounts)
 
   // Restauration AVANT la création de la fenêtre : le renderer interroge la
-  // session dès son premier rendu, il doit trouver l'état définitif.
-  const rememberedUserId = rememberService.restore(db, rememberStore())
-  if (rememberedUserId) session.start(rememberedUserId)
+  // session dès son premier rendu, il doit trouver l'état définitif. Ouvrir la
+  // session déchiffre aussi le coffre — d'où le passage par authService.
+  authService.restore(accounts, rememberStore())
 
   initUpdater()
   registerIpcHandlers()
@@ -114,4 +115,9 @@ app.on('window-all-closed', () => {
 })
 
 // WAL laisse un fichier -wal en attente ; fermer proprement le replie dans la base.
-app.on('will-quit', closeDatabase)
+app.on('will-quit', () => {
+  // Ferme la session AVANT la base : le coffre doit être écrit et sa clé
+  // effacée pendant que tout est encore ouvert.
+  session.clear()
+  closeAccountsDb()
+})

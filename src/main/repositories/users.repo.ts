@@ -2,11 +2,20 @@ import type { Db } from '../db/connection'
 import type { PublicUser } from '@shared/types/domain'
 
 /**
- * Enregistrement interne, avec le hash. Ne quitte JAMAIS le processus main.
- * Le type PublicUser (sans passwordHash) est le seul à traverser l'IPC.
+ * Enregistrement interne, avec l'empreinte du mot de passe. Ne quitte JAMAIS
+ * le processus main. Le type PublicUser est le seul à traverser l'IPC.
  */
 export interface UserRecord extends PublicUser {
   passwordHash: string
+}
+
+/** Matériel cryptographique d'un compte. Ne sort jamais des services de sécurité. */
+export interface UserKeys {
+  kdfSalt: Buffer
+  dekPassword: Buffer
+  recoverySalt: Buffer
+  dekRecovery: Buffer
+  dekOs: Buffer | null
 }
 
 interface UserRow {
@@ -32,27 +41,37 @@ function toPublic(row: Omit<UserRow, 'password_hash'>): PublicUser {
   }
 }
 
-function toRecord(row: UserRow): UserRecord {
-  return { ...toPublic(row), passwordHash: row.password_hash }
-}
-
 export const usersRepo = {
   insert(
     db: Db,
-    user: { id: string; username: string; displayName: string; passwordHash: string; avatar: string | null; now: string }
+    user: {
+      id: string
+      username: string
+      displayName: string
+      passwordHash: string
+      avatar: string | null
+      kdfSalt: Buffer
+      dekPassword: Buffer
+      recoverySalt: Buffer
+      dekRecovery: Buffer
+      now: string
+    }
   ): void {
     db.prepare(
-      `INSERT INTO users (id, username, display_name, password_hash, avatar, created_at, updated_at)
-       VALUES (@id, @username, @displayName, @passwordHash, @avatar, @now, @now)`
+      `INSERT INTO users (id, username, display_name, password_hash, avatar,
+                          kdf_salt, dek_password, recovery_salt, dek_recovery,
+                          created_at, updated_at)
+       VALUES (@id, @username, @displayName, @passwordHash, @avatar,
+               @kdfSalt, @dekPassword, @recoverySalt, @dekRecovery, @now, @now)`
     ).run(user)
   },
 
-  /** Seul point d'accès au hash — réservé à la vérification de mot de passe. */
+  /** Seul point d'accès à l'empreinte — réservé à la vérification du mot de passe. */
   findByUsername(db: Db, username: string): UserRecord | null {
     const row = db
       .prepare(`SELECT ${PUBLIC_COLUMNS}, password_hash FROM users WHERE username = ?`)
       .get(username) as UserRow | undefined
-    return row ? toRecord(row) : null
+    return row ? { ...toPublic(row), passwordHash: row.password_hash } : null
   },
 
   findById(db: Db, id: string): PublicUser | null {
@@ -64,7 +83,7 @@ export const usersRepo = {
 
   /**
    * Profils affichés sur l'écran de connexion. N'expose que l'identité visible :
-   * aucune donnée métier, aucun compteur, aucun hash.
+   * aucune donnée métier, aucune empreinte, aucune clé.
    */
   listPublic(db: Db): PublicUser[] {
     const rows = db
@@ -73,17 +92,63 @@ export const usersRepo = {
     return rows.map(toPublic)
   },
 
-  /**
-   * Un AUTRE utilisateur porte-t-il déjà ce nom ?
-   *
-   * L'exclusion de l'identifiant courant est essentielle : sans elle, renommer
-   * son profil sans changer son pseudo se heurterait à sa propre ligne.
-   */
-  usernameTakenByOther(db: Db, username: string, exceptUserId: string): boolean {
+  keys(db: Db, userId: string): UserKeys | null {
     const row = db
-      .prepare('SELECT 1 AS hit FROM users WHERE username = ? AND id <> ?')
-      .get(username, exceptUserId)
-    return row !== undefined
+      .prepare(
+        'SELECT kdf_salt, dek_password, recovery_salt, dek_recovery, dek_os FROM users WHERE id = ?'
+      )
+      .get(userId) as
+      | {
+          kdf_salt: Buffer
+          dek_password: Buffer
+          recovery_salt: Buffer
+          dek_recovery: Buffer
+          dek_os: Buffer | null
+        }
+      | undefined
+
+    return row
+      ? {
+          kdfSalt: row.kdf_salt,
+          dekPassword: row.dek_password,
+          recoverySalt: row.recovery_salt,
+          dekRecovery: row.dek_recovery,
+          dekOs: row.dek_os
+        }
+      : null
+  },
+
+  /**
+   * Réemballe la clé de données pour un nouveau mot de passe.
+   *
+   * Les DONNÉES ne sont pas touchées : seuls 32 octets sont rechiffrés. C'est
+   * tout l'intérêt du chiffrement enveloppe — sans lui, changer de mot de passe
+   * imposerait de relire et réécrire l'intégralité du coffre.
+   */
+  rewrapPassword(
+    db: Db,
+    userId: string,
+    data: { passwordHash: string; kdfSalt: Buffer; dekPassword: Buffer; now: string }
+  ): void {
+    db.prepare(
+      `UPDATE users
+          SET password_hash = @passwordHash, kdf_salt = @kdfSalt,
+              dek_password = @dekPassword, updated_at = @now
+        WHERE id = @userId`
+    ).run({ ...data, userId })
+  },
+
+  /** Scelle (ou retire) la clé protégée par le système d'exploitation. */
+  setOsKey(db: Db, userId: string, sealed: Buffer | null): void {
+    db.prepare('UPDATE users SET dek_os = ? WHERE id = ?').run(sealed, userId)
+  },
+
+  usernameTakenByOther(db: Db, username: string, exceptUserId: string): boolean {
+    return (
+      db
+        .prepare('SELECT 1 FROM users WHERE username = ? AND id <> ?')
+        .get(username, exceptUserId) !== undefined
+    )
   },
 
   updateProfile(
@@ -99,16 +164,13 @@ export const usersRepo = {
   ): void {
     db.prepare(
       `UPDATE users
-          SET username = @username,
-              display_name = @displayName,
-              avatar = @avatar,
-              accent_color = @accentColor,
-              updated_at = @now
+          SET username = @username, display_name = @displayName, avatar = @avatar,
+              accent_color = @accentColor, updated_at = @now
         WHERE id = @userId`
     ).run({ ...data, userId })
   },
 
-  /** La cascade du schéma efface projets, tâches, tags, objectifs et paramètres. */
+  /** Efface la ligne. Le COFFRE, lui, est supprimé séparément par le service. */
   deleteById(db: Db, id: string): void {
     db.prepare('DELETE FROM users WHERE id = ?').run(id)
   }

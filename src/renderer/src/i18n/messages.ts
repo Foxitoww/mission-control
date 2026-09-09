@@ -95,6 +95,17 @@ const fr = {
   'error.AVATAR_DECODE_FAILED': "Impossible de lire cette image.",
   'error.ACCENT_INVALID': 'Couleur non proposée par la palette.',
 
+  'recovery.title': 'Clé de récupération',
+  'recovery.intro':
+    'Tes données sont chiffrées avec ton mot de passe. Cette phrase est le seul autre moyen de les rouvrir.',
+  'recovery.heading': 'Note cette phrase maintenant',
+  'recovery.warning':
+    'Elle ne sera plus jamais affichée. Sans elle ni ton mot de passe, tes données sont définitivement perdues — c’est la contrepartie d’un vrai chiffrement.',
+  'recovery.copy': 'Copier',
+  'recovery.copied': 'Copiée',
+  'recovery.confirm': 'J’ai noté cette phrase en lieu sûr, hors de cet ordinateur.',
+  'recovery.continue': 'Entrer dans le centre de contrôle',
+
   'nav.label': 'Navigation principale',
   'nav.operations': 'Opérations',
   'nav.missions': 'Missions',
@@ -277,6 +288,17 @@ const en: Record<MessageKey, string> = {
   'error.AVATAR_SOURCE_TOO_LARGE': 'Image too large: 12 MB maximum.',
   'error.AVATAR_DECODE_FAILED': 'That image could not be read.',
   'error.ACCENT_INVALID': 'Colour not offered by the palette.',
+
+  'recovery.title': 'Recovery key',
+  'recovery.intro':
+    'Your data is encrypted with your password. This phrase is the only other way to open it.',
+  'recovery.heading': 'Write this phrase down now',
+  'recovery.warning':
+    'It will never be shown again. Without it and without your password, your data is permanently lost — that is the price of real encryption.',
+  'recovery.copy': 'Copy',
+  'recovery.copied': 'Copied',
+  'recovery.confirm': 'I have written this phrase somewhere safe, away from this computer.',
+  'recovery.continue': 'Enter the control centre',
 
   'nav.label': 'Main navigation',
   'nav.operations': 'Operations',

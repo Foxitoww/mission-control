@@ -12,7 +12,14 @@ import type { RegisterInput, LoginInput } from '@shared/schemas/auth.schema'
 import type { UpdateProfileInput } from '@shared/schemas/profile.schema'
 import { unwrap } from '@renderer/lib/ipc'
 
-type Status = 'checking' | 'signed-out' | 'signed-in'
+/**
+ * L'état « recovery-pending » : le compte EXISTE et la session est ouverte côté
+ * main, mais l'interface retient l'utilisateur sur l'écran de la phrase de
+ * récupération. Sans cet état, la phrase serait affichée dans un composant
+ * aussitôt démonté par le passage au tableau de bord — et perdue à jamais,
+ * puisque rien ne la conserve en clair.
+ */
+type Status = 'checking' | 'signed-out' | 'signed-in' | 'recovery-pending'
 
 interface AuthValue {
   status: Status
@@ -22,9 +29,13 @@ interface AuthValue {
   profilesLoaded: boolean
   refreshProfiles: () => Promise<void>
   signIn: (input: LoginInput) => Promise<void>
-  signUp: (input: RegisterInput) => Promise<void>
+  /** Renvoie la phrase de récupération, à afficher immédiatement. */
+  signUp: (input: RegisterInput) => Promise<string>
   signOut: () => Promise<void>
   updateProfile: (input: UpdateProfileInput) => Promise<void>
+  /** Phrase à afficher, tant qu'elle n'a pas été acquittée. */
+  pendingRecovery: string | null
+  acknowledgeRecovery: () => void
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
@@ -34,6 +45,7 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
   const [user, setUser] = useState<PublicUser | null>(null)
   const [profiles, setProfiles] = useState<PublicUser[]>([])
   const [profilesLoaded, setProfilesLoaded] = useState(false)
+  const [pendingRecovery, setPendingRecovery] = useState<string | null>(null)
 
   const refreshProfiles = useCallback(async () => {
     setProfiles(await unwrap(window.mc.auth.listUsers()))
@@ -65,9 +77,24 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
     setStatus('signed-in')
   }, [])
 
-  const signUp = useCallback(async (input: RegisterInput) => {
-    const created = await unwrap(window.mc.auth.register(input))
+  /**
+   * Crée le compte et renvoie la PHRASE DE RÉCUPÉRATION.
+   *
+   * Elle n'existe qu'à cet instant : le processus main ne la stocke nulle part
+   * en clair et ne pourra jamais la réafficher. L'appelant a donc l'obligation
+   * de la montrer immédiatement à l'utilisateur.
+   */
+  const signUp = useCallback(async (input: RegisterInput): Promise<string> => {
+    const { user: created, recoveryPhrase } = await unwrap(window.mc.auth.register(input))
     setUser(created)
+    setPendingRecovery(recoveryPhrase)
+    setStatus('recovery-pending')
+    return recoveryPhrase
+  }, [])
+
+  /** L'utilisateur déclare avoir noté sa phrase : on peut entrer dans l'application. */
+  const acknowledgeRecovery = useCallback(() => {
+    setPendingRecovery(null)
     setStatus('signed-in')
   }, [])
 
@@ -96,9 +123,23 @@ export function AuthProvider({ children }: { children: ReactNode }): JSX.Element
       signIn,
       signUp,
       signOut,
-      updateProfile
+      updateProfile,
+      pendingRecovery,
+      acknowledgeRecovery
     }),
-    [status, user, profiles, profilesLoaded, refreshProfiles, signIn, signUp, signOut, updateProfile]
+    [
+      status,
+      user,
+      profiles,
+      profilesLoaded,
+      refreshProfiles,
+      signIn,
+      signUp,
+      signOut,
+      updateProfile,
+      pendingRecovery,
+      acknowledgeRecovery
+    ]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
