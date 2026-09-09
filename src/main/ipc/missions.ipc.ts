@@ -7,6 +7,8 @@ import { tagsService } from '../services/tags.service'
 import { subtasksService } from '../services/subtasks.service'
 import { dashboardService } from '../services/dashboard.service'
 import { searchService } from '../services/search.service'
+import { goalsService } from '../services/goals.service'
+import { statsService } from '../services/stats.service'
 import type { Db } from '../db/connection'
 
 /** Lecture : le coffre déchiffré, jamais le fichier. */
@@ -56,6 +58,14 @@ export function registerMissionHandlers(): void {
   write(IpcChannel.SUBTASKS_UPDATE, (db, input) => subtasksService.update(db, input))
   write(IpcChannel.SUBTASKS_DELETE, (db, input) => subtasksService.remove(db, input))
   write(IpcChannel.SUBTASKS_REORDER, (db, input) => subtasksService.reorder(db, input))
+
+  read(IpcChannel.GOALS_LIST, (db) => goalsService.list(db))
+  write(IpcChannel.GOALS_CREATE, (db, input) => goalsService.create(db, input))
+  write(IpcChannel.GOALS_UPDATE, (db, input) => goalsService.update(db, input))
+  write(IpcChannel.GOALS_ADVANCE, (db, input) => goalsService.advance(db, input))
+  write(IpcChannel.GOALS_DELETE, (db, input) => goalsService.remove(db, input))
+
+  read(IpcChannel.STATS_LOAD, (db, input) => statsService.load(db, input))
 
   read(IpcChannel.SEARCH_RUN, (db, input) => searchService.run(db, input))
 }

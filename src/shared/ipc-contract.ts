@@ -5,7 +5,9 @@ import type {
   TaskDetail,
   ProjectSummary,
   DashboardData,
-  SearchResults
+  SearchResults,
+  GoalSummary,
+  StatsData
 } from './types/views'
 import type { UpdateStatus } from './types/update'
 import type {
@@ -31,6 +33,11 @@ import type {
   CreateTagInput,
   UpdateTagInput
 } from './schemas/project.schema'
+import type {
+  CreateGoalInput,
+  UpdateGoalInput,
+  AdvanceGoalInput
+} from './schemas/goal.schema'
 
 /**
  * Résultat d'une inscription.
@@ -95,6 +102,14 @@ export const IpcChannel = {
   SUBTASKS_UPDATE: 'subtasks:update',
   SUBTASKS_DELETE: 'subtasks:delete',
   SUBTASKS_REORDER: 'subtasks:reorder',
+
+  GOALS_LIST: 'goals:list',
+  GOALS_CREATE: 'goals:create',
+  GOALS_UPDATE: 'goals:update',
+  GOALS_ADVANCE: 'goals:advance',
+  GOALS_DELETE: 'goals:delete',
+
+  STATS_LOAD: 'stats:load',
 
   SEARCH_RUN: 'search:run'
 } as const
@@ -175,6 +190,17 @@ export interface MissionControlApi {
     update(input: UpdateSubtaskInput): Promise<IpcResult<TaskDetail>>
     remove(input: { id: string }): Promise<IpcResult<null>>
     reorder(input: { taskId: string; orderedIds: string[] }): Promise<IpcResult<TaskDetail>>
+  }
+  goals: {
+    list(): Promise<IpcResult<GoalSummary[]>>
+    create(input: Partial<CreateGoalInput> & { title: string }): Promise<IpcResult<GoalSummary>>
+    update(input: UpdateGoalInput): Promise<IpcResult<GoalSummary>>
+    /** Incremente la valeur courante depuis la carte, sans ouvrir le formulaire. */
+    advance(input: AdvanceGoalInput): Promise<IpcResult<GoalSummary>>
+    remove(input: { id: string }): Promise<IpcResult<null>>
+  }
+  stats: {
+    load(input?: { days?: number }): Promise<IpcResult<StatsData>>
   }
   search: {
     run(input: { query: string }): Promise<IpcResult<SearchResults>>

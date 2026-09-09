@@ -70,6 +70,16 @@ const api: MissionControlApi = {
     remove: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_DELETE, input),
     reorder: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_REORDER, input)
   },
+  goals: {
+    list: () => ipcRenderer.invoke(IpcChannel.GOALS_LIST),
+    create: (input) => ipcRenderer.invoke(IpcChannel.GOALS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.GOALS_UPDATE, input),
+    advance: (input) => ipcRenderer.invoke(IpcChannel.GOALS_ADVANCE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.GOALS_DELETE, input)
+  },
+  stats: {
+    load: (input) => ipcRenderer.invoke(IpcChannel.STATS_LOAD, input ?? {})
+  },
   search: {
     run: (input) => ipcRenderer.invoke(IpcChannel.SEARCH_RUN, input)
   }

@@ -2,6 +2,7 @@ import type { Db } from '../db/connection'
 import type { Task, Tag, TaskStatus, TaskPriority } from '@shared/types/domain'
 import type { TaskListItem, TaskDetail } from '@shared/types/views'
 import type { TaskFilter } from '@shared/schemas/task.schema'
+import { parseRule } from '@shared/schemas/recurrence.schema'
 
 interface TaskRow {
   id: string
@@ -14,6 +15,8 @@ interface TaskRow {
   completed_at: string | null
   estimated_minutes: number | null
   position: number
+  recurrence_rule: string | null
+  recurrence_parent_id: string | null
   created_at: string
   updated_at: string
   project_name: string | null
@@ -30,7 +33,7 @@ interface TaskRow {
 const SELECT_TASK = `
   SELECT t.id, t.project_id, t.title, t.description, t.status, t.priority,
          t.due_date, t.completed_at, t.estimated_minutes, t.position,
-         t.created_at, t.updated_at,
+         t.recurrence_rule, t.recurrence_parent_id, t.created_at, t.updated_at,
          p.name AS project_name, p.color AS project_color,
          (SELECT COUNT(*) FROM subtasks s WHERE s.task_id = t.id) AS subtask_total,
          (SELECT COUNT(*) FROM subtasks s WHERE s.task_id = t.id AND s.completed = 1) AS subtask_done
@@ -51,6 +54,8 @@ function toItem(row: TaskRow, tags: Tag[]): TaskListItem {
     position: row.position,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    recurrence: parseRule(row.recurrence_rule),
+    recurrenceParentId: row.recurrence_parent_id,
     projectName: row.project_name,
     projectColor: row.project_color,
     subtaskTotal: row.subtask_total,
@@ -177,14 +182,18 @@ export const tasksRepo = {
       completedAt: string | null
       estimatedMinutes: number | null
       position: number
+      recurrenceRule: string | null
+      recurrenceParentId: string | null
       now: string
     }
   ): void {
     db.prepare(
       `INSERT INTO tasks (id, user_id, project_id, title, description, status, priority,
-                          due_date, completed_at, estimated_minutes, position, created_at, updated_at)
+                          due_date, completed_at, estimated_minutes, position,
+                          recurrence_rule, recurrence_parent_id, created_at, updated_at)
        VALUES (@id, @userId, @projectId, @title, @description, @status, @priority,
-               @dueDate, @completedAt, @estimatedMinutes, @position, @now, @now)`
+               @dueDate, @completedAt, @estimatedMinutes, @position,
+               @recurrenceRule, @recurrenceParentId, @now, @now)`
     ).run(data)
   },
 

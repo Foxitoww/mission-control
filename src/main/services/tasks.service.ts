@@ -14,6 +14,8 @@ import {
   taskFilterSchema
 } from '@shared/schemas/task.schema'
 import { idInputSchema } from '@shared/schemas/project.schema'
+import { serializeRule, type RecurrenceRule } from '@shared/schemas/recurrence.schema'
+import { nextOccurrence } from './recurrence'
 
 /**
  * Applique l'invariant du schéma : `status = COMPLETED` ⟺ `completed_at` renseigné.
@@ -49,6 +51,61 @@ function requireTask(db: Db, userId: string, id: string): TaskDetail {
   return task
 }
 
+/** Une récurrence sans échéance n'a rien à faire avancer. */
+function assertRecurrenceHasDueDate(
+  recurrence: RecurrenceRule | null | undefined,
+  dueDate: string | null | undefined
+): void {
+  if (recurrence && !dueDate) {
+    throw new AppError(AppErrorCode.VALIDATION_FAILED, 'RECURRENCE_NEEDS_DUE_DATE')
+  }
+}
+
+/**
+ * Crée l'occurrence suivante d'une tâche récurrente qui vient d'être terminée.
+ *
+ * La tâche terminée est CONSERVÉE : elle devient l'historique de la série. On
+ * ne réutilise pas la même ligne en repoussant sa date, sinon « j'ai fait le
+ * ménage 14 fois ce trimestre » serait indémontrable, et les statistiques ne
+ * compteraient qu'une complétion.
+ *
+ * Toutes les occurrences pointent vers la PREMIÈRE tâche de la série, jamais
+ * vers la précédente : une chaîne obligerait à remonter maillon par maillon, et
+ * casserait dès qu'une occupation intermédiaire est supprimée.
+ */
+function spawnNextOccurrence(db: Db, userId: string, completed: TaskDetail, now: string): void {
+  if (!completed.recurrence || !completed.dueDate) return
+
+  const next = nextOccurrence(completed.recurrence, new Date(completed.dueDate), new Date(now))
+  if (!next) return
+
+  const id = randomUUID()
+  tasksRepo.insert(db, {
+    id,
+    userId,
+    projectId: completed.projectId,
+    title: completed.title,
+    description: completed.description,
+    status: 'TODO',
+    priority: completed.priority,
+    dueDate: next.toISOString(),
+    completedAt: null,
+    estimatedMinutes: completed.estimatedMinutes,
+    position: tasksRepo.nextPosition(db, userId),
+    recurrenceRule: serializeRule(completed.recurrence),
+    recurrenceParentId: completed.recurrenceParentId ?? completed.id,
+    now
+  })
+
+  // Les étiquettes suivent la série : une tâche récurrente étiquetée « ménage »
+  // le reste à chaque occurrence.
+  tasksRepo.setTags(
+    db,
+    id,
+    completed.tags.map((tag) => tag.id)
+  )
+}
+
 export const tasksService = {
   list(db: Db, input: unknown): TaskListItem[] {
     const userId = session.requireUserId()
@@ -67,6 +124,7 @@ export const tasksService = {
 
     assertProjectOwned(db, userId, data.projectId)
     assertTagsOwned(db, userId, data.tagIds)
+    assertRecurrenceHasDueDate(data.recurrence, data.dueDate)
 
     const id = randomUUID()
     const now = new Date().toISOString()
@@ -84,6 +142,8 @@ export const tasksService = {
         completedAt: completionFor(data.status, null, now),
         estimatedMinutes: data.estimatedMinutes,
         position: tasksRepo.nextPosition(db, userId),
+        recurrenceRule: serializeRule(data.recurrence),
+        recurrenceParentId: null,
         now
       })
       tasksRepo.setTags(db, id, data.tagIds)
@@ -99,6 +159,10 @@ export const tasksService = {
 
     if (data.projectId !== undefined) assertProjectOwned(db, userId, data.projectId)
     if (data.tagIds !== undefined) assertTagsOwned(db, userId, data.tagIds)
+    assertRecurrenceHasDueDate(
+      data.recurrence === undefined ? existing.recurrence : data.recurrence,
+      data.dueDate === undefined ? existing.dueDate : data.dueDate
+    )
 
     const now = new Date().toISOString()
     const fields: Record<string, unknown> = {}
@@ -109,6 +173,7 @@ export const tasksService = {
     if (data.priority !== undefined) fields['priority'] = data.priority
     if (data.dueDate !== undefined) fields['due_date'] = data.dueDate
     if (data.estimatedMinutes !== undefined) fields['estimated_minutes'] = data.estimatedMinutes
+    if (data.recurrence !== undefined) fields['recurrence_rule'] = serializeRule(data.recurrence)
 
     // Statut et date de complétion changent ENSEMBLE, jamais séparément.
     if (data.status !== undefined) {
@@ -116,9 +181,12 @@ export const tasksService = {
       fields['completed_at'] = completionFor(data.status, existing.completedAt, now)
     }
 
+    const becomesComplete = data.status === 'COMPLETED' && existing.status !== 'COMPLETED'
+
     db.transaction(() => {
       tasksRepo.update(db, userId, data.id, fields, now)
       if (data.tagIds !== undefined) tasksRepo.setTags(db, data.id, data.tagIds)
+      if (becomesComplete) spawnNextOccurrence(db, userId, existing, now)
     })()
 
     return requireTask(db, userId, data.id)
@@ -167,13 +235,11 @@ export const tasksService = {
     const status: TaskStatus = existing.status === 'COMPLETED' ? 'TODO' : 'COMPLETED'
     const now = new Date().toISOString()
 
-    tasksRepo.update(
-      db,
-      userId,
-      id,
-      { status, completed_at: completionFor(status, null, now) },
-      now
-    )
+    db.transaction(() => {
+      tasksRepo.update(db, userId, id, { status, completed_at: completionFor(status, null, now) }, now)
+      if (status === 'COMPLETED') spawnNextOccurrence(db, userId, existing, now)
+    })()
+
     return requireTask(db, userId, id)
   },
 

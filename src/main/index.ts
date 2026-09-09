@@ -6,6 +6,7 @@ import { rememberService } from './services/remember.service'
 import { authService } from './services/auth.service'
 import { rememberStore } from './lib/remember-store'
 import { session } from './services/session.service'
+import { notificationsService } from './services/notifications.service'
 import { closeAccountsDb } from './db/connection'
 import { registerIpcHandlers } from './ipc'
 import { initUpdater, updateService } from './services/update.service'
@@ -105,6 +106,10 @@ app.whenReady().then(() => {
   // rendu. Elle est différée à l'intérieur du service.
   updateService.scheduleStartupCheck()
 
+  // Le coffre change a chaque connexion : on passe un resolveur, pas une
+  // reference, sinon le service ecrirait dans une base deja fermee.
+  notificationsService.start(() => (session.userId ? session.requireVault() : null))
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
@@ -118,6 +123,7 @@ app.on('window-all-closed', () => {
 app.on('will-quit', () => {
   // Ferme la session AVANT la base : le coffre doit être écrit et sa clé
   // effacée pendant que tout est encore ouvert.
+  notificationsService.stop()
   session.clear()
   closeAccountsDb()
 })

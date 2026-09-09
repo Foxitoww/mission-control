@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { TASK_STATUSES, TASK_PRIORITIES } from '../types/domain'
+import { recurrenceRuleSchema } from './recurrence.schema'
 
 const id = z.string().uuid()
 
@@ -26,7 +27,13 @@ export const createTaskInputSchema = z.object({
   priority: z.enum(TASK_PRIORITIES).default('MEDIUM'),
   dueDate: isoDate,
   estimatedMinutes: z.number().int().positive('ESTIMATE_INVALID').max(100_000).nullable().default(null),
-  tagIds: z.array(id).max(20).default([])
+  tagIds: z.array(id).max(20).default([]),
+  /**
+   * Récurrence. Exige une échéance : sans date de départ, il n'y a rien à faire
+   * avancer. La contrainte est vérifiée par le service plutôt qu'ici, pour
+   * renvoyer un message explicite au lieu d'une erreur de forme.
+   */
+  recurrence: recurrenceRuleSchema.nullable().default(null)
 })
 
 export const updateTaskInputSchema = z.object({
@@ -38,7 +45,8 @@ export const updateTaskInputSchema = z.object({
   priority: z.enum(TASK_PRIORITIES).optional(),
   dueDate: z.string().datetime({ message: 'DATE_INVALID' }).nullable().optional(),
   estimatedMinutes: z.number().int().positive('ESTIMATE_INVALID').max(100_000).nullable().optional(),
-  tagIds: z.array(id).max(20).optional()
+  tagIds: z.array(id).max(20).optional(),
+  recurrence: recurrenceRuleSchema.nullable().optional()
 })
 
 /**

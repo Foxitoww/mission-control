@@ -1,4 +1,5 @@
-import type { Task, Project, Tag, Subtask } from './domain'
+import type { Task, Project, Tag, Subtask, GoalStatus, TaskPriority } from './domain'
+import type { RecurrenceRule } from '../schemas/recurrence.schema'
 
 /**
  * Formes de LECTURE, distinctes des entités écrites.
@@ -10,6 +11,10 @@ import type { Task, Project, Tag, Subtask } from './domain'
  */
 export interface TaskListItem extends Task {
   tags: Tag[]
+  /** Règle de récurrence décodée, ou `null` pour une tâche ponctuelle. */
+  recurrence: RecurrenceRule | null
+  /** Première tâche de la série, pour retrouver l'historique d'une récurrence. */
+  recurrenceParentId: string | null
   subtaskTotal: number
   subtaskDone: number
   projectName: string | null
@@ -58,4 +63,48 @@ export interface SearchResults {
   tasks: TaskListItem[]
   projects: ProjectSummary[]
   tags: Tag[]
+}
+
+/**
+ * Objectif, avec sa progression CALCULÉE.
+ *
+ * `progress` n'est pas stocké : c'est `currentValue / targetValue`, plafonné à 1.
+ * Un pourcentage persisté finirait toujours par diverger de ses deux sources.
+ */
+export interface GoalSummary {
+  id: string
+  projectId: string | null
+  title: string
+  description: string | null
+  targetValue: number
+  currentValue: number
+  deadline: string | null
+  status: GoalStatus
+  createdAt: string
+  updatedAt: string
+  projectName: string | null
+  projectColor: string | null
+  /** 0 à 1. */
+  progress: number
+}
+
+/** Un point de l'histogramme d'activité. */
+export interface DailyActivity {
+  /** Jour local, au format `YYYY-MM-DD`. */
+  date: string
+  created: number
+  completed: number
+}
+
+export interface StatsData {
+  totals: MissionStats
+  /** Activité des N derniers jours, jours vides inclus. */
+  daily: DailyActivity[]
+  byPriority: { priority: TaskPriority; total: number; completed: number }[]
+  byProject: ProjectSummary[]
+  goals: { total: number; completed: number }
+  /** Jours consécutifs, jusqu'à aujourd'hui, avec au moins une complétion. */
+  streak: number
+  /** Minutes estimées sur les opérations terminées de la période. */
+  estimatedMinutesCompleted: number
 }
