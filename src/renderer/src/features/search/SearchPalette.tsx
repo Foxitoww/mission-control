@@ -79,9 +79,7 @@ export function SearchPalette({ onClose }: { onClose: () => void }): JSX.Element
         />
 
         <div className="palette__results">
-          {debounced.trim() === '' && (
-            <p className="palette__hint">{t('search.hint')}</p>
-          )}
+          {debounced.trim() === '' && <p className="palette__hint">{t('search.hint')}</p>}
 
           {empty && <p className="palette__hint">{t('search.noResult')}</p>}
 

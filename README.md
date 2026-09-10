@@ -36,13 +36,13 @@ bloque les scripts d'installation (`allow-scripts`), ce qui est le cas sur cette
 
 ## Commandes
 
-| Commande | Effet |
-|---|---|
-| `npm run dev` | Application en développement, rechargement à chaud sur les trois processus |
-| `npm run build` | Typecheck puis build de production dans `out/` |
-| `npm test` | Suite Vitest (SQLite en mémoire) |
-| `npm run typecheck` | Vérification TypeScript des projets Node et Web |
-| `npm run package` | Exécutable Windows via electron-builder |
+| Commande            | Effet                                                                      |
+| ------------------- | -------------------------------------------------------------------------- |
+| `npm run dev`       | Application en développement, rechargement à chaud sur les trois processus |
+| `npm run build`     | Typecheck puis build de production dans `out/`                             |
+| `npm test`          | Suite Vitest (SQLite en mémoire)                                           |
+| `npm run typecheck` | Vérification TypeScript des projets Node et Web                            |
+| `npm run package`   | Exécutable Windows via electron-builder                                    |
 
 En développement uniquement, la variable `MC_DB_PATH` pointe l'application vers une
 base jetable — pratique pour une session de test manuelle sans toucher aux vraies
@@ -57,15 +57,15 @@ sont en ajout seul — voir [DATA-MODEL.md](docs/DATA-MODEL.md).
 
 ## Documentation
 
-| Document | Contenu |
-|---|---|
-| [Architecture](docs/ARCHITECTURE.md) | Processus, frontière de confiance, état, erreurs |
-| [Modèle de données](docs/DATA-MODEL.md) | Schéma SQLite, PRAGMAs, index |
-| [Design system](docs/DESIGN-SYSTEM.md) | Palette, typographie, primitives, accessibilité |
-| [Agents](docs/AGENTS.md) | Rôles de revue et définition de « terminé » |
-| [Roadmap](docs/ROADMAP.md) | Phases, dépendances, journal d'exécution |
-| [Décisions (ADR)](docs/adr/) | Choix structurants et leurs raisons |
-| [Contribuer](CONTRIBUTING.md) | Politique de branches et procédure de release |
+| Document                                | Contenu                                          |
+| --------------------------------------- | ------------------------------------------------ |
+| [Architecture](docs/ARCHITECTURE.md)    | Processus, frontière de confiance, état, erreurs |
+| [Modèle de données](docs/DATA-MODEL.md) | Schéma SQLite, PRAGMAs, index                    |
+| [Design system](docs/DESIGN-SYSTEM.md)  | Palette, typographie, primitives, accessibilité  |
+| [Agents](docs/AGENTS.md)                | Rôles de revue et définition de « terminé »      |
+| [Roadmap](docs/ROADMAP.md)              | Phases, dépendances, journal d'exécution         |
+| [Décisions (ADR)](docs/adr/)            | Choix structurants et leurs raisons              |
+| [Contribuer](CONTRIBUTING.md)           | Politique de branches et procédure de release    |
 
 ## État
 

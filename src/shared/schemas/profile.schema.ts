@@ -22,7 +22,10 @@ const MAX_EMOJI_CHARS = 16
 export const avatarSchema = z
   .string()
   .max(MAX_AVATAR_CHARS, 'AVATAR_TOO_LARGE')
-  .refine((value) => value.length <= MAX_EMOJI_CHARS || AVATAR_DATA_URI.test(value), 'AVATAR_INVALID')
+  .refine(
+    (value) => value.length <= MAX_EMOJI_CHARS || AVATAR_DATA_URI.test(value),
+    'AVATAR_INVALID'
+  )
   .nullable()
 
 export const accentColorSchema = z.enum(ACCENT_COLORS, {

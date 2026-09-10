@@ -30,10 +30,7 @@ function toComment(row: CommentRow): TaskComment {
 }
 
 export const taskCommentsRepo = {
-  insert(
-    db: Db,
-    data: { id: string; taskId: string; body: string; now: string }
-  ): void {
+  insert(db: Db, data: { id: string; taskId: string; body: string; now: string }): void {
     db.prepare(
       `INSERT INTO task_comments (id, task_id, body, edited, created_at, updated_at)
        VALUES (@id, @taskId, @body, 0, @now, @now)`
@@ -63,9 +60,8 @@ export const taskCommentsRepo = {
 
   /** Tâche parente d'un message. */
   taskIdOf(db: Db, commentId: string): string | null {
-    const row = db
-      .prepare('SELECT task_id FROM task_comments WHERE id = ?')
-      .get(commentId) as { task_id: string } | undefined
+    const row = db.prepare('SELECT task_id FROM task_comments WHERE id = ?').get(commentId) as
+      { task_id: string } | undefined
     return row?.task_id ?? null
   },
 

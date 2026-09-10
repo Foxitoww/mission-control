@@ -80,11 +80,7 @@ export function Shell(): JSX.Element {
 
       <div className="shell__main">
         <header className="topbar">
-          <button
-            type="button"
-            className="topbar__search"
-            onClick={() => setSearching(true)}
-          >
+          <button type="button" className="topbar__search" onClick={() => setSearching(true)}>
             <IconSearch />
             <span>{t('search.open')}</span>
             <kbd>/</kbd>

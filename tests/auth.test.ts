@@ -57,7 +57,9 @@ describe('inscription', () => {
   it('stocke le mot de passe haché, jamais en clair', async () => {
     await authService.register(db, ALICE)
 
-    const stored = db.prepare('SELECT password_hash FROM users WHERE username = ?').get('alice') as {
+    const stored = db
+      .prepare('SELECT password_hash FROM users WHERE username = ?')
+      .get('alice') as {
       password_hash: string
     }
 
@@ -117,7 +119,11 @@ describe('connexion', () => {
   })
 
   it('accepte le bon mot de passe, ouvre la session et déchiffre le coffre', async () => {
-    const user = await authService.login(db, { username: 'alice', password: 'correct-horse' }, store)
+    const user = await authService.login(
+      db,
+      { username: 'alice', password: 'correct-horse' },
+      store
+    )
 
     expect(session.userId).toBe(user.id)
     expect(() => session.requireVault()).not.toThrow()

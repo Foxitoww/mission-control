@@ -250,7 +250,13 @@ export function AuthScreen(): JSX.Element {
                   className="auth__link"
                   disabled={busy}
                   onClick={() =>
-                    goTo(mode === 'register' && profiles.length > 0 ? 'profiles' : mode === 'register' ? 'login' : 'register')
+                    goTo(
+                      mode === 'register' && profiles.length > 0
+                        ? 'profiles'
+                        : mode === 'register'
+                          ? 'login'
+                          : 'register'
+                    )
                   }
                 >
                   {mode === 'register'

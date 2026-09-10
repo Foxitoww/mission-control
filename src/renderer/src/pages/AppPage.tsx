@@ -148,7 +148,9 @@ export function AppPage(): JSX.Element {
         </div>
         <div className="app-chip">
           <span className="mc-label">{t('app.progress')}</span>
-          <span className="app-chip__val app-chip__val--good">{formatPercent(project.progress)}</span>
+          <span className="app-chip__val app-chip__val--good">
+            {formatPercent(project.progress)}
+          </span>
         </div>
         {due && (
           <div className="app-chip">
@@ -198,11 +200,7 @@ export function AppPage(): JSX.Element {
           {t('app.tabCalendar')}
         </button>
 
-        <button
-          type="button"
-          className="app-tabs__new"
-          onClick={() => setComposing(true)}
-        >
+        <button type="button" className="app-tabs__new" onClick={() => setComposing(true)}>
           + {t('task.new')}
         </button>
       </div>

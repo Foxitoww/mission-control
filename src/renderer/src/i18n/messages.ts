@@ -81,7 +81,8 @@ const fr = {
   'update.ready': 'Prête à installer :',
   'update.restart': 'Redémarrer et installer',
   'update.upToDate': 'Tu es à jour.',
-  'update.unsupported': 'Mises à jour indisponibles en développement. Elles fonctionnent dans l’application installée.',
+  'update.unsupported':
+    'Mises à jour indisponibles en développement. Elles fonctionnent dans l’application installée.',
   'update.error': 'Impossible de vérifier les mises à jour.',
   'update.latestPublished': 'Dernière version publiée',
   'update.availableDev':
@@ -96,7 +97,7 @@ const fr = {
   'error.AVATAR_INVALID': "Format d'avatar non pris en charge.",
   'error.AVATAR_NOT_IMAGE': "Ce fichier n'est pas une image.",
   'error.AVATAR_SOURCE_TOO_LARGE': 'Image trop lourde : 12 Mo maximum.',
-  'error.AVATAR_DECODE_FAILED': "Impossible de lire cette image.",
+  'error.AVATAR_DECODE_FAILED': 'Impossible de lire cette image.',
   'error.ACCENT_INVALID': 'Couleur non proposée par la palette.',
 
   'backup.section': 'Sauvegarde',
@@ -417,11 +418,11 @@ const en: Record<MessageKey, string> = {
   'update.ready': 'Ready to install:',
   'update.restart': 'Restart and install',
   'update.upToDate': 'You are up to date.',
-  'update.unsupported': 'Updates are unavailable in development. They work in the installed application.',
+  'update.unsupported':
+    'Updates are unavailable in development. They work in the installed application.',
   'update.error': 'Could not check for updates.',
   'update.latestPublished': 'Latest published version',
-  'update.availableDev':
-    'is available. In development, download it from the releases page.',
+  'update.availableDev': 'is available. In development, download it from the releases page.',
   'update.openReleases': 'View releases',
 
   'theme.dark': 'Dark',
@@ -448,8 +449,7 @@ const en: Record<MessageKey, string> = {
   'backup.merge': 'Merge',
   'backup.replace': 'Replace',
   'backup.mergeHint': 'Adds what is missing. Nothing is overwritten or deleted.',
-  'backup.replaceHint':
-    'ERASES all your current data first, then restores the file. Irreversible.',
+  'backup.replaceHint': 'ERASES all your current data first, then restores the file. Irreversible.',
 
   'error.BACKUP_UNREADABLE': 'That file is not a valid backup.',
 

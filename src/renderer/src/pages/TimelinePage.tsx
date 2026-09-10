@@ -206,10 +206,7 @@ export function TimelinePage(): JSX.Element {
                   posée sur les rangées, elle recouvrait la première barre. La
                   ligne, elle, traverse bien tout le corps. */}
               {todayLeft >= 0 && todayLeft <= 100 && (
-                <span
-                  className="mc-data timeline__today-label"
-                  style={{ left: `${todayLeft}%` }}
-                >
+                <span className="mc-data timeline__today-label" style={{ left: `${todayLeft}%` }}>
                   {t('calendar.today')}
                 </span>
               )}

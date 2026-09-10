@@ -99,7 +99,11 @@ function plan(sql: string, ...params: unknown[]): string {
 
 describe('plans de requête', () => {
   it('emprunte l’index sur (user_id, status)', () => {
-    const detail = plan('SELECT t.id FROM tasks t WHERE t.user_id = ? AND t.status = ?', alice, 'BLOCKED')
+    const detail = plan(
+      'SELECT t.id FROM tasks t WHERE t.user_id = ? AND t.status = ?',
+      alice,
+      'BLOCKED'
+    )
     expect(detail).toContain('idx_tasks_user_status')
   })
 

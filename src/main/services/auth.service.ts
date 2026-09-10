@@ -78,10 +78,7 @@ export const authService = {
     const recoverySalt = randomSalt()
 
     const dekPassword = seal(deriveKey(data.password, kdfSalt), dek)
-    const dekRecovery = seal(
-      deriveKey(normalizeRecoveryPhrase(recoveryPhrase), recoverySalt),
-      dek
-    )
+    const dekRecovery = seal(deriveKey(normalizeRecoveryPhrase(recoveryPhrase), recoverySalt), dek)
 
     const path = vaultPath(id)
     const vault = createVault(path, dek)

@@ -25,9 +25,7 @@ export const subtasksRepo = {
   /** Utilisateur propriétaire de la tâche parente, ou null si la sous-tâche n'existe pas. */
   ownerOf(db: Db, subtaskId: string): string | null {
     const row = db
-      .prepare(
-        `SELECT t.user_id FROM subtasks s JOIN tasks t ON t.id = s.task_id WHERE s.id = ?`
-      )
+      .prepare(`SELECT t.user_id FROM subtasks s JOIN tasks t ON t.id = s.task_id WHERE s.id = ?`)
       .get(subtaskId) as { user_id: string } | undefined
     return row?.user_id ?? null
   },
@@ -37,7 +35,10 @@ export const subtasksRepo = {
     if (columns.length === 0) return true
 
     const assignments = columns.map((column) => `${column} = @${column}`).join(', ')
-    return db.prepare(`UPDATE subtasks SET ${assignments} WHERE id = @id`).run({ ...fields, id }).changes > 0
+    return (
+      db.prepare(`UPDATE subtasks SET ${assignments} WHERE id = @id`).run({ ...fields, id })
+        .changes > 0
+    )
   },
 
   delete(db: Db, id: string): boolean {

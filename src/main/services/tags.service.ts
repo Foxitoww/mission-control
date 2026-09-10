@@ -5,7 +5,11 @@ import { session } from './session.service'
 import { parseOrThrow } from '../lib/validate'
 import { AppError, AppErrorCode } from '@shared/errors'
 import type { Tag } from '@shared/types/domain'
-import { createTagInputSchema, updateTagInputSchema, idInputSchema } from '@shared/schemas/project.schema'
+import {
+  createTagInputSchema,
+  updateTagInputSchema,
+  idInputSchema
+} from '@shared/schemas/project.schema'
 
 export const tagsService = {
   list(db: Db): TagWithUsage[] {

@@ -176,7 +176,9 @@ describe('filtres', () => {
   })
 
   it('filtre par statut', () => {
-    expect(tasksService.list(db, { statuses: ['BLOCKED'] }).map((t) => t.title)).toEqual(['Bloquée'])
+    expect(tasksService.list(db, { statuses: ['BLOCKED'] }).map((t) => t.title)).toEqual([
+      'Bloquée'
+    ])
   })
 
   it('filtre les tâches en retard', () => {

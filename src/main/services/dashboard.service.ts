@@ -96,14 +96,7 @@ export const dashboardService = {
       10
     )
 
-    const recent = tasksRepo.query(
-      db,
-      userId,
-      "t.status <> 'ARCHIVED'",
-      [],
-      't.updated_at DESC',
-      8
-    )
+    const recent = tasksRepo.query(db, userId, "t.status <> 'ARCHIVED'", [], 't.updated_at DESC', 8)
 
     return {
       overdue,

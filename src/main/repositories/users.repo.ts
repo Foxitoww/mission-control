@@ -76,8 +76,7 @@ export const usersRepo = {
 
   findById(db: Db, id: string): PublicUser | null {
     const row = db.prepare(`SELECT ${PUBLIC_COLUMNS} FROM users WHERE id = ?`).get(id) as
-      | Omit<UserRow, 'password_hash'>
-      | undefined
+      Omit<UserRow, 'password_hash'> | undefined
     return row ? toPublic(row) : null
   },
 

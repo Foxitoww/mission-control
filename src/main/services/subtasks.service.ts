@@ -62,8 +62,7 @@ export const subtasksService = {
     subtasksRepo.update(db, data.id, fields)
 
     const taskId = db.prepare('SELECT task_id FROM subtasks WHERE id = ?').get(data.id) as
-      | { task_id: string }
-      | undefined
+      { task_id: string } | undefined
     if (!taskId) throw new AppError(AppErrorCode.NOT_FOUND, 'SUBTASK_NOT_FOUND')
 
     return requireOwnedTask(db, userId, taskId.task_id)

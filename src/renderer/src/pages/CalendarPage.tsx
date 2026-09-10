@@ -78,9 +78,7 @@ export function CalendarPage(): JSX.Element {
       weekday: 'short'
     })
     // 2024-01-01 est un lundi : point de départ commode pour nommer les jours.
-    return Array.from({ length: 7 }, (_, index) =>
-      formatter.format(new Date(2024, 0, 1 + index))
-    )
+    return Array.from({ length: 7 }, (_, index) => formatter.format(new Date(2024, 0, 1 + index)))
   }, [language])
 
   const todayKey = dayKey(new Date())
@@ -101,7 +99,11 @@ export function CalendarPage(): JSX.Element {
         </div>
 
         <div className="filters__row">
-          <Button variant="secondary" onClick={() => shiftMonth(-1)} aria-label={t('calendar.previous')}>
+          <Button
+            variant="secondary"
+            onClick={() => shiftMonth(-1)}
+            aria-label={t('calendar.previous')}
+          >
             ‹
           </Button>
           <Button variant="secondary" onClick={() => setAnchor(new Date())}>

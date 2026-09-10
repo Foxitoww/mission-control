@@ -58,7 +58,9 @@ describe('mise à jour du profil', () => {
   it('accepte de conserver son propre identifiant', () => {
     // Sans l'exclusion de sa propre ligne dans le contrôle d'unicité, ce cas
     // très banal échouerait avec « nom déjà pris ».
-    expect(() => profileService.update(accounts, { ...BASE, displayName: 'Alice B.' })).not.toThrow()
+    expect(() =>
+      profileService.update(accounts, { ...BASE, displayName: 'Alice B.' })
+    ).not.toThrow()
   })
 
   it('exige une session active', () => {

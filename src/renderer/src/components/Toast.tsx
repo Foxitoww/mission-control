@@ -37,7 +37,10 @@ export function ToastProvider({ children }: { children: ReactNode }): JSX.Elemen
     // Le retrait est piloté par un minuteur plutôt que par la fin de
     // l'animation : une animation supprimée par prefers-reduced-motion ne
     // déclencherait jamais l'événement, et le message resterait à l'écran.
-    setTimeout(() => setToasts((current) => current.filter((toast) => toast.id !== id)), LIFETIME_MS)
+    setTimeout(
+      () => setToasts((current) => current.filter((toast) => toast.id !== id)),
+      LIFETIME_MS
+    )
   }, [])
 
   const value = useMemo<ToastValue>(

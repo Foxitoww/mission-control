@@ -23,8 +23,16 @@ body {
      gauche : ils donnent de la profondeur au fond presque noir sans jamais
      devenir une couleur qu'on remarque. */
   background:
-    radial-gradient(1200px 600px at 85% -10%, color-mix(in srgb, var(--mc-accent) 6%, transparent), transparent 60%),
-    radial-gradient(900px 500px at 0% 100%, color-mix(in srgb, var(--mc-accent) 4%, transparent), transparent 55%),
+    radial-gradient(
+      1200px 600px at 85% -10%,
+      color-mix(in srgb, var(--mc-accent) 6%, transparent),
+      transparent 60%
+    ),
+    radial-gradient(
+      900px 500px at 0% 100%,
+      color-mix(in srgb, var(--mc-accent) 4%, transparent),
+      transparent 55%
+    ),
     var(--mc-abyss);
   background-attachment: fixed;
   -webkit-font-smoothing: antialiased;

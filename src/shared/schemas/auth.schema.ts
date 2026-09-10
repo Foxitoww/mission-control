@@ -23,10 +23,7 @@ export const usernameSchema = z
  * des mots de passe courts et prévisibles ; la longueur est le facteur qui compte.
  * Recommandation NIST SP 800-63B.
  */
-export const passwordSchema = z
-  .string()
-  .min(8, 'PASSWORD_TOO_SHORT')
-  .max(200, 'PASSWORD_TOO_LONG')
+export const passwordSchema = z.string().min(8, 'PASSWORD_TOO_SHORT').max(200, 'PASSWORD_TOO_LONG')
 
 export const displayNameSchema = z
   .string()

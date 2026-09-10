@@ -34,7 +34,9 @@ describe('migrations', () => {
     const tablesOf = (db: Db): string[] =>
       (
         db
-          .prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'")
+          .prepare(
+            "SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"
+          )
           .all() as { name: string }[]
       )
         .map((row) => row.name)
@@ -143,6 +145,8 @@ describe('contraintes du schéma', () => {
       .run(randomUUID(), id, now, now)
 
     accounts.prepare('DELETE FROM users WHERE id = ?').run(id)
-    expect(accounts.prepare('SELECT COUNT(*) AS n FROM remembered_sessions').get()).toEqual({ n: 0 })
+    expect(accounts.prepare('SELECT COUNT(*) AS n FROM remembered_sessions').get()).toEqual({
+      n: 0
+    })
   })
 })

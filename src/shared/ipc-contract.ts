@@ -36,16 +36,8 @@ import type {
   CreateTagInput,
   UpdateTagInput
 } from './schemas/project.schema'
-import type {
-  CreateGoalInput,
-  UpdateGoalInput,
-  AdvanceGoalInput
-} from './schemas/goal.schema'
-import type {
-  ExportReport,
-  ImportReport,
-  ImportMode
-} from './schemas/backup.schema'
+import type { CreateGoalInput, UpdateGoalInput, AdvanceGoalInput } from './schemas/goal.schema'
+import type { ExportReport, ImportReport, ImportMode } from './schemas/backup.schema'
 
 /**
  * Résultat d'une inscription.
@@ -194,7 +186,9 @@ export interface MissionControlApi {
   projects: {
     list(): Promise<IpcResult<ProjectSummary[]>>
     get(input: { id: string }): Promise<IpcResult<ProjectSummary>>
-    create(input: Partial<CreateProjectInput> & { name: string }): Promise<IpcResult<ProjectSummary>>
+    create(
+      input: Partial<CreateProjectInput> & { name: string }
+    ): Promise<IpcResult<ProjectSummary>>
     update(input: UpdateProjectInput): Promise<IpcResult<ProjectSummary>>
     /** Supprime le projet ; ses tâches sont détachées, jamais supprimées. */
     remove(input: { id: string }): Promise<IpcResult<null>>

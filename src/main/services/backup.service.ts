@@ -117,13 +117,15 @@ export const backupService = {
         completed: row['completed'] === 1,
         position: row['position'] as number
       })),
-      tags: rows(vault, 'SELECT id, name, color FROM tags WHERE user_id = ? ORDER BY name', userId).map(
-        (row) => ({
-          id: row['id'] as string,
-          name: row['name'] as string,
-          color: row['color'] as string
-        })
-      ),
+      tags: rows(
+        vault,
+        'SELECT id, name, color FROM tags WHERE user_id = ? ORDER BY name',
+        userId
+      ).map((row) => ({
+        id: row['id'] as string,
+        name: row['name'] as string,
+        color: row['color'] as string
+      })),
       taskTags: rows(
         vault,
         `SELECT tt.task_id, tt.tag_id FROM task_tags tt

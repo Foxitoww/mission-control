@@ -70,8 +70,7 @@ export const goalsRepo = {
 
   findById(db: Db, userId: string, id: string): GoalSummary | null {
     const row = db.prepare(`${SELECT_GOAL} WHERE g.user_id = ? AND g.id = ?`).get(userId, id) as
-      | GoalRow
-      | undefined
+      GoalRow | undefined
     return row ? toSummary(row) : null
   },
 
@@ -88,7 +87,13 @@ export const goalsRepo = {
     return rows.map(toSummary)
   },
 
-  update(db: Db, userId: string, id: string, fields: Record<string, unknown>, now: string): boolean {
+  update(
+    db: Db,
+    userId: string,
+    id: string,
+    fields: Record<string, unknown>,
+    now: string
+  ): boolean {
     const columns = Object.keys(fields)
     if (columns.length === 0) return true
 

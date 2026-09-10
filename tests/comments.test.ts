@@ -27,13 +27,19 @@ describe('commentaires — cycle de vie', () => {
   it('ajoute un message et renvoie le fil complet, du plus ancien au plus récent', () => {
     const task = tasksService.create(db, { title: 'Corriger la trajectoire' })
 
-    const afterFirst = commentsService.create(db, { taskId: task.id, body: 'Premier point de blocage' })
+    const afterFirst = commentsService.create(db, {
+      taskId: task.id,
+      body: 'Premier point de blocage'
+    })
     expect(afterFirst).toHaveLength(1)
     expect(afterFirst[0]?.body).toBe('Premier point de blocage')
     expect(afterFirst[0]?.edited).toBe(false)
 
     const afterSecond = commentsService.create(db, { taskId: task.id, body: 'Piste de résolution' })
-    expect(afterSecond.map((c) => c.body)).toEqual(['Premier point de blocage', 'Piste de résolution'])
+    expect(afterSecond.map((c) => c.body)).toEqual([
+      'Premier point de blocage',
+      'Piste de résolution'
+    ])
   })
 
   it('liste les messages d’une tâche', () => {
@@ -58,9 +64,9 @@ describe('commentaires — cycle de vie', () => {
   it('refuse un message de plus de 4 000 caractères', () => {
     const task = tasksService.create(db, { title: 'Tâche' })
 
-    expect(() =>
-      commentsService.create(db, { taskId: task.id, body: 'x'.repeat(4001) })
-    ).toThrow(expect.objectContaining({ code: AppErrorCode.VALIDATION_FAILED }))
+    expect(() => commentsService.create(db, { taskId: task.id, body: 'x'.repeat(4001) })).toThrow(
+      expect.objectContaining({ code: AppErrorCode.VALIDATION_FAILED })
+    )
   })
 
   it('marque un message comme modifié, définitivement', () => {

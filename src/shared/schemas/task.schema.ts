@@ -13,11 +13,7 @@ const description = z.string().trim().max(5000, 'DESCRIPTION_TOO_LONG').nullable
  * confiance : une chaîne libre en base rendrait tous les tris silencieusement
  * faux, puisque le tri des dates repose sur l'ordre lexicographique (§6).
  */
-const isoDate = z
-  .string()
-  .datetime({ message: 'DATE_INVALID' })
-  .nullable()
-  .default(null)
+const isoDate = z.string().datetime({ message: 'DATE_INVALID' }).nullable().default(null)
 
 export const createTaskInputSchema = z.object({
   title,
@@ -26,7 +22,13 @@ export const createTaskInputSchema = z.object({
   status: z.enum(TASK_STATUSES).default('TODO'),
   priority: z.enum(TASK_PRIORITIES).default('MEDIUM'),
   dueDate: isoDate,
-  estimatedMinutes: z.number().int().positive('ESTIMATE_INVALID').max(100_000).nullable().default(null),
+  estimatedMinutes: z
+    .number()
+    .int()
+    .positive('ESTIMATE_INVALID')
+    .max(100_000)
+    .nullable()
+    .default(null),
   tagIds: z.array(id).max(20).default([]),
   /**
    * Récurrence. Exige une échéance : sans date de départ, il n'y a rien à faire
@@ -44,7 +46,13 @@ export const updateTaskInputSchema = z.object({
   status: z.enum(TASK_STATUSES).optional(),
   priority: z.enum(TASK_PRIORITIES).optional(),
   dueDate: z.string().datetime({ message: 'DATE_INVALID' }).nullable().optional(),
-  estimatedMinutes: z.number().int().positive('ESTIMATE_INVALID').max(100_000).nullable().optional(),
+  estimatedMinutes: z
+    .number()
+    .int()
+    .positive('ESTIMATE_INVALID')
+    .max(100_000)
+    .nullable()
+    .optional(),
   tagIds: z.array(id).max(20).optional(),
   recurrence: recurrenceRuleSchema.nullable().optional()
 })

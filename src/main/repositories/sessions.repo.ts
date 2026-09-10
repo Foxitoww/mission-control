@@ -37,9 +37,11 @@ export const sessionsRepo = {
 
   /** Rotation : nouveau jeton et nouvelle échéance sur la même ligne. */
   rotate(db: Db, id: string, tokenHash: string, expiresAt: string): void {
-    db.prepare(
-      'UPDATE remembered_sessions SET token_hash = ?, expires_at = ? WHERE id = ?'
-    ).run(tokenHash, expiresAt, id)
+    db.prepare('UPDATE remembered_sessions SET token_hash = ?, expires_at = ? WHERE id = ?').run(
+      tokenHash,
+      expiresAt,
+      id
+    )
   },
 
   deleteById(db: Db, id: string): void {

@@ -77,12 +77,17 @@ export async function verifyPassword(password: string, stored: string): Promise<
   if (!Number.isInteger(n) || !Number.isInteger(r) || !Number.isInteger(p)) return false
 
   const expected = Buffer.from(keyB64, 'base64')
-  const actual = await scryptAsync(normalise(password), Buffer.from(saltB64, 'base64'), expected.length, {
-    N: n,
-    r,
-    p,
-    maxmem: 128 * n * r * 2
-  })
+  const actual = await scryptAsync(
+    normalise(password),
+    Buffer.from(saltB64, 'base64'),
+    expected.length,
+    {
+      N: n,
+      r,
+      p,
+      maxmem: 128 * n * r * 2
+    }
+  )
 
   // timingSafeEqual lève une exception si les longueurs diffèrent — et cette
   // différence de longueur est elle-même une fuite d'information. On la traite

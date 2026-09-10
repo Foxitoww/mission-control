@@ -44,8 +44,8 @@ export class ErrorBoundary extends Component<Props, State> {
         {/* Le point qui compte le plus pour quelqu'un qui vient de perdre son
             écran : ses données sont intactes. */}
         <p className="crash__body">
-          Tes données sont intactes : elles vivent dans le coffre chiffré, pas
-          dans cette fenêtre. Recharger l’interface suffit dans la plupart des cas.
+          Tes données sont intactes : elles vivent dans le coffre chiffré, pas dans cette fenêtre.
+          Recharger l’interface suffit dans la plupart des cas.
         </p>
 
         <div className="crash__actions">

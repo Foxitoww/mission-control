@@ -105,7 +105,8 @@ export const projectsRepo = {
   },
 
   list(db: Db, userId: string, statuses: ProjectStatus[] = []): ProjectSummary[] {
-    const filter = statuses.length > 0 ? ` AND p.status IN (${statuses.map(() => '?').join(', ')})` : ''
+    const filter =
+      statuses.length > 0 ? ` AND p.status IN (${statuses.map(() => '?').join(', ')})` : ''
     const rows = db
       .prepare(`${SELECT_PROJECT} WHERE p.user_id = ?${filter} ORDER BY p.position ASC`)
       .all(userId, userId, ...statuses) as ProjectRow[]
@@ -121,7 +122,13 @@ export const projectsRepo = {
     return rows.map(toSummary)
   },
 
-  update(db: Db, userId: string, id: string, fields: Record<string, unknown>, now: string): boolean {
+  update(
+    db: Db,
+    userId: string,
+    id: string,
+    fields: Record<string, unknown>,
+    now: string
+  ): boolean {
     const columns = Object.keys(fields)
     if (columns.length === 0) return true
 
@@ -141,6 +148,8 @@ export const projectsRepo = {
    * jamais détruire du travail déjà consigné.
    */
   delete(db: Db, userId: string, id: string): boolean {
-    return db.prepare('DELETE FROM projects WHERE id = ? AND user_id = ?').run(id, userId).changes > 0
+    return (
+      db.prepare('DELETE FROM projects WHERE id = ? AND user_id = ?').run(id, userId).changes > 0
+    )
   }
 }

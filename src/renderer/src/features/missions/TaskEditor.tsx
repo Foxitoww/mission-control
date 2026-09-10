@@ -134,9 +134,7 @@ function EditorForm({
       estimatedMinutes: estimate === '' ? null : Number(estimate),
       tagIds,
       recurrence:
-        freq === ''
-          ? null
-          : { freq, interval: Math.max(1, Number(interval) || 1), weekdays }
+        freq === '' ? null : { freq, interval: Math.max(1, Number(interval) || 1), weekdays }
     }
 
     try {
@@ -286,7 +284,11 @@ function EditorForm({
                     className="tag-toggle"
                     aria-pressed={selected}
                     disabled={busy}
-                    style={selected ? { borderColor: tag.color, background: `${tag.color}22` } : undefined}
+                    style={
+                      selected
+                        ? { borderColor: tag.color, background: `${tag.color}22` }
+                        : undefined
+                    }
                     onClick={() => toggleTag(tag.id)}
                   >
                     {tag.name}
@@ -372,7 +374,10 @@ function EditorForm({
 
             <ul className="subtasks">
               {task.subtasks.map((subtask) => (
-                <li key={subtask.id} className={`subtask${subtask.completed ? ' subtask--done' : ''}`}>
+                <li
+                  key={subtask.id}
+                  className={`subtask${subtask.completed ? ' subtask--done' : ''}`}
+                >
                   <input
                     type="checkbox"
                     checked={subtask.completed}
@@ -425,12 +430,7 @@ function EditorForm({
 
         <div className="mc-modal__actions">
           {isEdit && (
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={() => void removeTask()}
-              disabled={busy}
-            >
+            <Button type="button" variant="ghost" onClick={() => void removeTask()} disabled={busy}>
               {t('common.delete')}
             </Button>
           )}

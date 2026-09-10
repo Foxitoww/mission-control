@@ -1,10 +1,6 @@
 import type { Db } from '../db/connection'
 import { session } from './session.service'
-import type {
-  TimelineData,
-  TimelineEntry,
-  TimelineMilestone
-} from '@shared/types/views'
+import type { TimelineData, TimelineEntry, TimelineMilestone } from '@shared/types/views'
 import type { ProjectStatus, TaskStatus, TaskPriority } from '@shared/types/domain'
 
 /**
@@ -90,7 +86,10 @@ function toEntry(row: ProjectRow, milestones: TimelineMilestone[]): TimelineEntr
 }
 
 /** Bornes réelles des données. `null` quand il n'y a rien à situer. */
-function computeRange(entries: TimelineEntry[], unassigned: TimelineMilestone[]): TimelineData['range'] {
+function computeRange(
+  entries: TimelineEntry[],
+  unassigned: TimelineMilestone[]
+): TimelineData['range'] {
   const dates: string[] = []
 
   for (const entry of entries) {

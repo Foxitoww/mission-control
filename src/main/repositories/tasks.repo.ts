@@ -222,9 +222,8 @@ export const tasksRepo = {
   },
 
   findById(db: Db, userId: string, id: string): TaskDetail | null {
-    const row = db
-      .prepare(`${SELECT_TASK} WHERE t.user_id = ? AND t.id = ?`)
-      .get(userId, id) as TaskRow | undefined
+    const row = db.prepare(`${SELECT_TASK} WHERE t.user_id = ? AND t.id = ?`).get(userId, id) as
+      TaskRow | undefined
     if (!row) return null
 
     const [item] = hydrate(db, userId, [row])
@@ -234,7 +233,13 @@ export const tasksRepo = {
       .prepare(
         'SELECT id, task_id, title, completed, position FROM subtasks WHERE task_id = ? ORDER BY position'
       )
-      .all(id) as { id: string; task_id: string; title: string; completed: number; position: number }[]
+      .all(id) as {
+      id: string
+      task_id: string
+      title: string
+      completed: number
+      position: number
+    }[]
 
     return {
       ...item,
@@ -257,20 +262,35 @@ export const tasksRepo = {
   },
 
   /** Requête libre pour le tableau de bord : clause et ordre fournis par le service. */
-  query(db: Db, userId: string, where: string, params: unknown[], order: string, limit: number): TaskListItem[] {
+  query(
+    db: Db,
+    userId: string,
+    where: string,
+    params: unknown[],
+    order: string,
+    limit: number
+  ): TaskListItem[] {
     const rows = db
       .prepare(`${SELECT_TASK} WHERE t.user_id = ? AND ${where} ORDER BY ${order} LIMIT ?`)
       .all(userId, ...params, limit) as TaskRow[]
     return hydrate(db, userId, rows)
   },
 
-  update(db: Db, userId: string, id: string, fields: Partial<Record<string, unknown>>, now: string): boolean {
+  update(
+    db: Db,
+    userId: string,
+    id: string,
+    fields: Partial<Record<string, unknown>>,
+    now: string
+  ): boolean {
     const columns = Object.keys(fields)
     if (columns.length === 0) return true
 
     const assignments = columns.map((column) => `${column} = @${column}`).join(', ')
     const result = db
-      .prepare(`UPDATE tasks SET ${assignments}, updated_at = @now WHERE id = @id AND user_id = @userId`)
+      .prepare(
+        `UPDATE tasks SET ${assignments}, updated_at = @now WHERE id = @id AND user_id = @userId`
+      )
       .run({ ...fields, now, id, userId })
 
     return result.changes > 0
@@ -289,7 +309,9 @@ export const tasksRepo = {
 
   bounds(db: Db, userId: string): { min: number; max: number } {
     return db
-      .prepare('SELECT COALESCE(MIN(position), 0) AS min, COALESCE(MAX(position), 0) AS max FROM tasks WHERE user_id = ?')
+      .prepare(
+        'SELECT COALESCE(MIN(position), 0) AS min, COALESCE(MAX(position), 0) AS max FROM tasks WHERE user_id = ?'
+      )
       .get(userId) as { min: number; max: number }
   },
 

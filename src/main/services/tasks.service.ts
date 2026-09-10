@@ -236,7 +236,13 @@ export const tasksService = {
     const now = new Date().toISOString()
 
     db.transaction(() => {
-      tasksRepo.update(db, userId, id, { status, completed_at: completionFor(status, null, now) }, now)
+      tasksRepo.update(
+        db,
+        userId,
+        id,
+        { status, completed_at: completionFor(status, null, now) },
+        now
+      )
       if (status === 'COMPLETED') spawnNextOccurrence(db, userId, existing, now)
     })()
 

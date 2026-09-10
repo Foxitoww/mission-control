@@ -5,7 +5,9 @@ const TARGET_SIZE = 128
 const MAX_SOURCE_BYTES = 12 * 1024 * 1024
 
 export class AvatarImageError extends Error {
-  constructor(readonly key: 'AVATAR_NOT_IMAGE' | 'AVATAR_SOURCE_TOO_LARGE' | 'AVATAR_DECODE_FAILED') {
+  constructor(
+    readonly key: 'AVATAR_NOT_IMAGE' | 'AVATAR_SOURCE_TOO_LARGE' | 'AVATAR_DECODE_FAILED'
+  ) {
     super(key)
     this.name = 'AvatarImageError'
   }

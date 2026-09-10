@@ -7,9 +7,9 @@ export interface TagWithUsage extends Tag {
 
 export const tagsRepo = {
   insert(db: Db, data: { id: string; userId: string; name: string; color: string }): void {
-    db.prepare('INSERT INTO tags (id, user_id, name, color) VALUES (@id, @userId, @name, @color)').run(
-      data
-    )
+    db.prepare(
+      'INSERT INTO tags (id, user_id, name, color) VALUES (@id, @userId, @name, @color)'
+    ).run(data)
   },
 
   list(db: Db, userId: string): TagWithUsage[] {

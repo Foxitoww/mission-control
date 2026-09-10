@@ -19,8 +19,7 @@ export const AppErrorCode = {
 export type AppErrorCode = (typeof AppErrorCode)[keyof typeof AppErrorCode]
 
 export type IpcResult<T> =
-  | { ok: true; data: T }
-  | { ok: false; code: AppErrorCode; message: string }
+  { ok: true; data: T } | { ok: false; code: AppErrorCode; message: string }
 
 /** Erreur métier attendue. Tout ce qui n'en est pas une devient UNKNOWN côté IPC. */
 export class AppError extends Error {

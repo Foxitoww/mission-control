@@ -7,10 +7,7 @@ import { session } from './session.service'
 import { parseOrThrow } from '../lib/validate'
 import { AppError, AppErrorCode } from '@shared/errors'
 import type { TaskComment } from '@shared/types/views'
-import {
-  createCommentInputSchema,
-  updateCommentInputSchema
-} from '@shared/schemas/comment.schema'
+import { createCommentInputSchema, updateCommentInputSchema } from '@shared/schemas/comment.schema'
 
 const listInputSchema = z.object({ taskId: z.string().uuid() })
 const idInputSchema = z.object({ id: z.string().uuid() })

@@ -73,7 +73,9 @@ function Card({ task, onOpen }: { task: TaskListItem; onOpen: (id: string) => vo
             {task.subtaskDone}/{task.subtaskTotal}
           </span>
         )}
-        {task.commentCount > 0 && <span className="mc-data comment-badge">{task.commentCount}</span>}
+        {task.commentCount > 0 && (
+          <span className="mc-data comment-badge">{task.commentCount}</span>
+        )}
         {due && <span className={`mc-data task-row__due--${due.tone}`}>{due.countdown}</span>}
       </span>
     </li>
@@ -97,7 +99,9 @@ function Column({
   return (
     <section className={`kanban-column${isOver ? ' kanban-column--over' : ''}`}>
       <header className="kanban-column__head">
-        <span className={`mc-label kanban-column__label kanban-column__label--${status.toLowerCase()}`}>
+        <span
+          className={`mc-label kanban-column__label kanban-column__label--${status.toLowerCase()}`}
+        >
           {t(`status.${status}`)}
         </span>
         <span className="mc-data panel__count">{String(tasks.length).padStart(2, '0')}</span>
