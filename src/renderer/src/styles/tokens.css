@@ -7,26 +7,33 @@
    ========================================================================== */
 
 :root {
-  /* --- Surfaces (sombre) --- */
-  --mc-void: #0a0e1a;
-  --mc-abyss: #0f1524;
-  --mc-hull: #161d30;
-  --mc-hull-raised: #1e2740;
-  --mc-grid: #2a3552;
-  --mc-grid-strong: #3a4970;
+  /* --- Surfaces (sombre) — DEEP SPACE MINIMAL ---------------------------
+     Presque noir, et des paliers TRÈS rapprochés : la hiérarchie se lit à
+     l'écart d'un ou deux points de luminosité, pas à des aplats contrastés.
+     Une surface ne se distingue de sa voisine que par un filet (`--mc-grid`),
+     jamais par un bloc de couleur. */
+  --mc-void: #07090e; /* fond absolu, derrière tout */
+  --mc-abyss: #0a0d13; /* fond de page */
+  --mc-hull: #0e1219; /* carte, panneau */
+  --mc-hull-raised: #131820; /* élément posé sur une carte */
+  --mc-grid: #1b2130; /* filet au repos */
+  --mc-grid-strong: #2b3345; /* filet au survol / focus */
 
   /* --- Texte --- */
-  --mc-text: #e8ecf4; /* blanc casse, jamais #fff : reduit l'eblouissement */
-  --mc-text-secondary: #a3aec4;
-  --mc-text-muted: #6b7793;
+  --mc-text: #e7eaf1; /* blanc casse, jamais #fff : reduit l'eblouissement */
+  --mc-text-secondary: #98a1b2;
+  --mc-text-muted: #59616f;
 
-  /* --- Accents --- */
-  --mc-blue: #3d7bff;
-  --mc-blue-dim: #2a5ac4;
+  /* --- Accents ---------------------------------------------------------
+     Le bleu est CONTENU : il ne colore aucune surface au repos, il ne
+     s'allume qu'au survol et au focus (voir --mc-glow-focus, les hairlines
+     de carte). Le reste du temps l'interface est achromatique. */
+  --mc-blue: #5b9dff;
+  --mc-blue-dim: #2f4c7d;
   --mc-cyan: #4fd5e8;
-  --mc-green: #24c38e;
-  --mc-amber: #f5a623;
-  --mc-red: #e8334a;
+  --mc-green: #3ecf8e;
+  --mc-amber: #f0b429;
+  --mc-red: #f2555a;
 
   /* Accent PILOTÉ PAR LE PROFIL. Les composants ne référencent que cette
      variable : changer la couleur d'un profil recolore toute l'interface sans
@@ -86,9 +93,12 @@
   --mc-radius-card: 10px;
   --mc-radius-modal: 14px;
 
-  /* --- Elevation --- */
-  --mc-shadow-card: 0 1px 2px rgb(0 0 0 / 0.3), 0 4px 12px rgb(0 0 0 / 0.2);
-  --mc-shadow-modal: 0 8px 40px rgb(0 0 0 / 0.5);
+  /* --- Elevation ------------------------------------------------------
+     Sur presque-noir, une ombre portée ne se voit plus : l'élévation passe
+     par un halo diffus et profond, décalé vers le bas, plutôt que par un
+     liseré sombre. */
+  --mc-shadow-card: 0 10px 30px -12px rgb(0 0 0 / 0.6);
+  --mc-shadow-modal: 0 24px 60px -12px rgb(0 0 0 / 0.7);
   /* color-mix dérive la lueur de l'accent courant : une seule source de vérité
      pour la couleur, quel que soit le profil connecté. */
   --mc-glow-focus: 0 0 0 3px color-mix(in srgb, var(--mc-accent) 35%, transparent);

@@ -2,6 +2,8 @@ import { createContext, useCallback, useContext, useMemo, useState, type ReactNo
 import type { Language } from '@shared/types/domain'
 import { dictionaries, type MessageKey } from './messages'
 
+export type { MessageKey } from './messages'
+
 interface I18nValue {
   language: Language
   setLanguage: (language: Language) => void

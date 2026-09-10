@@ -1,29 +1,29 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, type ReactNode } from 'react'
 import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import { Button } from '@renderer/components/Button'
 import { ProfileMenu } from '@renderer/features/profile/ProfileMenu'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { SearchPalette } from '@renderer/features/search/SearchPalette'
-import { useI18n } from '@renderer/i18n'
+import { useI18n, type MessageKey } from '@renderer/i18n'
 import { useShortcuts } from './useShortcuts'
 import './shell.css'
 
 /**
- * Nomenclature (§38, §44) : un projet est une MISSION, une tâche une OPÉRATION.
- * Les libellés de navigation restent en anglais majuscules — la signalétique de
- * salle de contrôle — tandis que les actions restent traduites.
+ * DEEP SPACE MINIMAL — la coque est réduite à un rail d'icônes de 56 px.
+ *
+ * L'ancienne barre latérale libellée listait neuf destinations parallèles.
+ * Ici, l'accueil est la BIBLIOTHÈQUE D'APPS ; Tableau et Calendrier ne sont
+ * plus des pages mais des onglets DANS une app. Le rail ne garde donc que les
+ * cinq vues qui traversent toutes les apps.
  */
-const NAV = [
-  { to: '/', label: 'Dashboard', key: 'd', end: true },
-  { to: '/operations', label: 'Operations', key: 'o', end: false },
-  { to: '/board', label: 'Board', key: 'b', end: false },
-  { to: '/calendar', label: 'Calendar', key: 'c', end: false },
-  { to: '/timeline', label: 'Timeline', key: 'l', end: false },
-  { to: '/missions', label: 'Missions', key: 'm', end: false },
-  { to: '/objectives', label: 'Objectives', key: 'g', end: false },
-  { to: '/telemetry', label: 'Telemetry', key: 's', end: false },
-  { to: '/tags', label: 'Tags', key: 't', end: false }
-] as const
+type RailItem = { to: string; key: string; label: MessageKey; end: boolean; icon: ReactNode }
+
+const RAIL: RailItem[] = [
+  { to: '/', key: 'a', label: 'nav.apps', end: true, icon: <IconGrid /> },
+  { to: '/operations', key: 'o', label: 'nav.today', end: false, icon: <IconToday /> },
+  { to: '/timeline', key: 'l', label: 'nav.timeline', end: false, icon: <IconTimeline /> },
+  { to: '/objectives', key: 'g', label: 'nav.goals', end: false, icon: <IconTarget /> },
+  { to: '/telemetry', key: 's', label: 'nav.stats', end: false, icon: <IconChart /> }
+]
 
 export function Shell(): JSX.Element {
   const { t } = useI18n()
@@ -31,12 +31,12 @@ export function Shell(): JSX.Element {
   const [composing, setComposing] = useState(false)
   const [searching, setSearching] = useState(false)
 
-  // Les raccourcis sont coupés quand un panneau est ouvert : sinon « o »
-  // navigerait pendant qu'on rédige, sous le formulaire.
+  // Raccourcis coupés dès qu'un panneau est ouvert : sinon « o » naviguerait
+  // pendant qu'on rédige, sous le formulaire.
   const overlayOpen = composing || searching
 
   const shortcuts = [
-    ...NAV.map((item) => ({ key: item.key, action: () => navigate(item.to) })),
+    ...RAIL.map((item) => ({ key: item.key, action: () => navigate(item.to) })),
     { key: 'n', action: () => setComposing(true) },
     { key: '/', action: () => setSearching(true) }
   ]
@@ -48,51 +48,53 @@ export function Shell(): JSX.Element {
 
   return (
     <div className="shell">
-      {/* Premier element focalisable : permet de sauter la navigation. */}
       <a className="shell__skip" href="#mc-content">
         {t('nav.skip')}
       </a>
 
-      <nav className="shell__nav" aria-label={t('nav.label')}>
-        <div className="shell__brand">
-          <span className="shell__brand-mark" aria-hidden="true" />
-          <span className="shell__brand-text">{t('app.name')}</span>
-        </div>
+      <nav className="rail" aria-label={t('nav.label')}>
+        <NavLink to="/" end className="rail__mark" aria-label={t('nav.apps')}>
+          <span aria-hidden="true" />
+        </NavLink>
 
-        <ul className="shell__nav-list">
-          {NAV.map((item) => (
+        <ul className="rail__list">
+          {RAIL.map((item) => (
             <li key={item.to}>
               <NavLink
                 to={item.to}
                 end={item.end}
-                className={({ isActive }) =>
-                  `shell__nav-item${isActive ? ' shell__nav-item--active' : ''}`
-                }
+                title={`${t(item.label)}  ·  ${item.key.toUpperCase()}`}
+                className={({ isActive }) => `rail__btn${isActive ? ' rail__btn--on' : ''}`}
               >
-                <span>{item.label}</span>
-                {/* La touche est affichée à côté du libellé : un raccourci qu'on
-                    ne voit nulle part n'est pas un raccourci, c'est un secret. */}
-                <kbd className="shell__key">{item.key.toUpperCase()}</kbd>
+                {item.icon}
+                <span className="rail__tip">{t(item.label)}</span>
               </NavLink>
             </li>
           ))}
         </ul>
 
-        <div className="shell__nav-footer">
-          <button type="button" className="shell__search" onClick={() => setSearching(true)}>
-            <span>{t('search.open')}</span>
-            <kbd className="shell__key">/</kbd>
-          </button>
-        </div>
+        <div className="rail__spacer" />
+
+        <ProfileMenu />
       </nav>
 
       <div className="shell__main">
-        <header className="shell__header">
-          <Button onClick={() => setComposing(true)}>
+        <header className="topbar">
+          <button
+            type="button"
+            className="topbar__search"
+            onClick={() => setSearching(true)}
+          >
+            <IconSearch />
+            <span>{t('search.open')}</span>
+            <kbd>/</kbd>
+          </button>
+
+          <button type="button" className="topbar__new" onClick={() => setComposing(true)}>
+            <span aria-hidden="true">+</span>
             {t('task.new')}
-            <kbd className="shell__key shell__key--on-accent">N</kbd>
-          </Button>
-          <ProfileMenu />
+            <kbd>N</kbd>
+          </button>
         </header>
 
         <main className="shell__content" id="mc-content" tabIndex={-1}>
@@ -103,5 +105,90 @@ export function Shell(): JSX.Element {
       {composing && <TaskEditor onClose={closeComposer} />}
       {searching && <SearchPalette onClose={closeSearch} />}
     </div>
+  )
+}
+
+/* --- Icônes du rail ------------------------------------------------------
+   Traits de 1,5 px sur une grille de 24, sans remplissage : le rail reste
+   achromatique, `currentColor` suit l'état (repos / survol / actif). */
+
+function svg(children: ReactNode): JSX.Element {
+  return (
+    <svg
+      className="rail__icon"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      {children}
+    </svg>
+  )
+}
+
+function IconGrid(): JSX.Element {
+  return svg(
+    <>
+      <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+      <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+      <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+    </>
+  )
+}
+
+function IconToday(): JSX.Element {
+  return svg(
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </>
+  )
+}
+
+function IconTimeline(): JSX.Element {
+  return svg(
+    <>
+      <path d="M4 7h10M4 12h16M4 17h7" />
+      <circle cx="17" cy="7" r="1.6" />
+      <circle cx="13" cy="17" r="1.6" />
+    </>
+  )
+}
+
+function IconTarget(): JSX.Element {
+  return svg(
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="3.5" />
+    </>
+  )
+}
+
+function IconChart(): JSX.Element {
+  return svg(
+    <>
+      <path d="M4 20h16" />
+      <path d="M7 20v-6M12 20V6M17 20v-9" />
+    </>
+  )
+}
+
+function IconSearch(): JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <circle cx="11" cy="11" r="6.5" />
+      <path d="m16 16 4 4" />
+    </svg>
   )
 }

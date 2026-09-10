@@ -147,6 +147,21 @@ const fr = {
   'nav.calendar': 'Calendrier',
   'nav.goals': 'Objectifs',
   'nav.stats': 'Télémétrie',
+  'nav.apps': 'Apps',
+  'nav.today': 'Aujourd’hui',
+
+  'library.title': 'Mes apps',
+  'library.active': 'ACTIVES',
+  'library.paused': 'EN PAUSE',
+  'library.newApp': 'Nouvelle app',
+  'library.backAll': 'Toutes les apps',
+
+  'app.tasks': 'Tâches',
+  'app.progress': 'Progression',
+  'app.tabList': 'Liste',
+  'app.tabBoard': 'Tableau',
+  'app.tabCalendar': 'Calendrier',
+  'app.tabSoon': 'Bientôt dans l’app. Pour l’instant, la vue globale :',
 
   'kanban.empty': 'Rien ici',
   'kanban.hint': 'Glisse une carte pour changer sa colonne. Double-clic pour ouvrir.',
@@ -473,6 +488,21 @@ const en: Record<MessageKey, string> = {
   'nav.calendar': 'Calendar',
   'nav.goals': 'Objectives',
   'nav.stats': 'Telemetry',
+  'nav.apps': 'Apps',
+  'nav.today': 'Today',
+
+  'library.title': 'My apps',
+  'library.active': 'ACTIVE',
+  'library.paused': 'PAUSED',
+  'library.newApp': 'New app',
+  'library.backAll': 'All apps',
+
+  'app.tasks': 'Tasks',
+  'app.progress': 'Progress',
+  'app.tabList': 'List',
+  'app.tabBoard': 'Board',
+  'app.tabCalendar': 'Calendar',
+  'app.tabSoon': 'Coming to the app. For now, the global view:',
 
   'kanban.empty': 'Nothing here',
   'kanban.hint': 'Drag a card to change its column. Double-click to open.',

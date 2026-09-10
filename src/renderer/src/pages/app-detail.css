@@ -1,0 +1,182 @@
+/* =============================================================================
+   APP OUVERTE — vue de détail
+
+   La todo, la progression, l'échéance : tout ce que la carte de bibliothèque
+   ne montre pas. Tableau et Calendrier sont des onglets d'ici.
+   ========================================================================== */
+
+.app-detail {
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.app-detail__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: var(--mc-text-muted);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.app-detail__back:hover {
+  color: var(--mc-text-secondary);
+}
+
+.app-detail__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.app-detail__icon {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 24px;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid);
+}
+
+/* Filet d'accent au-dessus de l'icône, avec halo : le même geste que la
+   hairline des cartes, en plus affirmé puisqu'on est entré dans l'app. */
+.app-detail__icon::after {
+  content: '';
+  position: absolute;
+  inset: -1px 0 auto 0;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--detail-accent, var(--mc-accent));
+  box-shadow: 0 0 12px 0 var(--detail-accent, var(--mc-accent));
+}
+
+.app-detail__id {
+  min-width: 0;
+  flex: 1;
+}
+
+.app-detail__title {
+  font-size: 1.5rem;
+  font-weight: 660;
+  letter-spacing: -0.015em;
+}
+
+.app-detail__desc {
+  margin-top: 4px;
+  max-width: 60ch;
+  color: var(--mc-text-secondary);
+  font-size: 0.8125rem;
+}
+
+.app-detail__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* --- Bandeau de chiffres --------------------------------------------- */
+
+.app-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.app-chip {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 108px;
+  padding: 10px 14px;
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+}
+
+.app-chip__val {
+  font-family: var(--mc-font-mono);
+  font-size: 1.05rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.app-chip__val--good {
+  color: var(--mc-green);
+}
+
+.app-chip__val--alert {
+  color: var(--mc-red);
+}
+
+.app-chip__val--text {
+  font-family: var(--mc-font-ui);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+/* --- Onglets --------------------------------------------------------- */
+
+.app-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid var(--mc-grid);
+  margin-bottom: 16px;
+}
+
+.app-tab {
+  padding: 9px 14px;
+  margin-bottom: -1px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--mc-text-muted);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.app-tab:hover {
+  color: var(--mc-text-secondary);
+}
+
+.app-tab--on {
+  color: var(--mc-text);
+  border-bottom-color: var(--detail-accent, var(--mc-accent));
+}
+
+.app-tabs__new {
+  margin-left: auto;
+  padding: 6px 12px;
+  background: none;
+  border: 1px solid var(--mc-grid-strong);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text-secondary);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.app-tabs__new:hover {
+  border-color: var(--mc-accent);
+  color: var(--mc-text);
+}
+
+.app-tab__soon {
+  padding: 32px 0;
+  color: var(--mc-text-muted);
+  font-size: 0.8125rem;
+}
+
+.app-tab__soon a {
+  color: var(--mc-accent);
+}

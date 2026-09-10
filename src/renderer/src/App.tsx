@@ -1,5 +1,7 @@
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Shell } from './app/Shell'
+import { LibraryPage } from './pages/LibraryPage'
+import { AppPage } from './pages/AppPage'
 import { DashboardPage } from './pages/DashboardPage'
 import { OperationsPage } from './pages/OperationsPage'
 import { MissionsPage } from './pages/MissionsPage'
@@ -42,8 +44,14 @@ export function App(): JSX.Element {
     <HashRouter>
       <Routes>
         <Route element={<Shell />}>
-          <Route index element={<DashboardPage />} />
+          {/* L'accueil est la bibliothèque d'apps. Le tableau de bord reste
+              accessible, mais n'est plus la première chose qu'on voit. */}
+          <Route index element={<LibraryPage />} />
+          <Route path="app/:id" element={<AppPage />} />
+          <Route path="dashboard" element={<DashboardPage />} />
           <Route path="operations" element={<OperationsPage />} />
+          {/* Anciennes routes « missions » conservées le temps de la
+              transition ; /missions/:id pointe vers la nouvelle vue d'app. */}
           <Route path="missions" element={<MissionsPage />} />
           <Route path="missions/:id" element={<MissionDetailPage />} />
           <Route path="board" element={<KanbanPage />} />
