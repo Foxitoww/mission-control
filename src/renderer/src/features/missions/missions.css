@@ -250,35 +250,8 @@
   color: var(--mc-green);
 }
 
-/* --- Cartes de mission (projets) ------------------------------------------ */
-.mission-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: var(--mc-space-3);
-}
-
-.mission-card {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-space-3);
-  padding: var(--mc-space-4);
-  background: var(--mc-hull);
-  border: 1px solid var(--mc-grid);
-  border-top: 2px solid var(--mc-accent);
-  border-radius: var(--mc-radius-card);
-  text-align: left;
-  cursor: pointer;
-  transition: border-color var(--mc-duration-instant) var(--mc-ease);
-}
-
-.mission-card:hover {
-  border-color: var(--mc-grid-strong);
-}
-
-.mission-card__name {
-  font-weight: 600;
-}
-
+/* Description tronquée d'un objectif rattaché à une app (GoalsPage). Reste de
+   l'ancienne carte de mission ; le seul sélecteur encore utilisé. */
 .mission-card__desc {
   font-size: 0.8125rem;
   color: var(--mc-text-muted);
@@ -286,16 +259,6 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-}
-
-.mission-card__foot {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--mc-space-2);
-  margin-top: auto;
-  font-size: 0.75rem;
-  color: var(--mc-text-muted);
 }
 
 .progress {

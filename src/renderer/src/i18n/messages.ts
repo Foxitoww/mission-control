@@ -240,12 +240,7 @@ const fr = {
 
   'nav.label': 'Navigation principale',
   'nav.operations': 'Opérations',
-  'nav.missions': 'Missions',
   'nav.tags': 'Étiquettes',
-
-  'dashboard.greeting': 'Bonjour,',
-  'dashboard.emptyTitle': 'Aucune opération enregistrée',
-  'dashboard.emptyHint': 'Appuie sur N pour créer ta première opération.',
 
   'task.new': 'Nouvelle opération',
   'task.edit': "Modifier l'opération",
@@ -581,12 +576,7 @@ const en: Record<MessageKey, string> = {
 
   'nav.label': 'Main navigation',
   'nav.operations': 'Operations',
-  'nav.missions': 'Missions',
   'nav.tags': 'Tags',
-
-  'dashboard.greeting': 'Hello,',
-  'dashboard.emptyTitle': 'No operations recorded',
-  'dashboard.emptyHint': 'Press N to create your first operation.',
 
   'task.new': 'New operation',
   'task.edit': 'Edit operation',

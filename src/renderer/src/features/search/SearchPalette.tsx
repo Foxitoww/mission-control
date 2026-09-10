@@ -111,7 +111,7 @@ export function SearchPalette({ onClose }: { onClose: () => void }): JSX.Element
                   type="button"
                   className="palette__item"
                   onClick={() => {
-                    navigate(`/missions/${project.id}`)
+                    navigate(`/app/${project.id}`)
                     onClose()
                   }}
                 >

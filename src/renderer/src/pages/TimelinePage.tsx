@@ -243,7 +243,7 @@ export function TimelinePage(): JSX.Element {
                   <button
                     type="button"
                     className="timeline__label timeline__label--action"
-                    onClick={() => navigate(`/missions/${entry.id}`)}
+                    onClick={() => navigate(`/app/${entry.id}`)}
                   >
                     <span
                       className="task-row__dot"
