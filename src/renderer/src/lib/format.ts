@@ -60,6 +60,44 @@ export function formatDue(iso: string | null, language: Language): DueInfo | nul
   return { countdown, absolute, tone }
 }
 
+/**
+ * Horodatage relatif pour le fil de discussion d'une tâche.
+ *
+ * Comme `formatDuration`, les mots courts sont écrits ici selon la langue
+ * plutôt que tirés du dictionnaire : ils ne servent qu'à cet affichage et
+ * gagnent à rester lus d'un coup d'œil (« il y a 5 min », « hier »).
+ */
+export function formatRelativeTime(iso: string, language: Language): string {
+  const then = new Date(iso)
+  if (Number.isNaN(then.getTime())) return ''
+
+  const fr = language === 'fr'
+  // Secondes écoulées depuis `then`. Toujours ≥ 0 en pratique : un message ne
+  // peut pas être créé dans le futur. On borne quand même à 0 par prudence.
+  const seconds = Math.max(0, Math.round((Date.now() - then.getTime()) / 1000))
+
+  const absolute = new Intl.DateTimeFormat(fr ? 'fr-FR' : 'en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: then.getFullYear() === new Date().getFullYear() ? undefined : 'numeric'
+  }).format(then)
+
+  if (seconds < 45) return fr ? "à l'instant" : 'just now'
+
+  const minutes = Math.round(seconds / 60)
+  if (minutes < 60) return fr ? `il y a ${minutes} min` : `${minutes} min ago`
+
+  const hours = Math.round(minutes / 60)
+  if (hours < 24) return fr ? `il y a ${hours} h` : `${hours}h ago`
+
+  // Un seul « hier » : au-delà, la date absolue situe mieux qu'un décompte de
+  // jours qui obligerait à calculer de tête.
+  const days = Math.round(hours / 24)
+  if (days === 1) return fr ? 'hier' : 'yesterday'
+
+  return absolute
+}
+
 /** `90` → `1 h 30`. Une durée en minutes seules devient illisible passé 120. */
 export function formatDuration(minutes: number | null): string | null {
   if (minutes === null || minutes <= 0) return null

@@ -9,4 +9,8 @@ export function registerUpdateHandlers(): void {
     updateService.installNow()
     return null
   })
+  handle(IpcChannel.UPDATE_OPEN_RELEASES, () => {
+    updateService.openReleasesPage()
+    return null
+  })
 }

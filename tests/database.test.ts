@@ -50,6 +50,7 @@ describe('migrations', () => {
       'settings',
       'subtasks',
       'tags',
+      'task_comments',
       'task_tags',
       'tasks'
     ])

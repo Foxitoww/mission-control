@@ -31,6 +31,7 @@ const api: MissionControlApi = {
     status: () => ipcRenderer.invoke(IpcChannel.UPDATE_STATUS),
     check: () => ipcRenderer.invoke(IpcChannel.UPDATE_CHECK),
     install: () => ipcRenderer.invoke(IpcChannel.UPDATE_INSTALL),
+    openReleases: () => ipcRenderer.invoke(IpcChannel.UPDATE_OPEN_RELEASES),
     onChanged: (listener) => {
       // On n'expose PAS ipcRenderer : seul un rappel typé traverse le pont, et
       // le désabonnement est renvoyé pour qu'un composant démonté ne fuie pas.
@@ -69,6 +70,12 @@ const api: MissionControlApi = {
     update: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_UPDATE, input),
     remove: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_DELETE, input),
     reorder: (input) => ipcRenderer.invoke(IpcChannel.SUBTASKS_REORDER, input)
+  },
+  comments: {
+    list: (input) => ipcRenderer.invoke(IpcChannel.COMMENTS_LIST, input),
+    create: (input) => ipcRenderer.invoke(IpcChannel.COMMENTS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.COMMENTS_UPDATE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.COMMENTS_DELETE, input)
   },
   goals: {
     list: () => ipcRenderer.invoke(IpcChannel.GOALS_LIST),

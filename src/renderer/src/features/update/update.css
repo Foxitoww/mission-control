@@ -41,3 +41,15 @@
   background: var(--mc-accent);
   transition: width var(--mc-duration-base) var(--mc-ease);
 }
+
+/* Boutons d'action : « Redémarrer et installer » et/ou « Voir les versions ».
+   Ligne à part pour que le lien reste visible même sans mise à jour prête. */
+.update-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+}
+
+.update-actions:empty {
+  display: none;
+}

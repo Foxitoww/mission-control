@@ -43,7 +43,11 @@ export function UpdateSection(): JSX.Element {
       case 'checking':
         return t('update.checking')
       case 'available':
-        return `${t('update.available')} ${status.latestVersion ?? ''}`.trim()
+        // En dev, le bouton « Redémarrer » n'existe pas : on renvoie vers la
+        // page des versions.
+        return status.reason === 'dev'
+          ? `${status.latestVersion ?? ''} ${t('update.availableDev')}`.trim()
+          : `${t('update.available')} ${status.latestVersion ?? ''}`.trim()
       case 'downloading':
         return `${t('update.downloading')} ${status.percent ?? 0} %`
       case 'ready':
@@ -73,12 +77,21 @@ export function UpdateSection(): JSX.Element {
           type="button"
           variant="secondary"
           loading={checking || status.state === 'checking'}
-          disabled={status.state === 'unsupported' || status.state === 'downloading'}
+          disabled={status.state === 'downloading'}
           onClick={() => void check()}
         >
           {t('update.check')}
         </Button>
       </div>
+
+      {/* Version publiée sur GitHub, dès qu'on la connaît : c'est la référence,
+          affichée même quand on est à jour. */}
+      {status.latestVersion && (
+        <div className="update-version">
+          <span className="mc-field__label">{t('update.latestPublished')}</span>
+          <span className="mc-data update-version__value">{status.latestVersion}</span>
+        </div>
+      )}
 
       {/* `aria-live` fait annoncer le changement d'état sans déplacer le focus :
           on n'interrompt pas quelqu'un qui remplit le formulaire au-dessus. */}
@@ -98,11 +111,23 @@ export function UpdateSection(): JSX.Element {
         </div>
       )}
 
-      {status.state === 'ready' && (
-        <Button type="button" onClick={() => void window.mc.update.install()}>
-          {t('update.restart')}
-        </Button>
-      )}
+      <div className="update-actions">
+        {status.state === 'ready' && (
+          <Button type="button" onClick={() => void window.mc.update.install()}>
+            {t('update.restart')}
+          </Button>
+        )}
+
+        {status.releaseUrl && (
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => void window.mc.update.openReleases()}
+          >
+            {t('update.openReleases')}
+          </Button>
+        )}
+      </div>
     </section>
   )
 }

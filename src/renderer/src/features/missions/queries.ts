@@ -10,6 +10,7 @@ import type { TagWithUsage } from '@shared/ipc-contract'
 import type {
   TaskListItem,
   TaskDetail,
+  TaskComment,
   ProjectSummary,
   DashboardData,
   SearchResults,
@@ -37,7 +38,8 @@ export const keys = {
   search: (query: string) => ['search', query] as const,
   goals: ['goals'] as const,
   stats: (days: number) => ['stats', days] as const,
-  timeline: ['timeline'] as const
+  timeline: ['timeline'] as const,
+  comments: (taskId: string) => ['comments', taskId] as const
 }
 
 /**
@@ -182,6 +184,57 @@ export const useUpdateSubtask = () =>
 
 export const useDeleteSubtask = () =>
   useMissionMutation((api, input: { id: string }) => unwrap(api.subtasks.remove(input)))
+
+/* --- Fil de discussion d'une tâche -------------------------------------- */
+
+export function useComments(taskId: string | null): UseQueryResult<TaskComment[]> {
+  return useQuery({
+    queryKey: keys.comments(taskId ?? ''),
+    queryFn: () => unwrap(window.mc.comments.list({ taskId: taskId as string })),
+    enabled: taskId !== null
+  })
+}
+
+/**
+ * Les mutations de commentaire renvoient le fil complet à jour : on l'écrit
+ * directement dans le cache plutôt que d'invalider, pour que le message
+ * apparaisse sans clignotement. On invalide seulement la liste des tâches, pour
+ * rafraîchir le badge de compteur.
+ */
+function useCommentMutation<TInput extends { taskId?: string }>(
+  call: (api: Api, input: TInput) => Promise<TaskComment[]>,
+  taskIdOf: (input: TInput) => string | undefined
+): ReturnType<typeof useMutation<TaskComment[], Error, TInput>> {
+  const client = useQueryClient()
+  return useMutation<TaskComment[], Error, TInput>({
+    mutationFn: (input) => call(window.mc, input),
+    onSuccess: (comments, input) => {
+      const taskId = taskIdOf(input) ?? comments[0]?.taskId
+      if (taskId) client.setQueryData(keys.comments(taskId), comments)
+      void client.invalidateQueries({ queryKey: ['tasks'] })
+      if (taskId) void client.invalidateQueries({ queryKey: keys.task(taskId) })
+    }
+  })
+}
+
+export const useCreateComment = () =>
+  useCommentMutation(
+    (api, input: { taskId: string; body: string }) => unwrap(api.comments.create(input)),
+    (input) => input.taskId
+  )
+
+export const useUpdateComment = () =>
+  useCommentMutation(
+    (api, input: { id: string; body: string; taskId: string }) =>
+      unwrap(api.comments.update({ id: input.id, body: input.body })),
+    (input) => input.taskId
+  )
+
+export const useDeleteComment = () =>
+  useCommentMutation(
+    (api, input: { id: string; taskId: string }) => unwrap(api.comments.remove({ id: input.id })),
+    (input) => input.taskId
+  )
 
 /* --- Objectifs et statistiques -------------------------------------------- */
 

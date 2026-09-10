@@ -26,8 +26,25 @@ export interface TaskListItem extends Task {
   recurrenceParentId: string | null
   subtaskTotal: number
   subtaskDone: number
+  /** Nombre de messages dans le fil de discussion — sert au badge de liste. */
+  commentCount: number
   projectName: string | null
   projectColor: string | null
+}
+
+/**
+ * Un message du fil d'une tâche.
+ *
+ * `edited` distingue « écrit une fois » de « corrigé après coup » : dans une
+ * discussion, savoir qu'un message a été retouché change sa lecture.
+ */
+export interface TaskComment {
+  id: string
+  taskId: string
+  body: string
+  edited: boolean
+  createdAt: string
+  updatedAt: string
 }
 
 export interface TaskDetail extends TaskListItem {

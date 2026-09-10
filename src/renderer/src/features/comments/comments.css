@@ -1,0 +1,155 @@
+/* =============================================================================
+   Fil de discussion d'une tâche — « messenger dans la tâche »
+
+   Un seul utilisateur écrit ici : inutile d'aligner les messages à droite pour
+   distinguer « moi » des « autres ». Le fil se lit comme un journal de bord —
+   avatar, nom, heure relative, bulle — du plus ancien au plus récent.
+   ========================================================================== */
+
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.comments__thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  max-height: 320px;
+  overflow-y: auto;
+  /* Une réserve à droite pour que la barre de défilement ne recouvre jamais
+     les actions au survol d'une bulle. */
+  padding-right: var(--mc-space-2);
+}
+
+.comments__empty {
+  color: var(--mc-text-muted);
+  font: var(--mc-text-caption);
+  padding: var(--mc-space-3) 0;
+}
+
+/* --- Un message ---------------------------------------------------------- */
+
+.comment {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--mc-space-2);
+  align-items: start;
+}
+
+.comment__avatar {
+  /* L'avatar est déjà rond et dimensionné par le composant ; on ne fait que
+     le caler en haut de la bulle. */
+  margin-top: 2px;
+}
+
+.comment__col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.comment__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mc-space-2);
+  font: var(--mc-text-caption);
+}
+
+.comment__author {
+  color: var(--mc-text-secondary);
+  font-weight: 600;
+}
+
+.comment__time {
+  color: var(--mc-text-muted);
+}
+
+.comment__edited {
+  color: var(--mc-text-muted);
+  font-style: italic;
+}
+
+.comment__bubble {
+  position: relative;
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  /* Coin haut-gauche resserré : rattache visuellement la bulle à l'avatar. */
+  border-top-left-radius: var(--mc-radius-badge);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  color: var(--mc-text);
+  font: var(--mc-text-body);
+  /* Respecte les retours à la ligne saisis, coupe les URLs interminables. */
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Actions révélées au survol (ou au focus clavier) de la bulle. */
+.comment__actions {
+  position: absolute;
+  top: calc(-1 * var(--mc-space-2));
+  right: var(--mc-space-2);
+  display: flex;
+  gap: var(--mc-space-1);
+  opacity: 0;
+  transition: opacity var(--mc-duration-instant) var(--mc-ease);
+}
+
+.comment__bubble:hover .comment__actions,
+.comment__bubble:focus-within .comment__actions {
+  opacity: 1;
+}
+
+.comment__action {
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text-muted);
+  font: var(--mc-text-caption);
+  padding: 2px var(--mc-space-2);
+  cursor: pointer;
+}
+
+.comment__action:hover {
+  color: var(--mc-text);
+  border-color: var(--mc-grid-strong);
+}
+
+.comment__action--danger:hover {
+  color: var(--mc-red);
+  border-color: var(--mc-red);
+}
+
+/* --- Zone de saisie ---------------------------------------------------------- */
+
+.comments__compose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.comments__input {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  background: var(--mc-abyss);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  color: var(--mc-text);
+  font: var(--mc-text-body);
+}
+
+.comments__input:focus-visible {
+  outline: none;
+  border-color: var(--mc-accent);
+  box-shadow: var(--mc-glow-focus);
+}
+
+.comments__compose-row {
+  display: flex;
+  justify-content: flex-end;
+}

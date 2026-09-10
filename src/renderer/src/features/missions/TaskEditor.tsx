@@ -10,6 +10,7 @@ import { useI18n } from '@renderer/i18n'
 import { useToast } from '@renderer/components/Toast'
 import { IpcError } from '@renderer/lib/ipc'
 import { dateInputToIso, isoToDateInput, missionCode } from '@renderer/lib/format'
+import { TaskComments } from '@renderer/features/comments/TaskComments'
 import {
   useTask,
   useTags,
@@ -411,6 +412,14 @@ function EditorForm({
                 }}
               />
             </div>
+          </div>
+        )}
+
+        {/* Le fil de discussion a lui aussi besoin d'un identifiant de tâche
+            persistée : on ne peut commenter que ce qui existe déjà. */}
+        {isEdit && task && (
+          <div className="editor__row">
+            <TaskComments taskId={task.id} />
           </div>
         )}
 

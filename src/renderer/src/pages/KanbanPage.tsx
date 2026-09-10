@@ -73,6 +73,7 @@ function Card({ task, onOpen }: { task: TaskListItem; onOpen: (id: string) => vo
             {task.subtaskDone}/{task.subtaskTotal}
           </span>
         )}
+        {task.commentCount > 0 && <span className="mc-data comment-badge">{task.commentCount}</span>}
         {due && <span className={`mc-data task-row__due--${due.tone}`}>{due.countdown}</span>}
       </span>
     </li>

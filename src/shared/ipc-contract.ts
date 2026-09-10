@@ -3,6 +3,7 @@ import type { PublicUser, Settings, Tag } from './types/domain'
 import type {
   TaskListItem,
   TaskDetail,
+  TaskComment,
   ProjectSummary,
   DashboardData,
   SearchResults,
@@ -28,6 +29,7 @@ import type {
   CreateSubtaskInput,
   UpdateSubtaskInput
 } from './schemas/task.schema'
+import type { CreateCommentInput, UpdateCommentInput } from './schemas/comment.schema'
 import type {
   CreateProjectInput,
   UpdateProjectInput,
@@ -82,6 +84,7 @@ export const IpcChannel = {
   UPDATE_STATUS: 'update:status',
   UPDATE_CHECK: 'update:check',
   UPDATE_INSTALL: 'update:install',
+  UPDATE_OPEN_RELEASES: 'update:open-releases',
 
   DASHBOARD_LOAD: 'dashboard:load',
 
@@ -108,6 +111,11 @@ export const IpcChannel = {
   SUBTASKS_UPDATE: 'subtasks:update',
   SUBTASKS_DELETE: 'subtasks:delete',
   SUBTASKS_REORDER: 'subtasks:reorder',
+
+  COMMENTS_LIST: 'comments:list',
+  COMMENTS_CREATE: 'comments:create',
+  COMMENTS_UPDATE: 'comments:update',
+  COMMENTS_DELETE: 'comments:delete',
 
   GOALS_LIST: 'goals:list',
   GOALS_CREATE: 'goals:create',
@@ -164,6 +172,8 @@ export interface MissionControlApi {
     check(): Promise<IpcResult<UpdateStatus>>
     /** Redémarre sur la version téléchargée. Sans effet si aucune n'est prête. */
     install(): Promise<IpcResult<null>>
+    /** Ouvre la page GitHub des versions dans le navigateur du système. */
+    openReleases(): Promise<IpcResult<null>>
     /** S'abonne aux changements d'état. Renvoie la fonction de désabonnement. */
     onChanged(listener: (status: UpdateStatus) => void): () => void
   }
@@ -201,6 +211,13 @@ export interface MissionControlApi {
     update(input: UpdateSubtaskInput): Promise<IpcResult<TaskDetail>>
     remove(input: { id: string }): Promise<IpcResult<null>>
     reorder(input: { taskId: string; orderedIds: string[] }): Promise<IpcResult<TaskDetail>>
+  }
+  comments: {
+    list(input: { taskId: string }): Promise<IpcResult<TaskComment[]>>
+    /** Renvoie le fil complet à jour, prêt à réafficher. */
+    create(input: CreateCommentInput): Promise<IpcResult<TaskComment[]>>
+    update(input: UpdateCommentInput): Promise<IpcResult<TaskComment[]>>
+    remove(input: { id: string }): Promise<IpcResult<TaskComment[]>>
   }
   goals: {
     list(): Promise<IpcResult<GoalSummary[]>>

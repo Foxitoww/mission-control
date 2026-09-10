@@ -23,6 +23,7 @@ interface TaskRow {
   project_color: string | null
   subtask_total: number
   subtask_done: number
+  comment_count: number
 }
 
 /**
@@ -36,7 +37,8 @@ const SELECT_TASK = `
          t.recurrence_rule, t.recurrence_parent_id, t.created_at, t.updated_at,
          p.name AS project_name, p.color AS project_color,
          (SELECT COUNT(*) FROM subtasks s WHERE s.task_id = t.id) AS subtask_total,
-         (SELECT COUNT(*) FROM subtasks s WHERE s.task_id = t.id AND s.completed = 1) AS subtask_done
+         (SELECT COUNT(*) FROM subtasks s WHERE s.task_id = t.id AND s.completed = 1) AS subtask_done,
+         (SELECT COUNT(*) FROM task_comments c WHERE c.task_id = t.id) AS comment_count
     FROM tasks t
     LEFT JOIN projects p ON p.id = t.project_id`
 
@@ -60,6 +62,7 @@ function toItem(row: TaskRow, tags: Tag[]): TaskListItem {
     projectColor: row.project_color,
     subtaskTotal: row.subtask_total,
     subtaskDone: row.subtask_done,
+    commentCount: row.comment_count,
     tags
   }
 }

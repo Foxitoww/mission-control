@@ -73,6 +73,13 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* Compteur de messages sur une tâche : la bulle 💬 précède le nombre partout
+   où il apparaît (liste, carte Kanban). Masqué à zéro par l'appelant. */
+.comment-badge::before {
+  content: '\1F4AC';
+  margin-right: 3px;
+}
+
 ::selection {
   background: color-mix(in srgb, var(--mc-accent) 35%, transparent);
 }

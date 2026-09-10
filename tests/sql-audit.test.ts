@@ -19,11 +19,12 @@ const OWNED_TABLES = ['tasks', 'projects', 'tags', 'goals', 'settings']
 
 /**
  * Tables possédées TRANSITIVEMENT : leur propriétaire se déduit du parent —
- * `subtasks` par `task_id`, `task_tags` par ses deux extrémités. Leurs requêtes
- * sont légitimement dépourvues de `user_id`, et le service vérifie la propriété
- * du parent avant d'y toucher (voir subtasks.service.ts).
+ * `subtasks` et `task_comments` par `task_id`, `task_tags` par ses deux
+ * extrémités. Leurs requêtes sont légitimement dépourvues de `user_id`, et le
+ * service vérifie la propriété du parent avant d'y toucher (voir
+ * subtasks.service.ts, comments.service.ts).
  */
-const TRANSITIVE_TABLES = ['subtasks', 'task_tags']
+const TRANSITIVE_TABLES = ['subtasks', 'task_tags', 'task_comments']
 
 const SOURCE_DIRS = ['src/main/repositories', 'src/main/services']
 
@@ -120,7 +121,8 @@ describe('audit des requêtes SQL', () => {
       'tasks.repo.ts',
       'subtasks.service.ts',
       'tags.repo.ts',
-      'backup.service.ts'
+      'backup.service.ts',
+      'taskComments.repo.ts'
     ]
     const misplaced = transitive
       .filter((statement) => !allowed.some((name) => statement.file.endsWith(name)))

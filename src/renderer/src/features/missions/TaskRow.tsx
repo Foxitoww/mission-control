@@ -69,6 +69,12 @@ export function TaskRow({ task, onOpen, showCode = false }: TaskRowProps): JSX.E
             </span>
           )}
 
+          {task.commentCount > 0 && (
+            <span className="mc-data comment-badge" title={t('comments.count')}>
+              {task.commentCount}
+            </span>
+          )}
+
           {duration && <span className="mc-data task-row__duration">{duration}</span>}
 
           {due && (

@@ -22,4 +22,13 @@ export interface UpdateStatus {
   /** Progression du téléchargement, 0–100. */
   percent?: number
   reason?: 'dev'
+  /**
+   * Page GitHub de la version concernée (ou la liste des versions à défaut).
+   *
+   * Toujours renseignée après un `check` : c'est le repli quand le
+   * téléchargement automatique n'est pas possible — en développement, ou si
+   * l'installeur n'est pas signé et que l'utilisateur préfère le récupérer
+   * lui-même.
+   */
+  releaseUrl?: string
 }
