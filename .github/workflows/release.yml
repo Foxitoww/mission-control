@@ -12,7 +12,11 @@ permissions:
 
 jobs:
   windows:
-    runs-on: windows-latest
+    # Épinglé, pas « latest » : l'image 2025 embarque Visual Studio 18, que le
+    # node-gyp de better-sqlite3 ne sait pas reconnaître (« could not find a
+    # version of Visual Studio 2017 or newer »). 2022 porte une chaîne MSVC que
+    # le repli de compilation comprend, si jamais le binaire prébuild manque.
+    runs-on: windows-2022
     steps:
       - uses: actions/checkout@v4
 
@@ -21,7 +25,12 @@ jobs:
           node-version: 22
           cache: npm
 
+      # GITHUB_TOKEN ici aussi : better-sqlite3 récupère son binaire prébuild
+      # (N-API, donc valable pour Node ET Electron) depuis les releases GitHub.
+      # Sans jeton, l'API anonyme peut throttler et forcer une compilation.
       - run: npm ci
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # La porte de qualité vaut aussi pour une release : on ne publie pas un
       # binaire dont les tests d'isolation n'ont pas été rejoués.
