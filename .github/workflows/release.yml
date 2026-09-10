@@ -6,6 +6,9 @@ name: release
 on:
   push:
     tags: ['v*']
+  # Déclenchement manuel : rejouer la publication sur une branche sans
+  # consommer un numéro de version, le temps que la chaîne Windows soit verte.
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,6 +27,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
+
+      # Python 3.11, pas la 3.12 de l'image : le node-gyp 9.4.1 embarqué par
+      # better-sqlite3 importe `distutils`, retiré de la stdlib en 3.12
+      # (« ModuleNotFoundError: No module named 'distutils' »). C'est le repli
+      # de compilation ; il ne sert que si le binaire prébuild manque.
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       # GITHUB_TOKEN ici aussi : better-sqlite3 récupère son binaire prébuild
       # (N-API, donc valable pour Node ET Electron) depuis les releases GitHub.
