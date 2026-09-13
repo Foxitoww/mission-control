@@ -1,6 +1,6 @@
 {
   "name": "mission-control",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Application de productivite local-first inspiree des centres de controle spatial",
   "main": "./out/main/index.js",
   "author": "Foxitoww",
@@ -41,7 +41,8 @@
       {
         "provider": "github",
         "owner": "Foxitoww",
-        "repo": "mission-control"
+        "repo": "mission-control",
+        "releaseType": "release"
       }
     ],
     "win": {
