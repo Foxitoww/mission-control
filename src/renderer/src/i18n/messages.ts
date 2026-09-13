@@ -167,6 +167,14 @@ const fr = {
   'kanban.empty': 'Rien ici',
   'kanban.hint': 'Glisse une carte pour changer sa colonne. Double-clic pour ouvrir.',
 
+  /* Intitulés des colonnes du tableau — distincts de status.* : ce sont des
+     SECTIONS de travail (« à débuguer » plutôt que « bloquée »), pas l'état
+     technique affiché ailleurs (éditeur, filtres). */
+  'board.column.TODO': 'À faire',
+  'board.column.IN_PROGRESS': 'En cours',
+  'board.column.BLOCKED': 'À débuguer',
+  'board.column.COMPLETED': 'Terminées',
+
   'calendar.today': "Aujourd'hui",
   'calendar.previous': 'Mois précédent',
   'calendar.next': 'Mois suivant',
@@ -253,6 +261,7 @@ const fr = {
   'task.priority': 'Priorité',
   'task.dueDate': 'Échéance',
   'task.estimate': 'Estimation (min)',
+  'task.progress': 'Avancement',
   'task.tags': 'Étiquettes',
   'task.subtasks': 'Sous-tâches',
   'task.addSubtask': 'Ajouter une étape puis Entrée',
@@ -335,6 +344,7 @@ const fr = {
   'error.DESCRIPTION_TOO_LONG': 'Description trop longue.',
   'error.DATE_INVALID': 'Date invalide.',
   'error.ESTIMATE_INVALID': 'L’estimation doit être un nombre de minutes positif.',
+  'error.PROGRESS_INVALID': 'L’avancement doit être compris entre 0 et 100 %.',
   'error.COLOR_INVALID': 'Couleur non proposée par la palette.',
 
   'common.cancel': 'Annuler',
@@ -502,6 +512,11 @@ const en: Record<MessageKey, string> = {
   'kanban.empty': 'Nothing here',
   'kanban.hint': 'Drag a card to change its column. Double-click to open.',
 
+  'board.column.TODO': 'To do',
+  'board.column.IN_PROGRESS': 'In progress',
+  'board.column.BLOCKED': 'To debug',
+  'board.column.COMPLETED': 'Done',
+
   'calendar.today': 'Today',
   'calendar.previous': 'Previous month',
   'calendar.next': 'Next month',
@@ -588,6 +603,7 @@ const en: Record<MessageKey, string> = {
   'task.priority': 'Priority',
   'task.dueDate': 'Due date',
   'task.estimate': 'Estimate (min)',
+  'task.progress': 'Progress',
   'task.tags': 'Tags',
   'task.subtasks': 'Subtasks',
   'task.addSubtask': 'Add a step, then Enter',
@@ -670,6 +686,7 @@ const en: Record<MessageKey, string> = {
   'error.DESCRIPTION_TOO_LONG': 'Description too long.',
   'error.DATE_INVALID': 'Invalid date.',
   'error.ESTIMATE_INVALID': 'The estimate must be a positive number of minutes.',
+  'error.PROGRESS_INVALID': 'Progress must be between 0 and 100%.',
   'error.COLOR_INVALID': 'Colour not offered by the palette.',
 
   'common.cancel': 'Cancel',

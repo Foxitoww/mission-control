@@ -127,6 +127,10 @@
   color: var(--mc-text-secondary);
 }
 
+.task-row__progress {
+  width: 64px;
+}
+
 .task-row__due--today {
   color: var(--mc-amber);
 }

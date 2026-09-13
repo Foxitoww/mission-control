@@ -6,6 +6,7 @@ import { FREQUENCIES, type Frequency } from '@shared/schemas/recurrence.schema'
 import { Modal } from '@renderer/components/Modal'
 import { Button } from '@renderer/components/Button'
 import { TextField } from '@renderer/components/TextField'
+import { ProgressBar } from '@renderer/components/ProgressBar'
 import { useI18n } from '@renderer/i18n'
 import { useToast } from '@renderer/components/Toast'
 import { IpcError } from '@renderer/lib/ipc'
@@ -99,6 +100,7 @@ function EditorForm({
   const [description, setDescription] = useState(task?.description ?? '')
   const [projectId, setProjectId] = useState(task?.projectId ?? defaultProjectId ?? '')
   const [status, setStatus] = useState<TaskStatus>(task?.status ?? 'TODO')
+  const [progress, setProgress] = useState(task?.progress ?? 0)
   const [priority, setPriority] = useState<TaskPriority>(task?.priority ?? 'MEDIUM')
   const [dueDate, setDueDate] = useState(isoToDateInput(task?.dueDate ?? null))
   const [estimate, setEstimate] = useState(task?.estimatedMinutes?.toString() ?? '')
@@ -120,6 +122,21 @@ function EditorForm({
     )
   }
 
+  /**
+   * Reflète côté client la synchronisation que le service applique de toute
+   * façon (syncProgress, tasks.service.ts) : 0 % en repassant à faire, 100 %
+   * en terminant. Sans cela, le formulaire enverrait TOUJOURS un avancement
+   * explicite — la moindre valeur, même inchangée — ce qui empêcherait le
+   * service de distinguer « l'utilisateur a choisi cet avancement » de
+   * « seul le statut a changé », et désactiverait la synchronisation
+   * automatique pour toute édition faite depuis ce formulaire.
+   */
+  function onStatusChange(next: TaskStatus): void {
+    setStatus(next)
+    if (next === 'TODO') setProgress(0)
+    else if (next === 'COMPLETED') setProgress(100)
+  }
+
   async function submit(event: FormEvent): Promise<void> {
     event.preventDefault()
     setError(null)
@@ -129,6 +146,7 @@ function EditorForm({
       description: description.trim() === '' ? null : description,
       projectId: projectId === '' ? null : projectId,
       status,
+      progress,
       priority,
       dueDate: dateInputToIso(dueDate),
       estimatedMinutes: estimate === '' ? null : Number(estimate),
@@ -223,7 +241,7 @@ function EditorForm({
               className="editor__select"
               value={status}
               disabled={busy}
-              onChange={(event) => setStatus(event.target.value as TaskStatus)}
+              onChange={(event) => onStatusChange(event.target.value as TaskStatus)}
             >
               {TASK_STATUSES.map((value) => (
                 <option key={value} value={value}>
@@ -231,6 +249,11 @@ function EditorForm({
                 </option>
               ))}
             </select>
+          </div>
+
+          <div className="editor__row">
+            <span className="mc-field__label">{t('task.progress')}</span>
+            <ProgressBar value={progress} onCommit={setProgress} ariaLabel={t('task.progress')} />
           </div>
 
           <div className="editor__row">

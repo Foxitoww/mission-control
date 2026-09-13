@@ -15,6 +15,9 @@ const description = z.string().trim().max(5000, 'DESCRIPTION_TOO_LONG').nullable
  */
 const isoDate = z.string().datetime({ message: 'DATE_INVALID' }).nullable().default(null)
 
+/** Avancement d'une tâche, en pourcentage entier. */
+const progress = z.number().int().min(0, 'PROGRESS_INVALID').max(100, 'PROGRESS_INVALID')
+
 export const createTaskInputSchema = z.object({
   title,
   description,
@@ -22,6 +25,11 @@ export const createTaskInputSchema = z.object({
   status: z.enum(TASK_STATUSES).default('TODO'),
   priority: z.enum(TASK_PRIORITIES).default('MEDIUM'),
   dueDate: isoDate,
+  /**
+   * Optionnel à la création : sans valeur, le service la déduit de `status`
+   * (0 % pour une tâche à faire, 100 % si créée déjà terminée).
+   */
+  progress: progress.optional(),
   estimatedMinutes: z
     .number()
     .int()
@@ -46,6 +54,9 @@ export const updateTaskInputSchema = z.object({
   status: z.enum(TASK_STATUSES).optional(),
   priority: z.enum(TASK_PRIORITIES).optional(),
   dueDate: z.string().datetime({ message: 'DATE_INVALID' }).nullable().optional(),
+  /** Glisser la barre à 100 % termine la tâche, à 0 % la rouvre — voir
+   *  syncProgress dans tasks.service.ts. */
+  progress: progress.optional(),
   estimatedMinutes: z
     .number()
     .int()

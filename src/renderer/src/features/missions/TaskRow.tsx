@@ -1,6 +1,7 @@
 import type { TaskListItem } from '@shared/types/views'
 import { useI18n } from '@renderer/i18n'
 import { formatDue, formatDuration, missionCode } from '@renderer/lib/format'
+import { ProgressBar } from '@renderer/components/ProgressBar'
 import { useToggleTask } from './queries'
 import './missions.css'
 
@@ -72,6 +73,16 @@ export function TaskRow({ task, onOpen, showCode = false }: TaskRowProps): JSX.E
           {task.commentCount > 0 && (
             <span className="mc-data comment-badge" title={t('comments.count')}>
               {task.commentCount}
+            </span>
+          )}
+
+          {/* Lecture seule ici : la ligne dense n'a pas la place d'un curseur,
+              et son bouton englobant ne peut de toute façon pas contenir un
+              second contrôle focalisable. Modifiable depuis l'éditeur ou la
+              carte du tableau. */}
+          {!done && (
+            <span className="task-row__progress">
+              <ProgressBar value={task.progress} ariaLabel={t('task.progress')} size="sm" />
             </span>
           )}
 

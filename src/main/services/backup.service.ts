@@ -82,7 +82,7 @@ export const backupService = {
       tasks: rows(
         vault,
         `SELECT id, project_id, title, description, status, priority, due_date, completed_at,
-                estimated_minutes, position, recurrence_rule, recurrence_parent_id,
+                estimated_minutes, progress, position, recurrence_rule, recurrence_parent_id,
                 created_at, updated_at
            FROM tasks WHERE user_id = ? ORDER BY position`,
         userId
@@ -96,6 +96,7 @@ export const backupService = {
         dueDate: (row['due_date'] as string) ?? null,
         completedAt: (row['completed_at'] as string) ?? null,
         estimatedMinutes: (row['estimated_minutes'] as number) ?? null,
+        progress: row['progress'] as number,
         position: row['position'] as number,
         recurrenceRule: (row['recurrence_rule'] as string) ?? null,
         recurrenceParentId: (row['recurrence_parent_id'] as string) ?? null,
@@ -234,15 +235,20 @@ export const backupService = {
       const insertTask = vault.prepare(
         `INSERT OR IGNORE INTO tasks
            (id, user_id, project_id, title, description, status, priority, due_date, completed_at,
-            estimated_minutes, position, recurrence_rule, recurrence_parent_id, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+            estimated_minutes, progress, position, recurrence_rule, recurrence_parent_id,
+            created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
       )
       for (const task of document.tasks) {
         // L'invariant du schéma (COMPLETED ⟺ completed_at) est réappliqué :
         // un fichier édité à la main pourrait le violer, et la contrainte CHECK
-        // ferait alors échouer tout l'import.
+        // ferait alors échouer tout l'import. Même chose pour l'avancement, dont
+        // le CHECK n'est qu'un intervalle : on réaligne les deux bornes sur le
+        // statut plutôt que de faire confiance à une valeur éditée à la main.
         const completedAt =
           task.status === 'COMPLETED' ? (task.completedAt ?? task.updatedAt) : null
+        const progress =
+          task.status === 'COMPLETED' ? 100 : task.status === 'TODO' ? 0 : task.progress
 
         const result = insertTask.run(
           task.id,
@@ -255,6 +261,7 @@ export const backupService = {
           task.dueDate,
           completedAt,
           task.estimatedMinutes,
+          progress,
           task.position,
           task.recurrenceRule,
           task.recurrenceParentId,

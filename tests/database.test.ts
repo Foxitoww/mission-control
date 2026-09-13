@@ -104,6 +104,25 @@ describe('contraintes du schéma', () => {
     ).toThrow(/CHECK constraint/i)
   })
 
+  it('une tâche démarre à 0 % d’avancement et refuse une valeur hors bornes', () => {
+    const id = randomUUID()
+    vault
+      .prepare(
+        `INSERT INTO tasks (id, user_id, title, position, created_at, updated_at)
+         VALUES (?, ?, 'X', 0, ?, ?)`
+      )
+      .run(id, userId, now, now)
+
+    const row = vault.prepare('SELECT progress FROM tasks WHERE id = ?').get(id) as {
+      progress: number
+    }
+    expect(row.progress).toBe(0)
+
+    expect(() => vault.prepare('UPDATE tasks SET progress = 101 WHERE id = ?').run(id)).toThrow(
+      /CHECK constraint/i
+    )
+  })
+
   it('détache les tâches quand leur projet est supprimé, sans les détruire', () => {
     const projectId = randomUUID()
     vault

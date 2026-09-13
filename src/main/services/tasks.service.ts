@@ -30,6 +30,47 @@ function completionFor(status: TaskStatus, current: string | null, now: string):
   return current ?? now
 }
 
+/**
+ * Synchronise avancement et statut, dans les DEUX sens.
+ *
+ * Un statut explicite fixe l'avancement à ses deux bornes : 0 % pour repartir
+ * à faire, 100 % en terminant. « En cours » et « bloquée » n'ont pas de valeur
+ * imposée — changer de statut vers l'une d'elles laisse l'avancement où il
+ * était. Symétriquement, glisser la barre jusqu'à une borne fait franchir le
+ * statut correspondant, aussi sûrement que cocher la case ; une valeur
+ * intermédiaire fait sortir d'« à faire »/« terminée » vers « en cours », mais
+ * ne force jamais une sortie de « bloquée » : le blocage est une décision, pas
+ * une conséquence de l'avancement.
+ *
+ * Quand statut ET avancement sont donnés dans le même appel, les deux sont
+ * respectés tels quels — c'est l'appelant, pas cette fonction, qui a alors
+ * décidé de la cohérence.
+ */
+function syncProgress(
+  status: TaskStatus | undefined,
+  progress: number | undefined,
+  current: { status: TaskStatus; progress: number }
+): { status: TaskStatus; progress: number } {
+  if (status !== undefined && progress !== undefined) return { status, progress }
+
+  if (status !== undefined) {
+    if (status === 'TODO') return { status, progress: 0 }
+    if (status === 'COMPLETED') return { status, progress: 100 }
+    return { status, progress: current.progress }
+  }
+
+  if (progress !== undefined) {
+    if (progress === 0) return { status: 'TODO', progress }
+    if (progress === 100) return { status: 'COMPLETED', progress }
+    if (current.status === 'TODO' || current.status === 'COMPLETED') {
+      return { status: 'IN_PROGRESS', progress }
+    }
+    return { status: current.status, progress }
+  }
+
+  return current
+}
+
 /** Vérifie que le projet visé appartient bien à l'utilisateur courant. */
 function assertProjectOwned(db: Db, userId: string, projectId: string | null): void {
   if (projectId && !projectsRepo.findById(db, userId, projectId)) {
@@ -91,6 +132,7 @@ function spawnNextOccurrence(db: Db, userId: string, completed: TaskDetail, now:
     dueDate: next.toISOString(),
     completedAt: null,
     estimatedMinutes: completed.estimatedMinutes,
+    progress: 0,
     position: tasksRepo.nextPosition(db, userId),
     recurrenceRule: serializeRule(completed.recurrence),
     recurrenceParentId: completed.recurrenceParentId ?? completed.id,
@@ -128,6 +170,10 @@ export const tasksService = {
 
     const id = randomUUID()
     const now = new Date().toISOString()
+    const { progress } = syncProgress(data.status, data.progress, {
+      status: 'TODO',
+      progress: 0
+    })
 
     db.transaction(() => {
       tasksRepo.insert(db, {
@@ -141,6 +187,7 @@ export const tasksService = {
         dueDate: data.dueDate,
         completedAt: completionFor(data.status, null, now),
         estimatedMinutes: data.estimatedMinutes,
+        progress,
         position: tasksRepo.nextPosition(db, userId),
         recurrenceRule: serializeRule(data.recurrence),
         recurrenceParentId: null,
@@ -175,13 +222,21 @@ export const tasksService = {
     if (data.estimatedMinutes !== undefined) fields['estimated_minutes'] = data.estimatedMinutes
     if (data.recurrence !== undefined) fields['recurrence_rule'] = serializeRule(data.recurrence)
 
-    // Statut et date de complétion changent ENSEMBLE, jamais séparément.
-    if (data.status !== undefined) {
-      fields['status'] = data.status
-      fields['completed_at'] = completionFor(data.status, existing.completedAt, now)
+    // Statut, avancement et date de complétion changent ENSEMBLE, jamais
+    // séparément — voir syncProgress.
+    let nextStatus = existing.status
+    if (data.status !== undefined || data.progress !== undefined) {
+      const synced = syncProgress(data.status, data.progress, {
+        status: existing.status,
+        progress: existing.progress
+      })
+      nextStatus = synced.status
+      fields['status'] = synced.status
+      fields['progress'] = synced.progress
+      fields['completed_at'] = completionFor(synced.status, existing.completedAt, now)
     }
 
-    const becomesComplete = data.status === 'COMPLETED' && existing.status !== 'COMPLETED'
+    const becomesComplete = nextStatus === 'COMPLETED' && existing.status !== 'COMPLETED'
 
     db.transaction(() => {
       tasksRepo.update(db, userId, data.id, fields, now)
@@ -218,8 +273,13 @@ export const tasksService = {
     const fields: Record<string, unknown> = { position }
 
     if (data.status !== undefined && data.status !== existing.status) {
-      fields['status'] = data.status
-      fields['completed_at'] = completionFor(data.status, existing.completedAt, now)
+      const synced = syncProgress(data.status, undefined, {
+        status: existing.status,
+        progress: existing.progress
+      })
+      fields['status'] = synced.status
+      fields['progress'] = synced.progress
+      fields['completed_at'] = completionFor(synced.status, existing.completedAt, now)
     }
 
     tasksRepo.update(db, userId, data.id, fields, now)
@@ -234,13 +294,14 @@ export const tasksService = {
 
     const status: TaskStatus = existing.status === 'COMPLETED' ? 'TODO' : 'COMPLETED'
     const now = new Date().toISOString()
+    const progress = status === 'COMPLETED' ? 100 : 0
 
     db.transaction(() => {
       tasksRepo.update(
         db,
         userId,
         id,
-        { status, completed_at: completionFor(status, null, now) },
+        { status, progress, completed_at: completionFor(status, null, now) },
         now
       )
       if (status === 'COMPLETED') spawnNextOccurrence(db, userId, existing, now)

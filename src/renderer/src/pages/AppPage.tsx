@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom'
 import type { TaskFilter } from '@shared/schemas/task.schema'
 import { TaskList } from '@renderer/features/missions/TaskRow'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
+import { KanbanBoard } from '@renderer/features/missions/KanbanBoard'
 import { QueryState } from '@renderer/components/QueryState'
 import {
   useProjects,
@@ -215,11 +216,10 @@ export function AppPage(): JSX.Element {
           <TaskList tasks={tasks} onOpen={setOpenTask} />
         ))}
 
-      {tab === 'board' && (
-        <p className="app-tab__soon">
-          {t('app.tabSoon')} <Link to="/board">{t('nav.board')}</Link>
-        </p>
-      )}
+      {/* `key={id}` : changer d'app tout en restant sur l'onglet Tableau doit
+          démonter l'ancien DndContext plutôt que de réutiliser ses capteurs
+          sur les tâches d'une autre app. */}
+      {tab === 'board' && <KanbanBoard key={id} projectId={id} onOpen={setOpenTask} />}
 
       {tab === 'calendar' && (
         <p className="app-tab__soon">

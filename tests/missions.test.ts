@@ -43,6 +43,7 @@ describe('tâches — cycle de vie', () => {
     expect(task.status).toBe('TODO')
     expect(task.priority).toBe('MEDIUM')
     expect(task.completedAt).toBeNull()
+    expect(task.progress).toBe(0)
     expect(task.tags).toEqual([])
     expect(task.subtaskTotal).toBe(0)
   })
@@ -110,6 +111,79 @@ describe('invariant statut / date de complétion', () => {
     const undone = tasksService.toggle(db, { id: task.id })
     expect(undone.status).toBe('TODO')
     expect(undone.completedAt).toBeNull()
+  })
+})
+
+describe('invariant statut / avancement', () => {
+  it('un statut explicite fixe l’avancement à ses bornes', () => {
+    const task = tasksService.create(db, { title: 'Mission' })
+
+    const done = tasksService.update(db, { id: task.id, status: 'COMPLETED' })
+    expect(done.progress).toBe(100)
+
+    const restored = tasksService.update(db, { id: task.id, status: 'TODO' })
+    expect(restored.progress).toBe(0)
+  })
+
+  it('« en cours » et « bloquée » laissent l’avancement où il était', () => {
+    const task = tasksService.create(db, { title: 'Mission' })
+    tasksService.update(db, { id: task.id, progress: 42 })
+
+    const progressing = tasksService.update(db, { id: task.id, status: 'IN_PROGRESS' })
+    expect(progressing.progress).toBe(42)
+
+    const blocked = tasksService.update(db, { id: task.id, status: 'BLOCKED' })
+    expect(blocked.progress).toBe(42)
+  })
+
+  it('glisser l’avancement à une borne fait franchir le statut correspondant', () => {
+    const task = tasksService.create(db, { title: 'Mission' })
+
+    const finished = tasksService.update(db, { id: task.id, progress: 100 })
+    expect(finished.status).toBe('COMPLETED')
+    expect(finished.completedAt).not.toBeNull()
+
+    const reset = tasksService.update(db, { id: task.id, progress: 0 })
+    expect(reset.status).toBe('TODO')
+    expect(reset.completedAt).toBeNull()
+  })
+
+  it('un avancement intermédiaire sort de « à faire »/« terminée » vers « en cours »', () => {
+    const task = tasksService.create(db, { title: 'Mission' })
+
+    const started = tasksService.update(db, { id: task.id, progress: 30 })
+    expect(started.status).toBe('IN_PROGRESS')
+
+    tasksService.update(db, { id: task.id, status: 'COMPLETED' })
+    const reopened = tasksService.update(db, { id: task.id, progress: 60 })
+    expect(reopened.status).toBe('IN_PROGRESS')
+  })
+
+  it('un avancement intermédiaire ne sort jamais une tâche de « bloquée »', () => {
+    const task = tasksService.create(db, { title: 'Mission' })
+    tasksService.update(db, { id: task.id, status: 'BLOCKED' })
+
+    const stillBlocked = tasksService.update(db, { id: task.id, progress: 55 })
+    expect(stillBlocked.status).toBe('BLOCKED')
+    expect(stillBlocked.progress).toBe(55)
+  })
+
+  it('bascule terminé / à faire synchronise aussi l’avancement', () => {
+    const task = tasksService.create(db, { title: 'Bascule' })
+
+    const done = tasksService.toggle(db, { id: task.id })
+    expect(done.progress).toBe(100)
+
+    const undone = tasksService.toggle(db, { id: task.id })
+    expect(undone.progress).toBe(0)
+  })
+
+  it('un déplacement Kanban vers une autre colonne synchronise l’avancement', () => {
+    const task = tasksService.create(db, { title: 'Séquence' })
+    tasksService.update(db, { id: task.id, progress: 70 })
+
+    const moved = tasksService.move(db, { id: task.id, status: 'COMPLETED' })
+    expect(moved.progress).toBe(100)
   })
 })
 

@@ -83,6 +83,9 @@ export interface Task {
   dueDate: string | null
   completedAt: string | null
   estimatedMinutes: number | null
+  /** 0 à 100. Synchronisé avec `status` par le service (tasks.service.ts) :
+   *  0 en repassant à FAIRE, 100 en terminant. */
+  progress: number
   position: number
   createdAt: string
   updatedAt: string

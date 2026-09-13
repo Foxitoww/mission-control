@@ -58,6 +58,7 @@ const taskSchema = z.object({
   dueDate: iso.default(null),
   completedAt: iso.default(null),
   estimatedMinutes: z.number().int().positive().nullable().default(null),
+  progress: z.number().int().min(0).max(100).default(0),
   position: z.number().default(0),
   recurrenceRule: z.string().nullable().default(null),
   recurrenceParentId: id.nullable().default(null),

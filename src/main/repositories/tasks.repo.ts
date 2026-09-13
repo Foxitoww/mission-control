@@ -14,6 +14,7 @@ interface TaskRow {
   due_date: string | null
   completed_at: string | null
   estimated_minutes: number | null
+  progress: number
   position: number
   recurrence_rule: string | null
   recurrence_parent_id: string | null
@@ -33,7 +34,7 @@ interface TaskRow {
  */
 const SELECT_TASK = `
   SELECT t.id, t.project_id, t.title, t.description, t.status, t.priority,
-         t.due_date, t.completed_at, t.estimated_minutes, t.position,
+         t.due_date, t.completed_at, t.estimated_minutes, t.progress, t.position,
          t.recurrence_rule, t.recurrence_parent_id, t.created_at, t.updated_at,
          p.name AS project_name, p.color AS project_color,
          (SELECT COUNT(*) FROM subtasks s WHERE s.task_id = t.id) AS subtask_total,
@@ -53,6 +54,7 @@ function toItem(row: TaskRow, tags: Tag[]): TaskListItem {
     dueDate: row.due_date,
     completedAt: row.completed_at,
     estimatedMinutes: row.estimated_minutes,
+    progress: row.progress,
     position: row.position,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
@@ -197,6 +199,7 @@ export const tasksRepo = {
       dueDate: string | null
       completedAt: string | null
       estimatedMinutes: number | null
+      progress: number
       position: number
       recurrenceRule: string | null
       recurrenceParentId: string | null
@@ -205,10 +208,10 @@ export const tasksRepo = {
   ): void {
     db.prepare(
       `INSERT INTO tasks (id, user_id, project_id, title, description, status, priority,
-                          due_date, completed_at, estimated_minutes, position,
+                          due_date, completed_at, estimated_minutes, progress, position,
                           recurrence_rule, recurrence_parent_id, created_at, updated_at)
        VALUES (@id, @userId, @projectId, @title, @description, @status, @priority,
-               @dueDate, @completedAt, @estimatedMinutes, @position,
+               @dueDate, @completedAt, @estimatedMinutes, @progress, @position,
                @recurrenceRule, @recurrenceParentId, @now, @now)`
     ).run(data)
   },
