@@ -47,6 +47,7 @@ describe('migrations', () => {
     expect(tablesOf(accounts)).toEqual(['remembered_sessions', 'users'])
 
     expect(tablesOf(vault)).toEqual([
+      'chat_messages',
       'goals',
       'projects',
       'settings',

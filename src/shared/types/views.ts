@@ -9,6 +9,7 @@ import type {
   ProjectStatus
 } from './domain'
 import type { RecurrenceRule } from '../schemas/recurrence.schema'
+import type { ChatReaction } from '../schemas/chat.schema'
 
 /**
  * Formes de LECTURE, distinctes des entités écrites.
@@ -42,6 +43,24 @@ export interface TaskComment {
   id: string
   taskId: string
   body: string
+  edited: boolean
+  createdAt: string
+  updatedAt: string
+}
+
+/**
+ * Un message du chat GÉNÉRAL d'une app — séparé des commentaires de tâche
+ * ci-dessus : une discussion sur l'app entière, pas sur une tâche précise.
+ *
+ * `reaction` est la seule réaction active, ou `null` : la règle (une seule à
+ * la fois, parmi une palette de trois) est portée par le type lui-même, pas
+ * vérifiée à côté.
+ */
+export interface ChatMessage {
+  id: string
+  projectId: string
+  body: string
+  reaction: ChatReaction | null
   edited: boolean
   createdAt: string
   updatedAt: string

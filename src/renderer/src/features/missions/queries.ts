@@ -11,6 +11,7 @@ import type {
   TaskListItem,
   TaskDetail,
   TaskComment,
+  ChatMessage,
   ProjectSummary,
   DashboardData,
   SearchResults,
@@ -18,6 +19,7 @@ import type {
   StatsData,
   TimelineData
 } from '@shared/types/views'
+import type { ChatReaction } from '@shared/schemas/chat.schema'
 import type { TaskFilter } from '@shared/schemas/task.schema'
 import { unwrap } from '@renderer/lib/ipc'
 
@@ -39,7 +41,8 @@ export const keys = {
   goals: ['goals'] as const,
   stats: (days: number) => ['stats', days] as const,
   timeline: ['timeline'] as const,
-  comments: (taskId: string) => ['comments', taskId] as const
+  comments: (taskId: string) => ['comments', taskId] as const,
+  chat: (projectId: string) => ['chat', projectId] as const
 }
 
 /**
@@ -234,6 +237,60 @@ export const useDeleteComment = () =>
   useCommentMutation(
     (api, input: { id: string; taskId: string }) => unwrap(api.comments.remove({ id: input.id })),
     (input) => input.taskId
+  )
+
+/* --- Chat général d'une app ---------------------------------------------
+   Séparé du fil de discussion d'une tâche ci-dessus : une app entière, pas
+   une tâche précise. Même stratégie de cache — la mutation renvoie le fil
+   complet, écrit directement plutôt qu'invalidé, pour qu'un envoi ou une
+   réaction n'ait jamais à clignoter. */
+
+export function useChatMessages(projectId: string | null): UseQueryResult<ChatMessage[]> {
+  return useQuery({
+    queryKey: keys.chat(projectId ?? ''),
+    queryFn: () => unwrap(window.mc.chat.list({ projectId: projectId as string })),
+    enabled: projectId !== null
+  })
+}
+
+function useChatMutation<TInput extends { projectId?: string }>(
+  call: (api: Api, input: TInput) => Promise<ChatMessage[]>,
+  projectIdOf: (input: TInput) => string | undefined
+): ReturnType<typeof useMutation<ChatMessage[], Error, TInput>> {
+  const client = useQueryClient()
+  return useMutation<ChatMessage[], Error, TInput>({
+    mutationFn: (input) => call(window.mc, input),
+    onSuccess: (messages, input) => {
+      const projectId = projectIdOf(input) ?? messages[0]?.projectId
+      if (projectId) client.setQueryData(keys.chat(projectId), messages)
+    }
+  })
+}
+
+export const useCreateChatMessage = () =>
+  useChatMutation(
+    (api, input: { projectId: string; body: string }) => unwrap(api.chat.create(input)),
+    (input) => input.projectId
+  )
+
+export const useUpdateChatMessage = () =>
+  useChatMutation(
+    (api, input: { id: string; body: string; projectId: string }) =>
+      unwrap(api.chat.update({ id: input.id, body: input.body })),
+    (input) => input.projectId
+  )
+
+export const useReactToChatMessage = () =>
+  useChatMutation(
+    (api, input: { id: string; reaction: ChatReaction | null; projectId: string }) =>
+      unwrap(api.chat.react({ id: input.id, reaction: input.reaction })),
+    (input) => input.projectId
+  )
+
+export const useDeleteChatMessage = () =>
+  useChatMutation(
+    (api, input: { id: string; projectId: string }) => unwrap(api.chat.remove({ id: input.id })),
+    (input) => input.projectId
   )
 
 /* --- Objectifs et statistiques -------------------------------------------- */

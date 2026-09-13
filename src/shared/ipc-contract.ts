@@ -4,6 +4,7 @@ import type {
   TaskListItem,
   TaskDetail,
   TaskComment,
+  ChatMessage,
   ProjectSummary,
   DashboardData,
   SearchResults,
@@ -30,6 +31,11 @@ import type {
   UpdateSubtaskInput
 } from './schemas/task.schema'
 import type { CreateCommentInput, UpdateCommentInput } from './schemas/comment.schema'
+import type {
+  CreateChatMessageInput,
+  UpdateChatMessageInput,
+  ReactToChatMessageInput
+} from './schemas/chat.schema'
 import type {
   CreateProjectInput,
   UpdateProjectInput,
@@ -108,6 +114,12 @@ export const IpcChannel = {
   COMMENTS_CREATE: 'comments:create',
   COMMENTS_UPDATE: 'comments:update',
   COMMENTS_DELETE: 'comments:delete',
+
+  CHAT_LIST: 'chat:list',
+  CHAT_CREATE: 'chat:create',
+  CHAT_UPDATE: 'chat:update',
+  CHAT_REACT: 'chat:react',
+  CHAT_DELETE: 'chat:delete',
 
   GOALS_LIST: 'goals:list',
   GOALS_CREATE: 'goals:create',
@@ -212,6 +224,16 @@ export interface MissionControlApi {
     create(input: CreateCommentInput): Promise<IpcResult<TaskComment[]>>
     update(input: UpdateCommentInput): Promise<IpcResult<TaskComment[]>>
     remove(input: { id: string }): Promise<IpcResult<TaskComment[]>>
+  }
+  /** Chat général d'une app — séparé des commentaires de tâche ci-dessus. */
+  chat: {
+    list(input: { projectId: string }): Promise<IpcResult<ChatMessage[]>>
+    /** Renvoie le fil complet à jour, prêt à réafficher. */
+    create(input: CreateChatMessageInput): Promise<IpcResult<ChatMessage[]>>
+    update(input: UpdateChatMessageInput): Promise<IpcResult<ChatMessage[]>>
+    /** Pose, change ou retire (`reaction: null`) sa réaction sur un message. */
+    react(input: ReactToChatMessageInput): Promise<IpcResult<ChatMessage[]>>
+    remove(input: { id: string }): Promise<IpcResult<ChatMessage[]>>
   }
   goals: {
     list(): Promise<IpcResult<GoalSummary[]>>

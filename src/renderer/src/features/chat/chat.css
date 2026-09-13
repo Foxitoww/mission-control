@@ -1,0 +1,194 @@
+/* =============================================================================
+   Chat GÉNÉRAL d'une app — séparé du fil de discussion d'une tâche
+   (features/comments/comments.css), qui garde exactement ce même style.
+
+   Un seul utilisateur écrit ici : inutile d'aligner les messages à droite pour
+   distinguer « moi » des « autres ». Le fil se lit comme un journal de bord —
+   avatar, nom, heure relative, bulle — du plus ancien au plus récent.
+   ========================================================================== */
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.chat__thread {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  max-height: 420px;
+  overflow-y: auto;
+  /* Une réserve à droite pour que la barre de défilement ne recouvre jamais
+     les actions au survol d'une bulle. */
+  padding-right: var(--mc-space-2);
+}
+
+.chat__empty {
+  color: var(--mc-text-muted);
+  font: var(--mc-text-caption);
+  padding: var(--mc-space-3) 0;
+}
+
+/* --- Un message ---------------------------------------------------------- */
+
+.chat-message {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: var(--mc-space-2);
+  align-items: start;
+}
+
+.chat-message__avatar {
+  margin-top: 2px;
+}
+
+.chat-message__col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.chat-message__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mc-space-2);
+  font: var(--mc-text-caption);
+}
+
+.chat-message__author {
+  color: var(--mc-text-secondary);
+  font-weight: 600;
+}
+
+.chat-message__time {
+  color: var(--mc-text-muted);
+}
+
+.chat-message__edited {
+  color: var(--mc-text-muted);
+  font-style: italic;
+}
+
+.chat-message__bubble {
+  position: relative;
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  border-top-left-radius: var(--mc-radius-badge);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  color: var(--mc-text);
+  font: var(--mc-text-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.chat-message__actions {
+  position: absolute;
+  top: calc(-1 * var(--mc-space-2));
+  right: var(--mc-space-2);
+  display: flex;
+  gap: var(--mc-space-1);
+  opacity: 0;
+  transition: opacity var(--mc-duration-instant) var(--mc-ease);
+}
+
+.chat-message__bubble:hover .chat-message__actions,
+.chat-message__bubble:focus-within .chat-message__actions {
+  opacity: 1;
+}
+
+.chat-message__action {
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text-muted);
+  font: var(--mc-text-caption);
+  padding: 2px var(--mc-space-2);
+  cursor: pointer;
+}
+
+.chat-message__action:hover {
+  color: var(--mc-text);
+  border-color: var(--mc-grid-strong);
+}
+
+.chat-message__action--danger:hover {
+  color: var(--mc-red);
+  border-color: var(--mc-red);
+}
+
+/* --- Réactions -------------------------------------------------------------
+   Palette FERMÉE de trois : toujours visibles (contrairement à éditer /
+   supprimer, révélées au survol) puisque réagir est le geste fréquent. Une
+   seule peut être active à la fois — cliquer celle déjà active la retire. */
+
+.chat-reactions {
+  display: flex;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.chat-reaction {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--mc-radius-control);
+  font-size: 0.8125rem;
+  line-height: 1;
+  cursor: pointer;
+  /* Discrète au repos : la réaction n'a pas encore été choisie, elle ne doit
+     pas rivaliser visuellement avec le texte du message. */
+  opacity: 0.45;
+  transition:
+    opacity var(--mc-duration-instant) var(--mc-ease),
+    background var(--mc-duration-instant) var(--mc-ease),
+    border-color var(--mc-duration-instant) var(--mc-ease);
+}
+
+.chat-reaction:hover {
+  opacity: 0.85;
+  background: var(--mc-hull);
+}
+
+.chat-reaction--on {
+  opacity: 1;
+  background: color-mix(in srgb, var(--mc-accent) 14%, transparent);
+  border-color: color-mix(in srgb, var(--mc-accent) 40%, transparent);
+}
+
+/* --- Zone de saisie ---------------------------------------------------------- */
+
+.chat__compose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.chat__input {
+  width: 100%;
+  min-height: 60px;
+  resize: vertical;
+  background: var(--mc-abyss);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  color: var(--mc-text);
+  font: var(--mc-text-body);
+}
+
+.chat__input:focus-visible {
+  outline: none;
+  border-color: var(--mc-accent);
+  box-shadow: var(--mc-glow-focus);
+}
+
+.chat__compose-row {
+  display: flex;
+  justify-content: flex-end;
+}

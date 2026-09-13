@@ -77,6 +77,13 @@ const api: MissionControlApi = {
     update: (input) => ipcRenderer.invoke(IpcChannel.COMMENTS_UPDATE, input),
     remove: (input) => ipcRenderer.invoke(IpcChannel.COMMENTS_DELETE, input)
   },
+  chat: {
+    list: (input) => ipcRenderer.invoke(IpcChannel.CHAT_LIST, input),
+    create: (input) => ipcRenderer.invoke(IpcChannel.CHAT_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.CHAT_UPDATE, input),
+    react: (input) => ipcRenderer.invoke(IpcChannel.CHAT_REACT, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.CHAT_DELETE, input)
+  },
   goals: {
     list: () => ipcRenderer.invoke(IpcChannel.GOALS_LIST),
     create: (input) => ipcRenderer.invoke(IpcChannel.GOALS_CREATE, input),

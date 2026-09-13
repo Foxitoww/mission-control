@@ -4,6 +4,7 @@ import type { TaskFilter } from '@shared/schemas/task.schema'
 import { TaskList } from '@renderer/features/missions/TaskRow'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { KanbanBoard } from '@renderer/features/missions/KanbanBoard'
+import { AppChat } from '@renderer/features/chat/AppChat'
 import { QueryState } from '@renderer/components/QueryState'
 import {
   useProjects,
@@ -16,7 +17,7 @@ import { useToast } from '@renderer/components/Toast'
 import { formatPercent, formatDue } from '@renderer/lib/format'
 import './app-detail.css'
 
-type Tab = 'list' | 'board' | 'calendar'
+type Tab = 'list' | 'board' | 'calendar' | 'chat'
 
 /**
  * APP OUVERTE — la vue de détail d'une app.
@@ -200,10 +201,23 @@ export function AppPage(): JSX.Element {
         >
           {t('app.tabCalendar')}
         </button>
-
-        <button type="button" className="app-tabs__new" onClick={() => setComposing(true)}>
-          + {t('task.new')}
+        <button
+          type="button"
+          role="tab"
+          aria-selected={tab === 'chat'}
+          className={`app-tab${tab === 'chat' ? ' app-tab--on' : ''}`}
+          onClick={() => setTab('chat')}
+        >
+          {t('app.tabChat')}
         </button>
+
+        {/* Le chat général n'a rien à voir avec les tâches : l'action rapide
+            n'a de sens que sur les trois autres onglets. */}
+        {tab !== 'chat' && (
+          <button type="button" className="app-tabs__new" onClick={() => setComposing(true)}>
+            + {t('task.new')}
+          </button>
+        )}
       </div>
 
       {tab === 'list' &&
@@ -226,6 +240,8 @@ export function AppPage(): JSX.Element {
           {t('app.tabSoon')} <Link to="/calendar">{t('nav.calendar')}</Link>
         </p>
       )}
+
+      {tab === 'chat' && <AppChat projectId={id} />}
 
       {composing && <TaskEditor defaultProjectId={id} onClose={() => setComposing(false)} />}
       {openTask && <TaskEditor taskId={openTask} onClose={() => setOpenTask(null)} />}
