@@ -42,9 +42,17 @@ describe('migrations', () => {
         .map((row) => row.name)
         .sort()
 
-    // La base des comptes ne contient AUCUNE donnée métier : quiconque la lit
-    // apprend qui a un compte sur la machine, et rien d'autre (ADR-007).
-    expect(tablesOf(accounts)).toEqual(['remembered_sessions', 'users'])
+    // La base des comptes ne contient AUCUNE donnée métier EN CLAIR : quiconque
+    // la lit apprend qui a un compte sur la machine, et rien d'autre (ADR-007).
+    // `direct_messages` y déroge en apparence — mais son contenu est un blob
+    // chiffré (voir messages.service.ts), au même titre que dek_password et
+    // dek_recovery dans `users` : opaque sans la clé privée du destinataire.
+    expect(tablesOf(accounts)).toEqual([
+      'direct_message_seen',
+      'direct_messages',
+      'remembered_sessions',
+      'users'
+    ])
 
     expect(tablesOf(vault)).toEqual([
       'chat_messages',

@@ -1,4 +1,14 @@
-import { randomBytes, scryptSync, createCipheriv, createDecipheriv } from 'node:crypto'
+import {
+  randomBytes,
+  scryptSync,
+  createCipheriv,
+  createDecipheriv,
+  generateKeyPairSync,
+  createPrivateKey,
+  createPublicKey,
+  diffieHellman,
+  hkdfSync
+} from 'node:crypto'
 
 /**
  * Primitives de chiffrement du coffre (ADR-007).
@@ -83,6 +93,48 @@ export function open(key: Buffer, sealed: Buffer): Buffer {
   } catch {
     throw new DecryptionError()
   }
+}
+
+export interface MessagingKeyPair {
+  publicKey: Buffer
+  privateKey: Buffer
+}
+
+/**
+ * Paire de clés X25519 pour la messagerie privée ENTRE COMPTES.
+ *
+ * Contrairement au coffre, la clé publique doit être lisible par n'importe
+ * quel autre compte de la machine — c'est elle qui permet de chiffrer un
+ * message à son intention. La clé privée, elle, ne quitte jamais `seal()`ée
+ * par la DEK du compte (voir usersRepo.setMessagingKeys).
+ */
+export function generateMessagingKeyPair(): MessagingKeyPair {
+  const { publicKey, privateKey } = generateKeyPairSync('x25519')
+  return {
+    publicKey: publicKey.export({ type: 'spki', format: 'der' }),
+    privateKey: privateKey.export({ type: 'pkcs8', format: 'der' })
+  }
+}
+
+/**
+ * Secret partagé entre deux comptes (ECDH X25519 statique-statique), réduit à
+ * 32 octets par HKDF pour servir de clé à `seal`/`open`.
+ *
+ * STATIQUE-STATIQUE, PAS de clé éphémère par message : le même secret sert à
+ * toute la conversation entre ces deux comptes. C'est le compromis assumé
+ * d'une messagerie personnelle sur machine partagée — pas de confidentialité
+ * persistante (« forward secrecy ») si une clé privée fuit un jour, mais un
+ * schéma simple, sans échange de clé par message ni état à synchroniser.
+ * `A.derive(B) === B.derive(A)` : propriété de l'ECDH, c'est elle qui évite
+ * tout stockage de clé éphémère par message.
+ */
+export function deriveSharedKey(privateKeyDer: Buffer, publicKeyDer: Buffer): Buffer {
+  const privateKey = createPrivateKey({ key: privateKeyDer, format: 'der', type: 'pkcs8' })
+  const publicKey = createPublicKey({ key: publicKeyDer, format: 'der', type: 'spki' })
+  const shared = diffieHellman({ privateKey, publicKey })
+  return Buffer.from(
+    hkdfSync('sha256', shared, Buffer.alloc(0), 'mc-direct-messages-v1', KEY_BYTES)
+  )
 }
 
 /**

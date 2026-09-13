@@ -142,6 +142,28 @@ export const usersRepo = {
     db.prepare('UPDATE users SET dek_os = ? WHERE id = ?').run(sealed, userId)
   },
 
+  /** Clé publique de messagerie d'un compte — lisible par tout autre compte. */
+  messagingPublicKey(db: Db, userId: string): Buffer | null {
+    const row = db.prepare('SELECT messaging_public_key FROM users WHERE id = ?').get(userId) as
+      { messaging_public_key: Buffer | null } | undefined
+    return row?.messaging_public_key ?? null
+  },
+
+  /** Clé privée SCELLÉE (par la DEK du compte) — jamais lue pour un autre compte. */
+  messagingPrivateKeySealed(db: Db, userId: string): Buffer | null {
+    const row = db
+      .prepare('SELECT messaging_private_key_sealed FROM users WHERE id = ?')
+      .get(userId) as { messaging_private_key_sealed: Buffer | null } | undefined
+    return row?.messaging_private_key_sealed ?? null
+  },
+
+  /** Écrit la paire de clés de messagerie — une seule fois par compte (voir messages.service.ts). */
+  setMessagingKeys(db: Db, userId: string, publicKey: Buffer, privateKeySealed: Buffer): void {
+    db.prepare(
+      'UPDATE users SET messaging_public_key = ?, messaging_private_key_sealed = ? WHERE id = ?'
+    ).run(publicKey, privateKeySealed, userId)
+  },
+
   usernameTakenByOther(db: Db, username: string, exceptUserId: string): boolean {
     return (
       db

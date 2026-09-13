@@ -10,7 +10,9 @@ import type {
   SearchResults,
   GoalSummary,
   StatsData,
-  TimelineData
+  TimelineData,
+  DirectMessage,
+  ConversationSummary
 } from './types/views'
 import type { UpdateStatus } from './types/update'
 import type {
@@ -36,6 +38,7 @@ import type {
   UpdateChatMessageInput,
   ReactToChatMessageInput
 } from './schemas/chat.schema'
+import type { SendMessageInput } from './schemas/message.schema'
 import type {
   CreateProjectInput,
   UpdateProjectInput,
@@ -122,6 +125,11 @@ export const IpcChannel = {
   CHAT_UPDATE: 'chat:update',
   CHAT_REACT: 'chat:react',
   CHAT_DELETE: 'chat:delete',
+
+  MESSAGES_CONVERSATIONS: 'messages:conversations',
+  MESSAGES_LIST: 'messages:list',
+  MESSAGES_SEND: 'messages:send',
+  MESSAGES_MARK_SEEN: 'messages:mark-seen',
 
   GOALS_LIST: 'goals:list',
   GOALS_CREATE: 'goals:create',
@@ -241,6 +249,22 @@ export interface MissionControlApi {
     /** Pose, change ou retire (`reaction: null`) sa réaction sur un message. */
     react(input: ReactToChatMessageInput): Promise<IpcResult<ChatMessage[]>>
     remove(input: { id: string }): Promise<IpcResult<ChatMessage[]>>
+  }
+  /**
+   * Messagerie privée entre comptes — chiffrée de bout en bout (ECDH X25519 +
+   * AES-256-GCM, voir messages.service.ts). Le renderer ne voit jamais de
+   * texte chiffré : le déchiffrement a lieu côté main, avant que le résultat
+   * ne traverse l'IPC.
+   */
+  messages: {
+    /** Un interlocuteur par ligne, le plus récent en tête. */
+    conversations(): Promise<IpcResult<ConversationSummary[]>>
+    /** Le fil complet avec un interlocuteur, déchiffré. */
+    list(input: { otherUserId: string }): Promise<IpcResult<DirectMessage[]>>
+    /** Renvoie le fil complet à jour, prêt à réafficher. */
+    send(input: SendMessageInput): Promise<IpcResult<DirectMessage[]>>
+    /** Éteint la pastille « non lu » d'une conversation. */
+    markSeen(input: { otherUserId: string }): Promise<IpcResult<null>>
   }
   goals: {
     list(): Promise<IpcResult<GoalSummary[]>>

@@ -6,7 +6,8 @@ import type {
   GoalStatus,
   TaskPriority,
   TaskStatus,
-  ProjectStatus
+  ProjectStatus,
+  PublicUser
 } from './domain'
 import type { RecurrenceRule } from '../schemas/recurrence.schema'
 import type { ChatReaction } from '../schemas/chat.schema'
@@ -64,6 +65,22 @@ export interface ChatMessage {
   edited: boolean
   createdAt: string
   updatedAt: string
+}
+
+/** Message privé déchiffré, prêt à afficher — le chiffrement ne traverse jamais l'IPC. */
+export interface DirectMessage {
+  id: string
+  senderId: string
+  recipientId: string
+  body: string
+  createdAt: string
+}
+
+/** Une ligne de la liste des conversations — un interlocuteur, pas un message. */
+export interface ConversationSummary {
+  user: PublicUser
+  lastMessageAt: string | null
+  hasUnread: boolean
 }
 
 export interface TaskDetail extends TaskListItem {

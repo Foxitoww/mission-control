@@ -4,6 +4,7 @@ import { registerSettingsHandlers } from './settings.ipc'
 import { registerUpdateHandlers } from './update.ipc'
 import { registerBackupHandlers } from './backup.ipc'
 import { registerMissionHandlers } from './missions.ipc'
+import { registerMessageHandlers } from './messages.ipc'
 
 export function registerIpcHandlers(): void {
   registerAuthHandlers()
@@ -12,4 +13,5 @@ export function registerIpcHandlers(): void {
   registerUpdateHandlers()
   registerBackupHandlers()
   registerMissionHandlers()
+  registerMessageHandlers()
 }

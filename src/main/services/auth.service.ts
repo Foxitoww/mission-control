@@ -4,6 +4,7 @@ import { usersRepo } from '../repositories/users.repo'
 import { settingsRepo } from '../repositories/settings.repo'
 import { hashPassword, verifyPassword, burnEquivalentTime } from './password'
 import { session, vaultPath } from './session.service'
+import { messagesService } from './messages.service'
 import { rememberService, type RememberStore } from './remember.service'
 import { osKeyStore } from '../security/os-key'
 import {
@@ -44,9 +45,17 @@ function invalidCredentials(): AppError {
   return new AppError(AppErrorCode.AUTH_INVALID_CREDENTIALS, 'AUTH_INVALID_CREDENTIALS')
 }
 
-/** Ouvre le coffre et démarre la session. Facteur commun à tous les chemins d'entrée. */
-function unlock(userId: string, dek: Buffer): void {
+/**
+ * Ouvre le coffre et démarre la session. Facteur commun à tous les chemins d'entrée.
+ *
+ * `ensureKeys` ici, et pas seulement à l'inscription : un compte créé avant la
+ * messagerie privée n'a pas encore de paire de clés, et le mot de passe —
+ * seul secret capable de sceller la clé privée — n'est disponible qu'à cet
+ * instant précis, pas plus tard depuis un canal IPC.
+ */
+function unlock(db: Db, userId: string, dek: Buffer): void {
   session.start(userId, openVault(vaultPath(userId), dek), dek)
+  messagesService.ensureKeys(db, userId, dek)
 }
 
 export const authService = {
@@ -104,6 +113,7 @@ export const authService = {
     }
 
     session.start(id, vault, dek)
+    messagesService.ensureKeys(db, id, dek)
     session.persist()
 
     const created = usersRepo.findById(db, id)
@@ -142,7 +152,7 @@ export const authService = {
       throw new AppError(AppErrorCode.DB_ERROR, 'VAULT_KEY_CORRUPT')
     }
 
-    unlock(record.id, dek)
+    unlock(db, record.id, dek)
 
     if (data.remember) {
       rememberService.issue(db, record.id, store)
@@ -176,7 +186,7 @@ export const authService = {
     if (!dek) return null
 
     try {
-      unlock(userId, dek)
+      unlock(db, userId, dek)
     } catch {
       dek.fill(0)
       return null
@@ -226,7 +236,7 @@ export const authService = {
     // le système correspondait à l'ancien contexte de confiance.
     usersRepo.setOsKey(db, record.id, null)
 
-    unlock(record.id, dek)
+    unlock(db, record.id, dek)
     const user = usersRepo.findById(db, record.id)
     if (!user) throw new AppError(AppErrorCode.DB_ERROR, 'DB_ERROR')
     return user

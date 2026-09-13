@@ -1,0 +1,257 @@
+/* =============================================================================
+   MESSAGERIE PRIVÉE — deux volets, comme un client de messagerie classique.
+
+   Contrairement au chat général d'une app (features/chat/chat.css), une
+   conversation ici est entre exactement DEUX comptes : les bulles s'alignent
+   à droite pour « moi », à gauche pour l'autre — la lecture en journal (avatar
+   + nom sur chaque ligne) n'a plus de sens à deux.
+   ========================================================================== */
+
+.messages {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: var(--mc-space-4);
+  height: calc(100vh - 140px);
+  min-height: 420px;
+}
+
+/* --- Liste des conversations ---------------------------------------------- */
+
+.messages__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  min-height: 0;
+}
+
+.messages__list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-2);
+}
+
+.messages__title {
+  font-size: 1.125rem;
+  font-weight: 640;
+  letter-spacing: -0.01em;
+}
+
+.messages__conversations {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-y: auto;
+}
+
+.messages__conversation {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  width: 100%;
+  padding: var(--mc-space-2);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.messages__conversation:hover {
+  background: var(--mc-hull);
+}
+
+.messages__conversation--on {
+  background: var(--mc-hull-raised);
+  border-color: var(--mc-grid);
+}
+
+.messages__conversation-avatar {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.messages__conversation-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.messages__conversation-name {
+  font-size: 0.875rem;
+  font-weight: 560;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messages__conversation-time {
+  color: var(--mc-text-muted);
+  font-size: 0.6875rem;
+}
+
+.messages__empty,
+.messages__placeholder {
+  color: var(--mc-text-muted);
+  font: var(--mc-text-caption);
+  padding: var(--mc-space-3) 0;
+}
+
+.messages__placeholder {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  text-align: center;
+}
+
+/* --- Fil de discussion ------------------------------------------------------ */
+
+.messages__thread {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  padding: var(--mc-space-3);
+}
+
+.messages__thread-head {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  padding-bottom: var(--mc-space-3);
+  margin-bottom: var(--mc-space-3);
+  border-bottom: 1px solid var(--mc-grid);
+}
+
+.messages__thread-name {
+  font-weight: 600;
+}
+
+.messages__thread-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  overflow-y: auto;
+  padding-right: var(--mc-space-2);
+}
+
+.messages__bubble-row {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.messages__bubble-row--mine {
+  justify-content: flex-end;
+}
+
+.messages__bubble {
+  max-width: 70%;
+  background: var(--mc-hull-raised);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+  border-top-left-radius: var(--mc-radius-badge);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  color: var(--mc-text);
+  font: var(--mc-text-body);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* La bulle « mienne » se distingue par l'accent, jamais par une position
+   seule — un daltonien ou un lecteur d'écran doit pouvoir s'y retrouver
+   autrement qu'en comparant des coordonnées. */
+.messages__bubble-row--mine .messages__bubble {
+  background: color-mix(in srgb, var(--mc-accent) 16%, var(--mc-hull-raised));
+  border-color: color-mix(in srgb, var(--mc-accent) 40%, transparent);
+  border-top-left-radius: var(--mc-radius-card);
+  border-top-right-radius: var(--mc-radius-badge);
+}
+
+.messages__bubble-time {
+  display: block;
+  margin-top: 2px;
+  color: var(--mc-text-muted);
+  font-size: 0.6875rem;
+}
+
+/* --- Zone de saisie ---------------------------------------------------------- */
+
+.messages__compose {
+  display: flex;
+  gap: var(--mc-space-2);
+  align-items: flex-end;
+  padding-top: var(--mc-space-3);
+  margin-top: var(--mc-space-3);
+  border-top: 1px solid var(--mc-grid);
+}
+
+.messages__input {
+  flex: 1;
+  min-height: 44px;
+  max-height: 160px;
+  resize: vertical;
+  background: var(--mc-abyss);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-control);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  color: var(--mc-text);
+  font: var(--mc-text-body);
+}
+
+.messages__input:focus-visible {
+  outline: none;
+  border-color: var(--mc-accent);
+  box-shadow: var(--mc-glow-focus);
+}
+
+/* --- Sélecteur de destinataire (dans la Modal) ------------------------------- */
+
+.messages__picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-height: 320px;
+  overflow-y: auto;
+  margin: var(--mc-space-2) 0;
+}
+
+.messages__picker-row {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  width: 100%;
+  padding: var(--mc-space-2);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: var(--mc-radius-control);
+  color: var(--mc-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.messages__picker-row:hover {
+  background: var(--mc-hull-raised);
+  border-color: var(--mc-grid);
+}
+
+.messages__picker-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+@media (max-width: 720px) {
+  .messages {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .messages__thread {
+    min-height: 420px;
+  }
+}

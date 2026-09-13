@@ -3,6 +3,7 @@ import { join } from 'node:path'
 import { AppError, AppErrorCode } from '@shared/errors'
 import type { Db } from '../db/connection'
 import { flushVault, closeVault, type OpenVault } from '../security/vault'
+import { open } from '../security/crypto'
 
 /**
  * Session locale — détient l'identité de l'utilisateur, son coffre ouvert et la
@@ -94,6 +95,18 @@ export const session = {
   /** Réécrit le coffre chiffré. Appelé après chaque écriture. */
   persist(): void {
     if (active) flushVault(active.vault, active.dek)
+  },
+
+  /**
+   * Descelle un secret protégé par la DEK de la session courante.
+   *
+   * Utilisé pour la clé privée de messagerie (accounts.db) : ce secret vit
+   * hors du coffre, mais reste protégé par la même clé — pas de dérivation
+   * ni de sel supplémentaires à gérer pour lui.
+   */
+  unseal(sealed: Buffer): Buffer {
+    if (!active) throw new AppError(AppErrorCode.AUTH_REQUIRED, 'Aucune session active')
+    return open(active.dek, sealed)
   },
 
   /** Ferme le coffre SANS l'écrire — utilisé après suppression du compte. */

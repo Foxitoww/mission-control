@@ -3,6 +3,7 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { ProfileMenu } from '@renderer/features/profile/ProfileMenu'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { SearchPalette } from '@renderer/features/search/SearchPalette'
+import { useConversations } from '@renderer/features/messages/queries'
 import { useI18n, type MessageKey } from '@renderer/i18n'
 import { useShortcuts } from './useShortcuts'
 import './shell.css'
@@ -22,7 +23,8 @@ const RAIL: RailItem[] = [
   { to: '/operations', key: 'o', label: 'nav.today', end: false, icon: <IconToday /> },
   { to: '/timeline', key: 'l', label: 'nav.timeline', end: false, icon: <IconTimeline /> },
   { to: '/objectives', key: 'g', label: 'nav.goals', end: false, icon: <IconTarget /> },
-  { to: '/telemetry', key: 's', label: 'nav.stats', end: false, icon: <IconChart /> }
+  { to: '/telemetry', key: 's', label: 'nav.stats', end: false, icon: <IconChart /> },
+  { to: '/messages', key: 'm', label: 'nav.messages', end: false, icon: <IconMail /> }
 ]
 
 export function Shell(): JSX.Element {
@@ -30,6 +32,11 @@ export function Shell(): JSX.Element {
   const navigate = useNavigate()
   const [composing, setComposing] = useState(false)
   const [searching, setSearching] = useState(false)
+
+  // Pastille du rail : allumée si AU MOINS une conversation a un message non
+  // lu, tous comptes confondus — le détail (laquelle) se lit dans la page.
+  const { data: conversations = [] } = useConversations()
+  const hasUnreadMessages = conversations.some((conversation) => conversation.hasUnread)
 
   // Raccourcis coupés dès qu'un panneau est ouvert : sinon « o » naviguerait
   // pendant qu'on rédige, sous le formulaire.
@@ -67,6 +74,9 @@ export function Shell(): JSX.Element {
                 className={({ isActive }) => `rail__btn${isActive ? ' rail__btn--on' : ''}`}
               >
                 {item.icon}
+                {item.to === '/messages' && hasUnreadMessages && (
+                  <span className="badge-dot" aria-hidden="true" />
+                )}
                 <span className="rail__tip">{t(item.label)}</span>
               </NavLink>
             </li>
@@ -169,6 +179,15 @@ function IconChart(): JSX.Element {
     <>
       <path d="M4 20h16" />
       <path d="M7 20v-6M12 20V6M17 20v-9" />
+    </>
+  )
+}
+
+function IconMail(): JSX.Element {
+  return svg(
+    <>
+      <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" />
+      <path d="m4.5 6.5 7.5 6.5 7.5-6.5" />
     </>
   )
 }

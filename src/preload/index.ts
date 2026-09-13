@@ -86,6 +86,12 @@ const api: MissionControlApi = {
     react: (input) => ipcRenderer.invoke(IpcChannel.CHAT_REACT, input),
     remove: (input) => ipcRenderer.invoke(IpcChannel.CHAT_DELETE, input)
   },
+  messages: {
+    conversations: () => ipcRenderer.invoke(IpcChannel.MESSAGES_CONVERSATIONS),
+    list: (input) => ipcRenderer.invoke(IpcChannel.MESSAGES_LIST, input),
+    send: (input) => ipcRenderer.invoke(IpcChannel.MESSAGES_SEND, input),
+    markSeen: (input) => ipcRenderer.invoke(IpcChannel.MESSAGES_MARK_SEEN, input)
+  },
   goals: {
     list: () => ipcRenderer.invoke(IpcChannel.GOALS_LIST),
     create: (input) => ipcRenderer.invoke(IpcChannel.GOALS_CREATE, input),

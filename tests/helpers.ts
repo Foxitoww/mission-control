@@ -6,7 +6,11 @@ import type { Db } from '@main/db/connection'
 import { createTestAccountsDb, createTestVaultDb } from '@main/db/init'
 import { usersRepo } from '@main/repositories/users.repo'
 import { session } from '@main/services/session.service'
+import { messagesService } from '@main/services/messages.service'
 import type { RememberStore } from '@main/services/remember.service'
+
+/** La DEK factice partagée par tous les comptes de test (voir signIn). */
+export const TEST_DEK = Buffer.alloc(32)
 
 /**
  * Stockage de jeton en mémoire.
@@ -105,5 +109,20 @@ export function seedUser(env: TestEnv, username: string): string {
 /** Ouvre une session sur le coffre éphémère partagé. */
 export function signIn(env: TestEnv, userId: string): void {
   session.clear()
-  session.start(userId, { db: env.vault, path: '', ephemeral: true }, Buffer.alloc(32))
+  session.start(userId, { db: env.vault, path: '', ephemeral: true }, TEST_DEK)
+}
+
+/**
+ * Comme `seedUser`, avec en plus une paire de clés de messagerie.
+ *
+ * En production, `ensureKeys` s'exécute au déverrouillage (voir
+ * auth.service.ts), avec la VRAIE DEK de la session. Ici, on lui passe la
+ * même DEK factice que `signIn` : peu importe qui est actif au moment de
+ * l'appel, chaque compte de test peut donc être déverrouillé plus tard sans
+ * jamais échouer à déchiffrer sa propre clé privée de messagerie.
+ */
+export function seedMessagingUser(env: TestEnv, username: string): string {
+  const id = seedUser(env, username)
+  messagesService.ensureKeys(env.accounts, id, TEST_DEK)
+  return id
 }
