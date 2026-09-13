@@ -15,6 +15,8 @@ interface ProjectRow {
   updated_at: string
   task_total: number
   task_completed: number
+  has_new_tasks: number
+  has_unread_chat: number
 }
 
 /**
@@ -35,7 +37,20 @@ const SELECT_PROJECT = `
   SELECT p.id, p.name, p.description, p.color, p.icon, p.status, p.deadline,
          p.position, p.created_at, p.updated_at,
          COALESCE(agg.task_total, 0) AS task_total,
-         COALESCE(agg.task_completed, 0) AS task_completed
+         COALESCE(agg.task_completed, 0) AS task_completed,
+         -- NULL (jamais visité) vaut « tout ce qui existe est nouveau » : d'où
+         -- le OR plutôt qu'une comparaison qui échouerait silencieusement
+         -- contre NULL.
+         EXISTS (
+           SELECT 1 FROM tasks t
+            WHERE t.project_id = p.id AND t.status <> 'ARCHIVED'
+              AND (p.tasks_seen_at IS NULL OR t.created_at > p.tasks_seen_at)
+         ) AS has_new_tasks,
+         EXISTS (
+           SELECT 1 FROM chat_messages m
+            WHERE m.project_id = p.id
+              AND (p.chat_seen_at IS NULL OR m.created_at > p.chat_seen_at)
+         ) AS has_unread_chat
     FROM projects p
     LEFT JOIN (
       SELECT project_id,
@@ -62,7 +77,9 @@ function toSummary(row: ProjectRow): ProjectSummary {
     taskCompleted: row.task_completed,
     // Un projet vide vaut 0, jamais NaN : une division par zéro afficherait
     // « NaN % » dans la barre de progression.
-    progress: row.task_total === 0 ? 0 : row.task_completed / row.task_total
+    progress: row.task_total === 0 ? 0 : row.task_completed / row.task_total,
+    hasNewTasks: row.has_new_tasks === 1,
+    hasUnreadChat: row.has_unread_chat === 1
   }
 }
 

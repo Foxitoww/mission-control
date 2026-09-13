@@ -68,6 +68,40 @@ export const projectsService = {
   },
 
   /**
+   * Marque le tableau (ou le chat) de l'app comme consulté À L'INSTANT —
+   * c'est ce qui éteint la pastille « nouveau » sur sa carte et son onglet.
+   * Appelé à l'ouverture de l'onglet correspondant, jamais en arrière-plan :
+   * une pastille qu'on n'a pas VUE ne doit pas s'éteindre toute seule.
+   */
+  markTasksSeen(db: Db, input: unknown): ProjectSummary {
+    const userId = session.requireUserId()
+    const { id } = parseOrThrow(idInputSchema, input)
+    requireProject(db, userId, id)
+    projectsRepo.update(
+      db,
+      userId,
+      id,
+      { tasks_seen_at: new Date().toISOString() },
+      new Date().toISOString()
+    )
+    return requireProject(db, userId, id)
+  },
+
+  markChatSeen(db: Db, input: unknown): ProjectSummary {
+    const userId = session.requireUserId()
+    const { id } = parseOrThrow(idInputSchema, input)
+    requireProject(db, userId, id)
+    projectsRepo.update(
+      db,
+      userId,
+      id,
+      { chat_seen_at: new Date().toISOString() },
+      new Date().toISOString()
+    )
+    return requireProject(db, userId, id)
+  },
+
+  /**
    * Supprime le projet. Ses tâches sont DÉTACHÉES, pas supprimées : le schéma
    * les remet dans la boîte de réception (ON DELETE SET NULL). Détruire du
    * travail parce qu'on range une mission serait une perte silencieuse.

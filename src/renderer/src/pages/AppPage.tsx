@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { KanbanBoard } from '@renderer/features/missions/KanbanBoard'
@@ -7,7 +7,9 @@ import { QueryState } from '@renderer/components/QueryState'
 import {
   useProjects,
   useDeleteProject,
-  useUpdateProject
+  useUpdateProject,
+  useMarkTasksSeen,
+  useMarkChatSeen
 } from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
 import { useToast } from '@renderer/components/Toast'
@@ -36,10 +38,27 @@ export function AppPage(): JSX.Element {
 
   const updateProject = useUpdateProject()
   const deleteProject = useDeleteProject()
+  const markTasksSeen = useMarkTasksSeen()
+  const markChatSeen = useMarkChatSeen()
   const [tab, setTab] = useState<Tab>('board')
   const [openTask, setOpenTask] = useState<string | null>(null)
   const [composing, setComposing] = useState(false)
   const [confirming, setConfirming] = useState(false)
+
+  // Éteint la pastille de l'onglet qu'on vient d'ouvrir — jamais en arrière-
+  // plan : une pastille qu'on n'a pas VUE ne doit pas s'éteindre toute seule.
+  // Toujours avant tout retour anticipé : les Hooks s'exécutent sans condition.
+  useEffect(() => {
+    if (tab === 'board' && project?.hasNewTasks) markTasksSeen.mutate({ id })
+    // `markTasksSeen` volontairement absente des dépendances : c'est un objet
+    // de mutation TanStack Query, une nouvelle référence à chaque rendu — en
+    // dépendre redéclencherait l'effet sans rapport avec l'intention (tab/id/
+    // pastille), et mutate() lui-même est stable entre les rendus.
+  }, [tab, id, project?.hasNewTasks]) // eslint-disable-line
+
+  useEffect(() => {
+    if (tab === 'chat' && project?.hasUnreadChat) markChatSeen.mutate({ id })
+  }, [tab, id, project?.hasUnreadChat]) // eslint-disable-line
 
   if (isPending || isError) {
     return (
@@ -178,6 +197,12 @@ export function AppPage(): JSX.Element {
           onClick={() => setTab('board')}
         >
           {t('app.tabBoard')}
+          {project.hasNewTasks && (
+            <>
+              <span className="badge-dot" aria-hidden="true" />
+              <span className="visually-hidden">{t('library.hasNew')}</span>
+            </>
+          )}
         </button>
         <button
           type="button"
@@ -196,6 +221,12 @@ export function AppPage(): JSX.Element {
           onClick={() => setTab('chat')}
         >
           {t('app.tabChat')}
+          {project.hasUnreadChat && (
+            <>
+              <span className="badge-dot" aria-hidden="true" />
+              <span className="visually-hidden">{t('library.hasNew')}</span>
+            </>
+          )}
         </button>
 
         {/* Le chat général n'a rien à voir avec les tâches : l'action rapide

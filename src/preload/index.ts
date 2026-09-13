@@ -57,7 +57,9 @@ const api: MissionControlApi = {
     get: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_GET, input),
     create: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_CREATE, input),
     update: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_UPDATE, input),
-    remove: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_DELETE, input)
+    remove: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_DELETE, input),
+    markTasksSeen: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_MARK_TASKS_SEEN, input),
+    markChatSeen: (input) => ipcRenderer.invoke(IpcChannel.PROJECTS_MARK_CHAT_SEEN, input)
   },
   tags: {
     list: () => ipcRenderer.invoke(IpcChannel.TAGS_LIST),

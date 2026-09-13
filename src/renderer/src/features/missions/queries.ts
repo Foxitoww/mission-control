@@ -164,6 +164,18 @@ export const useUpdateProject = () =>
 export const useDeleteProject = () =>
   useMissionMutation((api, input: { id: string }) => unwrap(api.projects.remove(input)))
 
+/**
+ * Éteignent la pastille « nouveau » — appelées à l'ouverture de l'onglet
+ * Tableau ou Chat, jamais en arrière-plan. `useMissionMutation` invalide déjà
+ * `keys.projects` : la carte de la bibliothèque perd son point dès qu'on y
+ * revient, sans code de rafraîchissement dédié.
+ */
+export const useMarkTasksSeen = () =>
+  useMissionMutation((api, input: { id: string }) => unwrap(api.projects.markTasksSeen(input)))
+
+export const useMarkChatSeen = () =>
+  useMissionMutation((api, input: { id: string }) => unwrap(api.projects.markChatSeen(input)))
+
 export const useCreateTag = () =>
   useMissionMutation((api, input: { name: string; color?: AccentColor }) =>
     unwrap(api.tags.create(input))

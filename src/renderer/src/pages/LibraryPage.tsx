@@ -88,10 +88,18 @@ export function LibraryPage(): JSX.Element {
               >
                 <span className="app-card__icon" aria-hidden="true">
                   {project.icon ?? project.name.slice(0, 1).toUpperCase()}
+                  {/* Pastille façon Discord : une tâche ou un message est
+                      apparu depuis la dernière visite de l'onglet concerné. */}
+                  {(project.hasNewTasks || project.hasUnreadChat) && (
+                    <span className="badge-dot" aria-hidden="true" />
+                  )}
                 </span>
                 <span className="app-card__name">{project.name}</span>
                 {treat.announce && (
                   <span className="visually-hidden">{t(`projectStatus.${project.status}`)}</span>
+                )}
+                {(project.hasNewTasks || project.hasUnreadChat) && (
+                  <span className="visually-hidden">{t('library.hasNew')}</span>
                 )}
               </button>
             )

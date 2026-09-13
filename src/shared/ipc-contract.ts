@@ -99,6 +99,8 @@ export const IpcChannel = {
   PROJECTS_CREATE: 'projects:create',
   PROJECTS_UPDATE: 'projects:update',
   PROJECTS_DELETE: 'projects:delete',
+  PROJECTS_MARK_TASKS_SEEN: 'projects:mark-tasks-seen',
+  PROJECTS_MARK_CHAT_SEEN: 'projects:mark-chat-seen',
 
   TAGS_LIST: 'tags:list',
   TAGS_CREATE: 'tags:create',
@@ -204,6 +206,10 @@ export interface MissionControlApi {
     update(input: UpdateProjectInput): Promise<IpcResult<ProjectSummary>>
     /** Supprime le projet ; ses tâches sont détachées, jamais supprimées. */
     remove(input: { id: string }): Promise<IpcResult<null>>
+    /** Éteint la pastille « nouveau » du tableau — appelé à l'ouverture de l'onglet. */
+    markTasksSeen(input: { id: string }): Promise<IpcResult<ProjectSummary>>
+    /** Éteint la pastille « nouveau » du chat général. */
+    markChatSeen(input: { id: string }): Promise<IpcResult<ProjectSummary>>
   }
   tags: {
     list(): Promise<IpcResult<TagWithUsage[]>>

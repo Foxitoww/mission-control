@@ -124,7 +124,11 @@ describe('audit des requêtes SQL', () => {
       'tags.repo.ts',
       'backup.service.ts',
       'taskComments.repo.ts',
-      'chatMessages.repo.ts'
+      'chatMessages.repo.ts',
+      // La pastille « chat non lu » d'une app lit chat_messages depuis une
+      // sous-requête corrélée sur son projet déjà filtré par utilisateur —
+      // même geste que subtask_total/comment_count dans tasks.repo.ts.
+      'projects.repo.ts'
     ]
     const misplaced = transitive
       .filter((statement) => !allowed.some((name) => statement.file.endsWith(name)))

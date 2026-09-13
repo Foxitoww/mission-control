@@ -156,6 +156,7 @@ const fr = {
   'library.paused': 'EN PAUSE',
   'library.newApp': 'Nouvelle app',
   'library.backAll': 'Toutes les apps',
+  'library.hasNew': 'Nouveautés non consultées',
 
   'app.tasks': 'Tâches',
   'app.progress': 'Progression',
@@ -521,6 +522,7 @@ const en: Record<MessageKey, string> = {
   'library.paused': 'PAUSED',
   'library.newApp': 'New app',
   'library.backAll': 'All apps',
+  'library.hasNew': 'Unseen updates',
 
   'app.tasks': 'Tasks',
   'app.progress': 'Progress',

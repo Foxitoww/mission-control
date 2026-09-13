@@ -4,6 +4,7 @@ import { tasksService } from '@main/services/tasks.service'
 import { projectsService } from '@main/services/projects.service'
 import { tagsService } from '@main/services/tags.service'
 import { subtasksService } from '@main/services/subtasks.service'
+import { chatService } from '@main/services/chat.service'
 import { dashboardService } from '@main/services/dashboard.service'
 import { searchService } from '@main/services/search.service'
 import { AppErrorCode } from '@shared/errors'
@@ -19,6 +20,22 @@ function daysFromNow(days: number): string {
   const date = new Date()
   date.setDate(date.getDate() + days)
   return date.toISOString()
+}
+
+/**
+ * Assure un `created_at` strictement postérieur au prochain appel.
+ *
+ * Les horodatages du service sont des `Date.toISOString()` — résolution
+ * milliseconde. Deux écritures synchrones consécutives dans un test peuvent
+ * tomber sur la MÊME milliseconde, ce que « nouveau depuis la dernière
+ * consultation » (comparaison stricte `>`) ne peut alors pas distinguer. Un
+ * humain qui clique n'est jamais infra-milliseconde ; seul un test l'est.
+ */
+function tick(ms = 2): void {
+  const until = Date.now() + ms
+  while (Date.now() < until) {
+    /* attente active : le test est synchrone. */
+  }
 }
 
 beforeEach(() => {
@@ -390,6 +407,43 @@ describe('projets', () => {
     expect(() =>
       tasksService.create(db, { title: 'X', projectId: '00000000-0000-4000-8000-000000000000' })
     ).toThrow(expect.objectContaining({ code: AppErrorCode.NOT_FOUND }))
+  })
+})
+
+describe('pastilles « nouveau » (tâches et chat)', () => {
+  it('une app neuve sans activité n’a aucune pastille', () => {
+    const project = projectsService.create(db, { name: 'Neuve' })
+    expect(project.hasNewTasks).toBe(false)
+    expect(project.hasUnreadChat).toBe(false)
+  })
+
+  it('une tâche ajoutée allume la pastille tant que le tableau n’est pas revisité', () => {
+    const project = projectsService.create(db, { name: 'App' })
+    tasksService.create(db, { title: 'Fraîche', projectId: project.id })
+
+    expect(projectsService.get(db, { id: project.id }).hasNewTasks).toBe(true)
+
+    const seen = projectsService.markTasksSeen(db, { id: project.id })
+    expect(seen.hasNewTasks).toBe(false)
+
+    tick() // garantit un created_at strictement postérieur à tasks_seen_at
+    tasksService.create(db, { title: 'Encore une', projectId: project.id })
+    expect(projectsService.get(db, { id: project.id }).hasNewTasks).toBe(true)
+  })
+
+  it('un message de chat allume sa PROPRE pastille, indépendante de celle des tâches', () => {
+    const project = projectsService.create(db, { name: 'App' })
+    tasksService.create(db, { title: 'Tâche', projectId: project.id })
+    projectsService.markTasksSeen(db, { id: project.id })
+
+    chatService.create(db, { projectId: project.id, body: 'Salut' })
+
+    const after = projectsService.get(db, { id: project.id })
+    expect(after.hasNewTasks).toBe(false) // toujours éteinte
+    expect(after.hasUnreadChat).toBe(true) // nouvelle, elle
+
+    const seen = projectsService.markChatSeen(db, { id: project.id })
+    expect(seen.hasUnreadChat).toBe(false)
   })
 })
 

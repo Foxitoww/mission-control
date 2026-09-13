@@ -51,6 +51,10 @@ export function registerMissionHandlers(): void {
   write(IpcChannel.PROJECTS_CREATE, (db, input) => projectsService.create(db, input))
   write(IpcChannel.PROJECTS_UPDATE, (db, input) => projectsService.update(db, input))
   write(IpcChannel.PROJECTS_DELETE, (db, input) => projectsService.remove(db, input))
+  write(IpcChannel.PROJECTS_MARK_TASKS_SEEN, (db, input) =>
+    projectsService.markTasksSeen(db, input)
+  )
+  write(IpcChannel.PROJECTS_MARK_CHAT_SEEN, (db, input) => projectsService.markChatSeen(db, input))
 
   read(IpcChannel.TAGS_LIST, (db) => tagsService.list(db))
   write(IpcChannel.TAGS_CREATE, (db, input) => tagsService.create(db, input))

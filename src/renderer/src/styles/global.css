@@ -95,6 +95,22 @@ select {
   margin-right: 3px;
 }
 
+/* Pastille « nouveau » façon Discord — carte de la bibliothèque, onglet
+   Tableau/Chat d'une app. Le parent porte `position: relative` là où elle
+   est utilisée. Pas d'anneau de découpe : cette classe apparaît sur des
+   fonds différents selon l'endroit, un anneau figé sur une seule couleur de
+   fond détonnerait sur les autres. Jamais la seule information portée (voir
+   le texte pour lecteur d'écran à côté de chaque usage). */
+.badge-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--mc-red);
+}
+
 ::selection {
   background: color-mix(in srgb, var(--mc-accent) 35%, transparent);
 }

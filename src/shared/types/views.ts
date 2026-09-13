@@ -79,6 +79,11 @@ export interface ProjectSummary extends Project {
   taskCompleted: number
   /** 0 à 1. Vaut 0 pour un projet sans tâche, jamais NaN. */
   progress: number
+  /** Pastille « nouveau » façon Discord : une tâche est apparue depuis la
+   *  dernière visite du tableau de cette app (voir markTasksSeen). */
+  hasNewTasks: boolean
+  /** Même principe pour le chat général (voir markChatSeen). */
+  hasUnreadChat: boolean
 }
 
 export interface MissionStats {
