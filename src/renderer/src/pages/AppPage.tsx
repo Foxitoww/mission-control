@@ -1,14 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useParams, useNavigate, Link } from 'react-router-dom'
-import type { TaskFilter } from '@shared/schemas/task.schema'
-import { TaskList } from '@renderer/features/missions/TaskRow'
 import { TaskEditor } from '@renderer/features/missions/TaskEditor'
 import { KanbanBoard } from '@renderer/features/missions/KanbanBoard'
 import { AppChat } from '@renderer/features/chat/AppChat'
 import { QueryState } from '@renderer/components/QueryState'
 import {
   useProjects,
-  useTasks,
   useDeleteProject,
   useUpdateProject
 } from '@renderer/features/missions/queries'
@@ -17,14 +14,16 @@ import { useToast } from '@renderer/components/Toast'
 import { formatPercent, formatDue } from '@renderer/lib/format'
 import './app-detail.css'
 
-type Tab = 'list' | 'board' | 'calendar' | 'chat'
+type Tab = 'board' | 'calendar' | 'chat'
 
 /**
  * APP OUVERTE — la vue de détail d'une app.
  *
  * Ici, et seulement ici, apparaissent la todo, la progression, l'échéance.
- * Tableau et Calendrier sont des ONGLETS de cette vue, pas des pages séparées :
- * ils ne montrent que les tâches de cette app.
+ * Le Tableau est la SEULE vue des tâches : pas de liste à côté qui montrerait
+ * les mêmes tâches sous une autre forme — une nouvelle tâche devient une
+ * carte dans sa colonne, point. Calendrier reste un onglet, pas une page
+ * séparée : il ne montre que les tâches de cette app.
  */
 export function AppPage(): JSX.Element {
   const { id = '' } = useParams()
@@ -35,12 +34,9 @@ export function AppPage(): JSX.Element {
   const { data: projects = [], isPending, isError, refetch } = useProjects()
   const project = projects.find((item) => item.id === id)
 
-  const filter = useMemo<Partial<TaskFilter>>(() => ({ projectId: id }), [id])
-  const { data: tasks = [] } = useTasks(filter)
-
   const updateProject = useUpdateProject()
   const deleteProject = useDeleteProject()
-  const [tab, setTab] = useState<Tab>('list')
+  const [tab, setTab] = useState<Tab>('board')
   const [openTask, setOpenTask] = useState<string | null>(null)
   const [composing, setComposing] = useState(false)
   const [confirming, setConfirming] = useState(false)
@@ -177,15 +173,6 @@ export function AppPage(): JSX.Element {
         <button
           type="button"
           role="tab"
-          aria-selected={tab === 'list'}
-          className={`app-tab${tab === 'list' ? ' app-tab--on' : ''}`}
-          onClick={() => setTab('list')}
-        >
-          {t('app.tabList')}
-        </button>
-        <button
-          type="button"
-          role="tab"
           aria-selected={tab === 'board'}
           className={`app-tab${tab === 'board' ? ' app-tab--on' : ''}`}
           onClick={() => setTab('board')}
@@ -212,23 +199,13 @@ export function AppPage(): JSX.Element {
         </button>
 
         {/* Le chat général n'a rien à voir avec les tâches : l'action rapide
-            n'a de sens que sur les trois autres onglets. */}
+            n'a de sens que sur les deux autres onglets. */}
         {tab !== 'chat' && (
           <button type="button" className="app-tabs__new" onClick={() => setComposing(true)}>
             + {t('task.new')}
           </button>
         )}
       </div>
-
-      {tab === 'list' &&
-        (tasks.length === 0 ? (
-          <div className="state">
-            <span className="state__title">{t('task.emptyTitle')}</span>
-            <span>{t('task.emptyHint')}</span>
-          </div>
-        ) : (
-          <TaskList tasks={tasks} onOpen={setOpenTask} />
-        ))}
 
       {/* `key={id}` : changer d'app tout en restant sur l'onglet Tableau doit
           démonter l'ancien DndContext plutôt que de réutiliser ses capteurs

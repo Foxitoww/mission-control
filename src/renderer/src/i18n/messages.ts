@@ -159,7 +159,6 @@ const fr = {
 
   'app.tasks': 'Tâches',
   'app.progress': 'Progression',
-  'app.tabList': 'Liste',
   'app.tabBoard': 'Tableau',
   'app.tabCalendar': 'Calendrier',
   'app.tabChat': 'Chat',
@@ -525,7 +524,6 @@ const en: Record<MessageKey, string> = {
 
   'app.tasks': 'Tasks',
   'app.progress': 'Progress',
-  'app.tabList': 'List',
   'app.tabBoard': 'Board',
   'app.tabCalendar': 'Calendar',
   'app.tabChat': 'Chat',
