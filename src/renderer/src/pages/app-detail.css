@@ -133,6 +133,16 @@
   gap: 4px;
   border-bottom: 1px solid var(--mc-grid);
   margin-bottom: 16px;
+  /* Quatre onglets + le bouton d'action ne tiennent plus sur une largeur de
+     téléphone : la rangée défile plutôt que d'écraser les libellés ou de
+     pousser le bouton hors champ — même parti que le tableau (kanban.css). */
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+.app-tab,
+.app-tabs__new {
+  flex-shrink: 0;
 }
 
 .app-tab {
@@ -179,4 +189,20 @@
 
 .app-tab__soon a {
   color: var(--mc-accent);
+}
+
+/* --- Écran étroit -------------------------------------------------------
+   `.app-detail__actions` refuse de rétrécir (flex-shrink: 0) : sur un
+   téléphone, icône + titre + boutons ne tiennent plus sur une seule ligne,
+   et sans point de rupture la rangée pousse toute la page plus large que la
+   fenêtre — un débordement horizontal, pas seulement une gêne visuelle. Même
+   seuil que le rail (app/shell.css). */
+@media (max-width: 640px) {
+  .app-detail__head {
+    flex-wrap: wrap;
+  }
+
+  .app-detail__actions {
+    flex-basis: 100%;
+  }
 }
