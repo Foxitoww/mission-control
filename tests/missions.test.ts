@@ -114,7 +114,7 @@ describe('invariant statut / date de complétion', () => {
   })
 })
 
-describe('invariant statut / avancement', () => {
+describe('invariant statut / avancement (un seul sens)', () => {
   it('un statut explicite fixe l’avancement à ses bornes', () => {
     const task = tasksService.create(db, { title: 'Mission' })
 
@@ -136,30 +136,20 @@ describe('invariant statut / avancement', () => {
     expect(blocked.progress).toBe(42)
   })
 
-  it('glisser l’avancement à une borne fait franchir le statut correspondant', () => {
+  it('glisser l’avancement à une borne ne termine plus la tâche automatiquement', () => {
     const task = tasksService.create(db, { title: 'Mission' })
 
-    const finished = tasksService.update(db, { id: task.id, progress: 100 })
-    expect(finished.status).toBe('COMPLETED')
-    expect(finished.completedAt).not.toBeNull()
+    const atHundred = tasksService.update(db, { id: task.id, progress: 100 })
+    expect(atHundred.progress).toBe(100)
+    expect(atHundred.status).toBe('TODO')
+    expect(atHundred.completedAt).toBeNull()
 
-    const reset = tasksService.update(db, { id: task.id, progress: 0 })
-    expect(reset.status).toBe('TODO')
-    expect(reset.completedAt).toBeNull()
+    const backToZero = tasksService.update(db, { id: task.id, progress: 0 })
+    expect(backToZero.progress).toBe(0)
+    expect(backToZero.status).toBe('TODO')
   })
 
-  it('un avancement intermédiaire sort de « à faire »/« terminée » vers « en cours »', () => {
-    const task = tasksService.create(db, { title: 'Mission' })
-
-    const started = tasksService.update(db, { id: task.id, progress: 30 })
-    expect(started.status).toBe('IN_PROGRESS')
-
-    tasksService.update(db, { id: task.id, status: 'COMPLETED' })
-    const reopened = tasksService.update(db, { id: task.id, progress: 60 })
-    expect(reopened.status).toBe('IN_PROGRESS')
-  })
-
-  it('un avancement intermédiaire ne sort jamais une tâche de « bloquée »', () => {
+  it('un avancement intermédiaire ne déplace jamais une tâche entre les colonnes', () => {
     const task = tasksService.create(db, { title: 'Mission' })
     tasksService.update(db, { id: task.id, status: 'BLOCKED' })
 
@@ -168,7 +158,7 @@ describe('invariant statut / avancement', () => {
     expect(stillBlocked.progress).toBe(55)
   })
 
-  it('bascule terminé / à faire synchronise aussi l’avancement', () => {
+  it('le bouton Terminer/Rouvrir (toggle) reste le geste explicite qui synchronise l’avancement', () => {
     const task = tasksService.create(db, { title: 'Bascule' })
 
     const done = tasksService.toggle(db, { id: task.id })
@@ -178,12 +168,67 @@ describe('invariant statut / avancement', () => {
     expect(undone.progress).toBe(0)
   })
 
-  it('un déplacement Kanban vers une autre colonne synchronise l’avancement', () => {
+  it('un déplacement Kanban explicite synchronise l’avancement', () => {
     const task = tasksService.create(db, { title: 'Séquence' })
     tasksService.update(db, { id: task.id, progress: 70 })
 
     const moved = tasksService.move(db, { id: task.id, status: 'COMPLETED' })
     expect(moved.progress).toBe(100)
+  })
+})
+
+describe('avancement dérivé des sous-tâches', () => {
+  it('se recalcule à la création, à la case cochée et à la suppression d’une sous-tâche', () => {
+    const task = tasksService.create(db, { title: 'Avec sous-tâches' })
+
+    const withOne = subtasksService.create(db, { taskId: task.id, title: 'Étape 1' })
+    expect(withOne.progress).toBe(0) // 0/1
+
+    const withTwo = subtasksService.create(db, { taskId: task.id, title: 'Étape 2' })
+    expect(withTwo.progress).toBe(0) // 0/2
+
+    const firstId = withTwo.subtasks[0]!.id
+    const oneDone = subtasksService.update(db, { id: firstId, completed: true })
+    expect(oneDone.progress).toBe(50) // 1/2
+
+    const secondId = withTwo.subtasks[1]!.id
+    const bothDone = subtasksService.update(db, { id: secondId, completed: true })
+    expect(bothDone.progress).toBe(100) // 2/2
+
+    const afterRemove = subtasksService.remove(db, { id: firstId })
+    expect(afterRemove.progress).toBe(100) // 1/1 restante, cochée
+  })
+
+  it('un avancement manuel est ignoré tant qu’une sous-tâche existe', () => {
+    const task = tasksService.create(db, { title: 'Avec sous-tâches' })
+    subtasksService.create(db, { taskId: task.id, title: 'Étape unique' })
+
+    const attempted = tasksService.update(db, { id: task.id, progress: 77 })
+    expect(attempted.progress).toBe(0) // toujours dérivé (0/1), le 77 est ignoré
+  })
+
+  it('marquer terminée force 100 % même si des sous-tâches restent à cocher', () => {
+    const task = tasksService.create(db, { title: 'Avec sous-tâches' })
+    subtasksService.create(db, { taskId: task.id, title: 'Faite' })
+    const second = subtasksService.create(db, { taskId: task.id, title: 'Pas faite' })
+    subtasksService.update(db, { id: second.subtasks[0]!.id, completed: true })
+
+    const done = tasksService.toggle(db, { id: task.id })
+    expect(done.status).toBe('COMPLETED')
+    expect(done.progress).toBe(100)
+  })
+
+  it('une tâche sans sous-tâche garde son avancement manuel après leur suppression', () => {
+    const task = tasksService.create(db, { title: 'Redevient manuelle' })
+    const created = subtasksService.create(db, { taskId: task.id, title: 'Seule' })
+    subtasksService.update(db, { id: created.subtasks[0]!.id, completed: true })
+
+    const afterRemove = subtasksService.remove(db, { id: created.subtasks[0]!.id })
+    expect(afterRemove.subtaskTotal).toBe(0)
+    expect(afterRemove.progress).toBe(100) // ne saute pas à 0 sans raison
+
+    const manual = tasksService.update(db, { id: task.id, progress: 40 })
+    expect(manual.progress).toBe(40) // de nouveau modifiable
   })
 })
 

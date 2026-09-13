@@ -3,9 +3,12 @@ import { useEffect, useState } from 'react'
 interface ProgressBarProps {
   /** 0 à 100. */
   value: number
-  /** Absent = lecture seule (ex. carte de bibliothèque, qui n'édite rien). */
+  /** Absent = lecture seule (ex. avancement dérivé des sous-tâches, qui n'édite rien). */
   onCommit?: (value: number) => void
   ariaLabel: string
+  /** Remplace « N % » — sert à afficher « 3/5 » quand l'avancement vient des
+   *  sous-tâches plutôt que d'une valeur libre. */
+  valueLabel?: string
   size?: 'sm' | 'md'
 }
 
@@ -21,19 +24,20 @@ interface ProgressBarProps {
  *
  * La valeur voyage en LOCAL pendant le glissé (`draft`) et n'est envoyée au
  * serveur qu'au relâchement : valider chaque pixel parcouru inonderait l'IPC
- * et, avec lui, la synchronisation statut/avancement d'écritures inutiles.
+ * d'écritures inutiles.
  */
 export function ProgressBar({
   value,
   onCommit,
   ariaLabel,
+  valueLabel,
   size = 'md'
 }: ProgressBarProps): JSX.Element {
   const [draft, setDraft] = useState(value)
 
   // Le serveur peut changer la valeur sans passer par CE curseur — un
-  // changement de statut la resynchronise (§ syncProgress). On suit alors la
-  // valeur reçue plutôt que de garder un curseur figé sur l'ancienne.
+  // changement de statut, ou une sous-tâche cochée ailleurs, la resynchronise.
+  // On suit alors la valeur reçue plutôt que de garder un curseur figé.
   useEffect(() => setDraft(value), [value])
 
   if (!onCommit) {
@@ -41,11 +45,12 @@ export function ProgressBar({
       <div
         className={`task-progress task-progress--${size} task-progress--static`}
         role="img"
-        aria-label={`${ariaLabel} : ${value} %`}
+        aria-label={`${ariaLabel} : ${valueLabel ?? `${value} %`}`}
       >
         <div className="task-progress__track">
           <div className="task-progress__fill" style={{ width: `${value}%` }} />
         </div>
+        <span className="task-progress__value mc-data">{valueLabel ?? `${value}%`}</span>
       </div>
     )
   }

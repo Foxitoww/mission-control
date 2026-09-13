@@ -19,6 +19,7 @@ import {
   useCreateTask,
   useUpdateTask,
   useDeleteTask,
+  useToggleTask,
   useCreateSubtask,
   useUpdateSubtask,
   useDeleteSubtask
@@ -90,11 +91,16 @@ function EditorForm({
   const createTask = useCreateTask()
   const updateTask = useUpdateTask()
   const deleteTask = useDeleteTask()
+  const toggleTask = useToggleTask()
   const createSubtask = useCreateSubtask()
   const updateSubtask = useUpdateSubtask()
   const deleteSubtask = useDeleteSubtask()
 
   const isEdit = taskId !== null
+  // Tant qu'une tâche a des sous-tâches, leur décompte est la SEULE source de
+  // vérité de son avancement (subtasksService) : la barre devient une simple
+  // lecture, jamais un curseur qui la contredirait.
+  const hasSubtasks = (task?.subtaskTotal ?? 0) > 0
 
   const [title, setTitle] = useState(task?.title ?? '')
   const [description, setDescription] = useState(task?.description ?? '')
@@ -146,7 +152,10 @@ function EditorForm({
       description: description.trim() === '' ? null : description,
       projectId: projectId === '' ? null : projectId,
       status,
-      progress,
+      // Une tâche avec des sous-tâches n'envoie pas d'avancement manuel : le
+      // service l'ignorerait de toute façon, mais autant ne pas prétendre en
+      // proposer un depuis un formulaire qui ne l'édite plus.
+      ...(hasSubtasks ? {} : { progress }),
       priority,
       dueDate: dateInputToIso(dueDate),
       estimatedMinutes: estimate === '' ? null : Number(estimate),
@@ -161,6 +170,15 @@ function EditorForm({
       onClose()
     } catch (caught) {
       setError(tError(caught instanceof IpcError ? caught.key : 'UNKNOWN'))
+    }
+  }
+
+  async function toggleComplete(): Promise<void> {
+    if (!taskId) return
+    try {
+      await toggleTask.mutateAsync({ id: taskId })
+    } catch {
+      toast.error(t('toast.failed'))
     }
   }
 
@@ -253,7 +271,15 @@ function EditorForm({
 
           <div className="editor__row">
             <span className="mc-field__label">{t('task.progress')}</span>
-            <ProgressBar value={progress} onCommit={setProgress} ariaLabel={t('task.progress')} />
+            {hasSubtasks && task ? (
+              <ProgressBar
+                value={task.progress}
+                ariaLabel={t('task.progress')}
+                valueLabel={`${task.subtaskDone}/${task.subtaskTotal}`}
+              />
+            ) : (
+              <ProgressBar value={progress} onCommit={setProgress} ariaLabel={t('task.progress')} />
+            )}
           </div>
 
           <div className="editor__row">
@@ -452,6 +478,20 @@ function EditorForm({
         )}
 
         <div className="mc-modal__actions">
+          {isEdit && task && (
+            // Le geste explicite qui termine — ou rouvre — la tâche. Il agit
+            // tout de suite, sans passer par Enregistrer : rien à perdre en le
+            // pressant, contrairement au reste du formulaire.
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void toggleComplete()}
+              loading={toggleTask.isPending}
+              disabled={busy}
+            >
+              {t(task.status === 'COMPLETED' ? 'task.reopen' : 'task.complete')}
+            </Button>
+          )}
           {isEdit && (
             <Button type="button" variant="ghost" onClick={() => void removeTask()} disabled={busy}>
               {t('common.delete')}

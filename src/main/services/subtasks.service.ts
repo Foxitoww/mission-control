@@ -32,6 +32,28 @@ function requireOwnedSubtask(db: Db, userId: string, subtaskId: string): void {
   }
 }
 
+/**
+ * Recalcule l'avancement de la tâche à partir de ses sous-tâches et le
+ * persiste, puis renvoie la tâche à jour.
+ *
+ * Tant qu'une tâche a au moins une sous-tâche, leur ratio est la SEULE
+ * source de vérité de son avancement — jamais le statut (progressFor,
+ * tasks.service.ts), jamais un glissé manuel de la barre (bloqué côté
+ * service pour ces tâches-là). Sans cascade et sans sous-tâche, l'avancement
+ * reste ce qu'il était : le rendre à l'utilisateur plutôt que de le remettre
+ * à zéro au hasard d'une suppression.
+ */
+function applySubtaskProgress(db: Db, userId: string, taskId: string): TaskDetail {
+  const task = requireOwnedTask(db, userId, taskId)
+  if (task.subtaskTotal === 0) return task
+
+  const progress = Math.round((task.subtaskDone / task.subtaskTotal) * 100)
+  if (progress === task.progress) return task
+
+  tasksRepo.update(db, userId, taskId, { progress }, new Date().toISOString())
+  return requireOwnedTask(db, userId, taskId)
+}
+
 export const subtasksService = {
   create(db: Db, input: unknown): TaskDetail {
     const userId = session.requireUserId()
@@ -45,7 +67,7 @@ export const subtasksService = {
       position: subtasksRepo.nextPosition(db, data.taskId)
     })
 
-    return requireOwnedTask(db, userId, data.taskId)
+    return applySubtaskProgress(db, userId, data.taskId)
   },
 
   update(db: Db, input: unknown): TaskDetail {
@@ -65,15 +87,20 @@ export const subtasksService = {
       { task_id: string } | undefined
     if (!taskId) throw new AppError(AppErrorCode.NOT_FOUND, 'SUBTASK_NOT_FOUND')
 
-    return requireOwnedTask(db, userId, taskId.task_id)
+    return applySubtaskProgress(db, userId, taskId.task_id)
   },
 
-  remove(db: Db, input: unknown): null {
+  remove(db: Db, input: unknown): TaskDetail {
     const userId = session.requireUserId()
     const { id } = parseOrThrow(idInputSchema, input)
     requireOwnedSubtask(db, userId, id)
+
+    const taskId = db.prepare('SELECT task_id FROM subtasks WHERE id = ?').get(id) as
+      { task_id: string } | undefined
+    if (!taskId) throw new AppError(AppErrorCode.NOT_FOUND, 'SUBTASK_NOT_FOUND')
+
     subtasksRepo.delete(db, id)
-    return null
+    return applySubtaskProgress(db, userId, taskId.task_id)
   },
 
   reorder(db: Db, input: unknown): TaskDetail {

@@ -64,12 +64,6 @@ export function TaskRow({ task, onOpen, showCode = false }: TaskRowProps): JSX.E
             </span>
           ))}
 
-          {task.subtaskTotal > 0 && (
-            <span className="mc-data task-row__subtasks">
-              {task.subtaskDone}/{task.subtaskTotal}
-            </span>
-          )}
-
           {task.commentCount > 0 && (
             <span className="mc-data comment-badge" title={t('comments.count')}>
               {task.commentCount}
@@ -82,7 +76,14 @@ export function TaskRow({ task, onOpen, showCode = false }: TaskRowProps): JSX.E
               carte du tableau. */}
           {!done && (
             <span className="task-row__progress">
-              <ProgressBar value={task.progress} ariaLabel={t('task.progress')} size="sm" />
+              <ProgressBar
+                value={task.progress}
+                ariaLabel={t('task.progress')}
+                valueLabel={
+                  task.subtaskTotal > 0 ? `${task.subtaskDone}/${task.subtaskTotal}` : undefined
+                }
+                size="sm"
+              />
             </span>
           )}
 

@@ -186,7 +186,10 @@ export const useUpdateSubtask = () =>
   )
 
 export const useDeleteSubtask = () =>
-  useMissionMutation((api, input: { id: string }) => unwrap(api.subtasks.remove(input)))
+  useMissionMutation(
+    (api, input: { id: string }) => unwrap(api.subtasks.remove(input)),
+    (task) => task.id
+  )
 
 /* --- Fil de discussion d'une tâche -------------------------------------- */
 

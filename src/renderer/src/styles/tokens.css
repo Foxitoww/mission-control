@@ -64,6 +64,12 @@
   --mc-status-completed: var(--mc-green);
   --mc-status-archived: var(--mc-text-muted);
 
+  /* --- Avancement d'une tâche : teinte à part, jamais celle d'un statut Kanban
+     (gris/bleu/ambre/vert ci-dessus) — une carte ne doit jamais laisser croire
+     que sa barre de progression indique SA colonne. */
+  --mc-progress: #8b7cf6;
+  --mc-progress-dim: #4a4470;
+
   /* --- Typographie --- */
   /* « Inter Variable » est le nom que déclare @fontsource-variable/inter — un
      seul fichier couvre toutes les graisses. Les replis restent en place : si
@@ -131,6 +137,9 @@
   --mc-green: #0f8f66;
   --mc-amber: #b9701a;
   --mc-red: #c81f36;
+
+  --mc-progress: #6d4fd1;
+  --mc-progress-dim: #cabdf2;
 
   --mc-shadow-card: 0 1px 2px rgb(15 21 36 / 0.06), 0 4px 12px rgb(15 21 36 / 0.06);
   --mc-shadow-modal: 0 8px 40px rgb(15 21 36 / 0.18);

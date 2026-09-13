@@ -114,9 +114,54 @@
   background: var(--mc-priority-critical);
 }
 
+.kanban-card__top {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mc-space-2);
+}
+
 .kanban-card__title {
+  flex: 1;
+  min-width: 0;
   font-size: 0.8125rem;
   line-height: 1.4;
+}
+
+/* Bouton Terminer/Rouvrir explicite — LE seul geste qui déplace une carte
+   vers Terminées depuis ici ; la barre d'avancement, elle, ne le fait plus. */
+.kanban-card__done {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1.5px solid var(--mc-grid-strong);
+  background: none;
+  color: transparent;
+  font-size: 0.6875rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background var(--mc-duration-instant) var(--mc-ease),
+    border-color var(--mc-duration-instant) var(--mc-ease),
+    color var(--mc-duration-instant) var(--mc-ease);
+}
+
+.kanban-card__done:hover {
+  border-color: var(--mc-green);
+  color: var(--mc-green);
+}
+
+.kanban-card__done--on {
+  background: var(--mc-green);
+  border-color: var(--mc-green);
+  color: var(--mc-void);
+}
+
+.kanban-card__done--on:hover {
+  background: color-mix(in srgb, var(--mc-green) 80%, black);
+  color: var(--mc-void);
 }
 
 .kanban-card__meta {

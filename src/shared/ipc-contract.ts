@@ -215,7 +215,8 @@ export interface MissionControlApi {
   subtasks: {
     create(input: CreateSubtaskInput): Promise<IpcResult<TaskDetail>>
     update(input: UpdateSubtaskInput): Promise<IpcResult<TaskDetail>>
-    remove(input: { id: string }): Promise<IpcResult<null>>
+    /** Renvoie la tâche à jour : son avancement peut changer avec le décompte. */
+    remove(input: { id: string }): Promise<IpcResult<TaskDetail>>
     reorder(input: { taskId: string; orderedIds: string[] }): Promise<IpcResult<TaskDetail>>
   }
   comments: {

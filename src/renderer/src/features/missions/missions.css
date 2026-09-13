@@ -128,7 +128,8 @@
 }
 
 .task-row__progress {
-  width: 64px;
+  /* Assez large pour la barre ET son étiquette (« 100% » ou « 12/12 »). */
+  width: 96px;
 }
 
 .task-row__due--today {
@@ -358,16 +359,42 @@
   padding: 0;
 }
 
+/* Code couleur terminé / non terminé : un liseré à gauche ET un fond teinté
+   pour une sous-tâche cochée — jamais la couleur seule (le texte barré et
+   assourdi porte la même information pour qui ne distingue pas les teintes). */
 .subtask {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--mc-space-2);
+  padding: 4px var(--mc-space-2) 4px 10px;
+  border-radius: var(--mc-radius-control);
+  transition: background var(--mc-duration-instant) var(--mc-ease);
+}
+
+.subtask::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 3px;
+  border-radius: 2px;
+  background: var(--mc-grid-strong);
+}
+
+.subtask--done {
+  background: color-mix(in srgb, var(--mc-green) 8%, transparent);
+}
+
+.subtask--done::before {
+  background: var(--mc-green);
 }
 
 .subtask input[type='checkbox'] {
   width: 15px;
   height: 15px;
-  accent-color: var(--mc-accent);
+  accent-color: var(--mc-green);
   cursor: pointer;
 }
 

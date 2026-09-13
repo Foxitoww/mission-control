@@ -18,7 +18,12 @@ import type { TaskListItem } from '@shared/types/views'
 import type { TaskFilter } from '@shared/schemas/task.schema'
 import { QueryState } from '@renderer/components/QueryState'
 import { ProgressBar } from '@renderer/components/ProgressBar'
-import { useTasks, useMoveTask, useUpdateTask } from '@renderer/features/missions/queries'
+import {
+  useTasks,
+  useMoveTask,
+  useUpdateTask,
+  useToggleTask
+} from '@renderer/features/missions/queries'
 import { useI18n } from '@renderer/i18n'
 import { formatDue } from '@renderer/lib/format'
 import './missions.css'
@@ -162,8 +167,11 @@ function Card({ task, onOpen }: { task: TaskListItem; onOpen: (id: string) => vo
     data: { status: task.status }
   })
   const updateTask = useUpdateTask()
+  const toggleTask = useToggleTask()
 
   const due = formatDue(task.dueDate, language)
+  const done = task.status === 'COMPLETED'
+  const hasSubtasks = task.subtaskTotal > 0
 
   return (
     <li
@@ -178,14 +186,34 @@ function Card({ task, onOpen }: { task: TaskListItem; onOpen: (id: string) => vo
         className={`kanban-card__priority kanban-card__priority--${task.priority.toLowerCase()}`}
         aria-hidden="true"
       />
-      <span className="kanban-card__title">{task.title}</span>
 
-      {/* Éditable directement sur la carte, sans ouvrir la tâche : c'est le
-          geste rapide, la modale reste pour un ajustement plus posé. */}
+      <div className="kanban-card__top">
+        <span className="kanban-card__title">{task.title}</span>
+        {/* Le SEUL geste qui envoie explicitement une carte vers Terminées
+            depuis ici — glisser la barre d'avancement ne le fait plus. */}
+        <button
+          type="button"
+          className={`kanban-card__done${done ? ' kanban-card__done--on' : ''}`}
+          aria-pressed={done}
+          aria-label={t(done ? 'task.reopen' : 'task.complete')}
+          title={t(done ? 'task.reopen' : 'task.complete')}
+          onPointerDown={(event) => event.stopPropagation()}
+          onClick={() => toggleTask.mutate({ id: task.id })}
+        >
+          ✓
+        </button>
+      </div>
+
+      {/* Dérivé des sous-tâches quand il y en a — lecture seule, pour ne pas
+          entrer en concurrence avec leur décompte (voir applySubtaskProgress).
+          Sinon éditable directement sur la carte, sans ouvrir la tâche. */}
       <ProgressBar
         value={task.progress}
-        onCommit={(value) => updateTask.mutate({ id: task.id, progress: value })}
+        onCommit={
+          hasSubtasks ? undefined : (value) => updateTask.mutate({ id: task.id, progress: value })
+        }
         ariaLabel={t('task.progress')}
+        valueLabel={hasSubtasks ? `${task.subtaskDone}/${task.subtaskTotal}` : undefined}
         size="sm"
       />
 
@@ -198,11 +226,6 @@ function Card({ task, onOpen }: { task: TaskListItem; onOpen: (id: string) => vo
               aria-hidden="true"
             />
             {task.projectName}
-          </span>
-        )}
-        {task.subtaskTotal > 0 && (
-          <span className="mc-data">
-            {task.subtaskDone}/{task.subtaskTotal}
           </span>
         )}
         {task.commentCount > 0 && (

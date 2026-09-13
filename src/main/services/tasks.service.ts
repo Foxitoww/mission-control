@@ -31,43 +31,24 @@ function completionFor(status: TaskStatus, current: string | null, now: string):
 }
 
 /**
- * Synchronise avancement et statut, dans les DEUX sens.
+ * Avancement par défaut d'un changement de statut — dans UN SEUL sens.
  *
  * Un statut explicite fixe l'avancement à ses deux bornes : 0 % pour repartir
- * à faire, 100 % en terminant. « En cours » et « bloquée » n'ont pas de valeur
- * imposée — changer de statut vers l'une d'elles laisse l'avancement où il
- * était. Symétriquement, glisser la barre jusqu'à une borne fait franchir le
- * statut correspondant, aussi sûrement que cocher la case ; une valeur
- * intermédiaire fait sortir d'« à faire »/« terminée » vers « en cours », mais
- * ne force jamais une sortie de « bloquée » : le blocage est une décision, pas
- * une conséquence de l'avancement.
+ * à faire, 100 % en terminant (« en cours »/« bloquée » n'ont pas de valeur
+ * imposée, ils laissent l'avancement où il était). Mais l'avancement ne fait
+ * JAMAIS le chemin inverse : le glisser jusqu'à une borne ne termine plus la
+ * tâche automatiquement. Seul un geste qui change le statut EXPLICITEMENT —
+ * le bouton Terminer/Rouvrir, le glisser-déposer dans le tableau, le champ
+ * Statut de l'éditeur — déplace une carte vers sa colonne.
  *
- * Quand statut ET avancement sont donnés dans le même appel, les deux sont
- * respectés tels quels — c'est l'appelant, pas cette fonction, qui a alors
- * décidé de la cohérence.
+ * Une tâche qui a des sous-tâches n'entre pas dans ce calcul par défaut : son
+ * avancement leur est intégralement dérivé (voir subtasksService), y compris
+ * quand on la marque terminée sans avoir coché la dernière — l'utilisateur a
+ * tranché, l'avancement affiché suit.
  */
-function syncProgress(
-  status: TaskStatus | undefined,
-  progress: number | undefined,
-  current: { status: TaskStatus; progress: number }
-): { status: TaskStatus; progress: number } {
-  if (status !== undefined && progress !== undefined) return { status, progress }
-
-  if (status !== undefined) {
-    if (status === 'TODO') return { status, progress: 0 }
-    if (status === 'COMPLETED') return { status, progress: 100 }
-    return { status, progress: current.progress }
-  }
-
-  if (progress !== undefined) {
-    if (progress === 0) return { status: 'TODO', progress }
-    if (progress === 100) return { status: 'COMPLETED', progress }
-    if (current.status === 'TODO' || current.status === 'COMPLETED') {
-      return { status: 'IN_PROGRESS', progress }
-    }
-    return { status: current.status, progress }
-  }
-
+function progressFor(status: TaskStatus, current: number): number {
+  if (status === 'TODO') return 0
+  if (status === 'COMPLETED') return 100
   return current
 }
 
@@ -170,10 +151,9 @@ export const tasksService = {
 
     const id = randomUUID()
     const now = new Date().toISOString()
-    const { progress } = syncProgress(data.status, data.progress, {
-      status: 'TODO',
-      progress: 0
-    })
+    // Une tâche neuve n'a pas encore de sous-tâches : un avancement explicite
+    // l'emporte, sinon il suit simplement le statut de départ.
+    const progress = data.progress ?? progressFor(data.status, 0)
 
     db.transaction(() => {
       tasksRepo.insert(db, {
@@ -222,20 +202,23 @@ export const tasksService = {
     if (data.estimatedMinutes !== undefined) fields['estimated_minutes'] = data.estimatedMinutes
     if (data.recurrence !== undefined) fields['recurrence_rule'] = serializeRule(data.recurrence)
 
-    // Statut, avancement et date de complétion changent ENSEMBLE, jamais
-    // séparément — voir syncProgress.
-    let nextStatus = existing.status
-    if (data.status !== undefined || data.progress !== undefined) {
-      const synced = syncProgress(data.status, data.progress, {
-        status: existing.status,
-        progress: existing.progress
-      })
-      nextStatus = synced.status
-      fields['status'] = synced.status
-      fields['progress'] = synced.progress
-      fields['completed_at'] = completionFor(synced.status, existing.completedAt, now)
+    // Statut et date de complétion changent ENSEMBLE, jamais séparément ; le
+    // statut fixe aussi l'avancement à sa borne par défaut (progressFor).
+    if (data.status !== undefined) {
+      fields['status'] = data.status
+      fields['completed_at'] = completionFor(data.status, existing.completedAt, now)
+      fields['progress'] = progressFor(data.status, existing.progress)
     }
 
+    // Un avancement manuel explicite l'emporte sur cette borne par défaut —
+    // mais jamais sur une tâche qui a des sous-tâches : leur décompte est la
+    // SEULE source de vérité tant qu'il en existe une (subtasksService), un
+    // glissé de curseur ne doit pas pouvoir la contredire.
+    if (data.progress !== undefined && existing.subtaskTotal === 0) {
+      fields['progress'] = data.progress
+    }
+
+    const nextStatus = data.status ?? existing.status
     const becomesComplete = nextStatus === 'COMPLETED' && existing.status !== 'COMPLETED'
 
     db.transaction(() => {
@@ -273,13 +256,9 @@ export const tasksService = {
     const fields: Record<string, unknown> = { position }
 
     if (data.status !== undefined && data.status !== existing.status) {
-      const synced = syncProgress(data.status, undefined, {
-        status: existing.status,
-        progress: existing.progress
-      })
-      fields['status'] = synced.status
-      fields['progress'] = synced.progress
-      fields['completed_at'] = completionFor(synced.status, existing.completedAt, now)
+      fields['status'] = data.status
+      fields['progress'] = progressFor(data.status, existing.progress)
+      fields['completed_at'] = completionFor(data.status, existing.completedAt, now)
     }
 
     tasksRepo.update(db, userId, data.id, fields, now)
@@ -294,7 +273,7 @@ export const tasksService = {
 
     const status: TaskStatus = existing.status === 'COMPLETED' ? 'TODO' : 'COMPLETED'
     const now = new Date().toISOString()
-    const progress = status === 'COMPLETED' ? 100 : 0
+    const progress = progressFor(status, existing.progress)
 
     db.transaction(() => {
       tasksRepo.update(

@@ -398,7 +398,7 @@
 
 .task-progress__fill {
   height: 100%;
-  background: var(--mc-accent);
+  background: var(--mc-progress);
   transition: width var(--mc-duration-base) var(--mc-ease);
 }
 
@@ -412,9 +412,11 @@
      pour son propre glisser-déposer ; sans ce contre-ordre, le tactile ne
      pourrait plus faire glisser le curseur lui-même. */
   touch-action: manipulation;
+  /* Violet, jamais le bleu/ambre/vert des colonnes du tableau : l'avancement
+     est une mesure indépendante de « où » se trouve la carte (§ demande). */
   background: linear-gradient(
     to right,
-    var(--mc-accent) var(--task-progress-fill),
+    var(--mc-progress) var(--task-progress-fill),
     var(--mc-grid) var(--task-progress-fill)
   );
   border-radius: 999px;
@@ -450,7 +452,7 @@
   margin-top: -4px;
   border-radius: 50%;
   background: var(--mc-text);
-  border: 2px solid var(--mc-accent);
+  border: 2px solid var(--mc-progress);
   cursor: grab;
 }
 
@@ -459,7 +461,7 @@
   height: 10px;
   border-radius: 50%;
   background: var(--mc-text);
-  border: 2px solid var(--mc-accent);
+  border: 2px solid var(--mc-progress);
   cursor: grab;
 }
 
@@ -468,7 +470,7 @@
 }
 
 .task-progress__input:focus-visible {
-  outline: 2px solid var(--mc-accent);
+  outline: 2px solid var(--mc-progress);
   outline-offset: 2px;
   border-radius: 999px;
 }
