@@ -124,6 +124,7 @@ const fr = {
 
   'toast.taskDeleted': 'Opération supprimée.',
   'toast.tagDeleted': 'Étiquette supprimée.',
+  'toast.contactDeleted': 'Contact supprimé.',
   'toast.goalDeleted': 'Objectif supprimé.',
   'toast.projectDeleted': 'Mission supprimée. Ses opérations ont été détachées.',
   'toast.profileSaved': 'Profil enregistré.',
@@ -305,6 +306,19 @@ const fr = {
   'tag.emptyTitle': 'Aucune étiquette',
   'tag.emptyHint': 'Les étiquettes recoupent les missions : urgent, admin, technique…',
 
+  /* Carnet de contacts — local (V1 hors-ligne). */
+  'nav.contacts': 'Contacts',
+  'contact.new': 'Nouveau contact',
+  'contact.edit': 'Modifier le contact',
+  'contact.name': 'Nom',
+  'contact.email': 'E-mail',
+  'contact.phone': 'Téléphone',
+  'contact.company': 'Société',
+  'contact.notes': 'Notes',
+  'contact.linkedProjects': 'Apps liées',
+  'contact.emptyTitle': 'Aucun contact',
+  'contact.emptyHint': 'Ajoute les personnes liées à tes missions.',
+
   'filters.search': 'Rechercher dans les opérations…',
   'filters.allProjects': 'Toutes les missions',
   'filters.overdue': 'En retard',
@@ -387,6 +401,7 @@ const fr = {
   'common.save': 'Enregistrer',
   'common.saving': 'Enregistrement…',
   'common.close': 'Fermer',
+  'common.edit': 'Modifier',
   'common.delete': 'Supprimer',
   'common.confirm': 'Confirmer',
   'common.loading': 'Chargement…',
@@ -505,6 +520,7 @@ const en: Record<MessageKey, string> = {
 
   'toast.taskDeleted': 'Operation deleted.',
   'toast.tagDeleted': 'Tag deleted.',
+  'toast.contactDeleted': 'Contact deleted.',
   'toast.goalDeleted': 'Objective deleted.',
   'toast.projectDeleted': 'Mission deleted. Its operations were detached.',
   'toast.profileSaved': 'Profile saved.',
@@ -683,6 +699,19 @@ const en: Record<MessageKey, string> = {
   'tag.emptyTitle': 'No tags',
   'tag.emptyHint': 'Tags cut across missions: urgent, admin, technical…',
 
+  /* Contacts book — local (offline V1). */
+  'nav.contacts': 'Contacts',
+  'contact.new': 'New contact',
+  'contact.edit': 'Edit contact',
+  'contact.name': 'Name',
+  'contact.email': 'Email',
+  'contact.phone': 'Phone',
+  'contact.company': 'Company',
+  'contact.notes': 'Notes',
+  'contact.linkedProjects': 'Linked apps',
+  'contact.emptyTitle': 'No contacts',
+  'contact.emptyHint': 'Add the people tied to your missions.',
+
   'filters.search': 'Search operations…',
   'filters.allProjects': 'All missions',
   'filters.overdue': 'Overdue',
@@ -760,6 +789,7 @@ const en: Record<MessageKey, string> = {
   'common.save': 'Save',
   'common.saving': 'Saving…',
   'common.close': 'Close',
+  'common.edit': 'Edit',
   'common.delete': 'Delete',
   'common.confirm': 'Confirm',
   'common.loading': 'Loading…',

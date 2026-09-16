@@ -24,7 +24,8 @@ const RAIL: RailItem[] = [
   { to: '/timeline', key: 'l', label: 'nav.timeline', end: false, icon: <IconTimeline /> },
   { to: '/objectives', key: 'g', label: 'nav.goals', end: false, icon: <IconTarget /> },
   { to: '/telemetry', key: 's', label: 'nav.stats', end: false, icon: <IconChart /> },
-  { to: '/messages', key: 'm', label: 'nav.messages', end: false, icon: <IconMail /> }
+  { to: '/messages', key: 'm', label: 'nav.messages', end: false, icon: <IconMail /> },
+  { to: '/contacts', key: 'c', label: 'nav.contacts', end: false, icon: <IconContacts /> }
 ]
 
 export function Shell(): JSX.Element {
@@ -188,6 +189,15 @@ function IconMail(): JSX.Element {
     <>
       <rect x="3.5" y="5.5" width="17" height="13" rx="1.5" />
       <path d="m4.5 6.5 7.5 6.5 7.5-6.5" />
+    </>
+  )
+}
+
+function IconContacts(): JSX.Element {
+  return svg(
+    <>
+      <circle cx="12" cy="8.5" r="3.5" />
+      <path d="M5 20c0-3.5 3.13-6 7-6s7 2.5 7 6" />
     </>
   )
 }

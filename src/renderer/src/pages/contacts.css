@@ -1,0 +1,89 @@
+/* =============================================================================
+   CARNET DE CONTACTS — une grille de cartes, comme la bibliothèque d'apps
+   (library.css), mais chaque carte porte ses propres coordonnées plutôt
+   qu'une icône seule : un contact se lit d'un coup d'œil, pas en un clic.
+   ========================================================================== */
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-3);
+  background: var(--mc-hull);
+  border: 1px solid var(--mc-grid);
+  border-radius: var(--mc-radius-card);
+}
+
+.contact-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.contact-card__id {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.contact-card__name {
+  font-weight: 620;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-card__company {
+  color: var(--mc-text-muted);
+  font-size: 0.75rem;
+}
+
+.contact-card__coords {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: var(--mc-text-secondary);
+  font-size: 0.75rem;
+}
+
+.contact-card__notes {
+  color: var(--mc-text-secondary);
+  font-size: 0.8125rem;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.contact-card__projects {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.contact-card__project {
+  padding: 2px var(--mc-space-2);
+  background: none;
+  border: 1px solid var(--mc-grid-strong);
+  border-radius: var(--mc-radius-badge);
+  color: var(--mc-text-secondary);
+  font-size: 0.6875rem;
+  cursor: pointer;
+}
+
+.contact-card__project:hover {
+  color: var(--mc-text);
+  background: var(--mc-hull-raised);
+}
+
+.contact-card__actions {
+  display: flex;
+  gap: var(--mc-space-2);
+  margin-top: auto;
+  padding-top: var(--mc-space-2);
+}

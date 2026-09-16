@@ -56,6 +56,8 @@ describe('migrations', () => {
 
     expect(tablesOf(vault)).toEqual([
       'chat_messages',
+      'contact_projects',
+      'contacts',
       'goals',
       'projects',
       'settings',

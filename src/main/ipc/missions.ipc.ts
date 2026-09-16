@@ -7,6 +7,7 @@ import { tagsService } from '../services/tags.service'
 import { subtasksService } from '../services/subtasks.service'
 import { commentsService } from '../services/comments.service'
 import { chatService } from '../services/chat.service'
+import { contactsService } from '../services/contacts.service'
 import { dashboardService } from '../services/dashboard.service'
 import { searchService } from '../services/search.service'
 import { goalsService } from '../services/goals.service'
@@ -76,6 +77,12 @@ export function registerMissionHandlers(): void {
   write(IpcChannel.CHAT_UPDATE, (db, input) => chatService.update(db, input))
   write(IpcChannel.CHAT_REACT, (db, input) => chatService.react(db, input))
   write(IpcChannel.CHAT_DELETE, (db, input) => chatService.remove(db, input))
+
+  read(IpcChannel.CONTACTS_LIST, (db) => contactsService.list(db))
+  read(IpcChannel.CONTACTS_GET, (db, input) => contactsService.get(db, input))
+  write(IpcChannel.CONTACTS_CREATE, (db, input) => contactsService.create(db, input))
+  write(IpcChannel.CONTACTS_UPDATE, (db, input) => contactsService.update(db, input))
+  write(IpcChannel.CONTACTS_DELETE, (db, input) => contactsService.remove(db, input))
 
   read(IpcChannel.GOALS_LIST, (db) => goalsService.list(db))
   write(IpcChannel.GOALS_CREATE, (db, input) => goalsService.create(db, input))

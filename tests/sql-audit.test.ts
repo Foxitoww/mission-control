@@ -15,7 +15,7 @@ import { join } from 'node:path'
  */
 
 /** Tables dont chaque ligne appartient directement à un utilisateur. */
-const OWNED_TABLES = ['tasks', 'projects', 'tags', 'goals', 'settings']
+const OWNED_TABLES = ['tasks', 'projects', 'tags', 'goals', 'settings', 'contacts']
 
 /**
  * Tables possédées TRANSITIVEMENT : leur propriétaire se déduit du parent —
@@ -25,7 +25,13 @@ const OWNED_TABLES = ['tasks', 'projects', 'tags', 'goals', 'settings']
  * du parent avant d'y toucher (voir subtasks.service.ts, comments.service.ts,
  * chat.service.ts).
  */
-const TRANSITIVE_TABLES = ['subtasks', 'task_tags', 'task_comments', 'chat_messages']
+const TRANSITIVE_TABLES = [
+  'subtasks',
+  'task_tags',
+  'task_comments',
+  'chat_messages',
+  'contact_projects'
+]
 
 const SOURCE_DIRS = ['src/main/repositories', 'src/main/services']
 
@@ -125,6 +131,7 @@ describe('audit des requêtes SQL', () => {
       'backup.service.ts',
       'taskComments.repo.ts',
       'chatMessages.repo.ts',
+      'contacts.repo.ts',
       // La pastille « chat non lu » d'une app lit chat_messages depuis une
       // sous-requête corrélée sur son projet déjà filtré par utilisateur —
       // même geste que subtask_total/comment_count dans tasks.repo.ts.

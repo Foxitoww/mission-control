@@ -92,6 +92,13 @@ const api: MissionControlApi = {
     send: (input) => ipcRenderer.invoke(IpcChannel.MESSAGES_SEND, input),
     markSeen: (input) => ipcRenderer.invoke(IpcChannel.MESSAGES_MARK_SEEN, input)
   },
+  contacts: {
+    list: () => ipcRenderer.invoke(IpcChannel.CONTACTS_LIST),
+    get: (input) => ipcRenderer.invoke(IpcChannel.CONTACTS_GET, input),
+    create: (input) => ipcRenderer.invoke(IpcChannel.CONTACTS_CREATE, input),
+    update: (input) => ipcRenderer.invoke(IpcChannel.CONTACTS_UPDATE, input),
+    remove: (input) => ipcRenderer.invoke(IpcChannel.CONTACTS_DELETE, input)
+  },
   goals: {
     list: () => ipcRenderer.invoke(IpcChannel.GOALS_LIST),
     create: (input) => ipcRenderer.invoke(IpcChannel.GOALS_CREATE, input),

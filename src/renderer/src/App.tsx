@@ -10,6 +10,7 @@ import { TimelinePage } from './pages/TimelinePage'
 import { GoalsPage } from './pages/GoalsPage'
 import { StatsPage } from './pages/StatsPage'
 import { MessagesPage } from './pages/MessagesPage'
+import { ContactsPage } from './pages/ContactsPage'
 import { AuthScreen } from './features/auth/AuthScreen'
 import { RecoveryPhraseScreen } from './features/auth/RecoveryPhraseScreen'
 import { useAuth } from './features/auth/AuthProvider'
@@ -52,6 +53,7 @@ export function App(): JSX.Element {
           <Route path="objectives" element={<GoalsPage />} />
           <Route path="telemetry" element={<StatsPage />} />
           <Route path="messages" element={<MessagesPage />} />
+          <Route path="contacts" element={<ContactsPage />} />
           <Route path="tags" element={<TagsPage />} />
           {/* Anciens liens (/missions/:id, /dashboard) : on renvoie à l'accueil. */}
           <Route path="*" element={<Navigate to="/" replace />} />

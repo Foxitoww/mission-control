@@ -12,7 +12,8 @@ import type {
   StatsData,
   TimelineData,
   DirectMessage,
-  ConversationSummary
+  ConversationSummary,
+  ContactSummary
 } from './types/views'
 import type { UpdateStatus } from './types/update'
 import type {
@@ -46,6 +47,7 @@ import type {
   UpdateTagInput
 } from './schemas/project.schema'
 import type { CreateGoalInput, UpdateGoalInput, AdvanceGoalInput } from './schemas/goal.schema'
+import type { CreateContactInput, UpdateContactInput } from './schemas/contact.schema'
 import type { ExportReport, ImportReport, ImportMode } from './schemas/backup.schema'
 
 /**
@@ -130,6 +132,12 @@ export const IpcChannel = {
   MESSAGES_LIST: 'messages:list',
   MESSAGES_SEND: 'messages:send',
   MESSAGES_MARK_SEEN: 'messages:mark-seen',
+
+  CONTACTS_LIST: 'contacts:list',
+  CONTACTS_GET: 'contacts:get',
+  CONTACTS_CREATE: 'contacts:create',
+  CONTACTS_UPDATE: 'contacts:update',
+  CONTACTS_DELETE: 'contacts:delete',
 
   GOALS_LIST: 'goals:list',
   GOALS_CREATE: 'goals:create',
@@ -265,6 +273,20 @@ export interface MissionControlApi {
     send(input: SendMessageInput): Promise<IpcResult<DirectMessage[]>>
     /** Éteint la pastille « non lu » d'une conversation. */
     markSeen(input: { otherUserId: string }): Promise<IpcResult<null>>
+  }
+  /**
+   * Carnet de contacts local (V1 hors-ligne, voir contacts.service.ts). Une
+   * future version en ligne pourrait remplacer SQLite par un appel réseau
+   * DERRIÈRE ce même contrat — aucune de ces signatures ne change.
+   */
+  contacts: {
+    list(): Promise<IpcResult<ContactSummary[]>>
+    get(input: { id: string }): Promise<IpcResult<ContactSummary>>
+    create(
+      input: Partial<CreateContactInput> & { name: string }
+    ): Promise<IpcResult<ContactSummary>>
+    update(input: UpdateContactInput): Promise<IpcResult<ContactSummary>>
+    remove(input: { id: string }): Promise<IpcResult<null>>
   }
   goals: {
     list(): Promise<IpcResult<GoalSummary[]>>

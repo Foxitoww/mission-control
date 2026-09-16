@@ -118,6 +118,23 @@ export interface Goal {
   updatedAt: string
 }
 
+/**
+ * Contact local — carnet d'adresses du compte, sans dépendance à un service
+ * externe (§ V1 hors-ligne). `color` réutilise la palette curatée du profil et
+ * des projets, pour la même raison de cohérence visuelle (voir ACCENT_COLORS).
+ */
+export interface Contact {
+  id: string
+  name: string
+  email: string | null
+  phone: string | null
+  company: string | null
+  notes: string | null
+  color: string
+  createdAt: string
+  updatedAt: string
+}
+
 export interface Settings {
   theme: Theme
   language: Language

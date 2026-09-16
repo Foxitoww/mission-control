@@ -3,6 +3,7 @@ import vault002 from './002_task_comments.sql?raw'
 import vault003 from './003_task_progress.sql?raw'
 import vault004 from './004_chat_messages.sql?raw'
 import vault005 from './005_project_activity_seen.sql?raw'
+import vault006 from './006_contacts.sql?raw'
 import type { Migration } from '../../migrator'
 
 /**
@@ -17,5 +18,6 @@ export const vaultMigrations: Migration[] = [
   { version: 2, name: 'task_comments', sql: vault002 },
   { version: 3, name: 'task_progress', sql: vault003 },
   { version: 4, name: 'chat_messages', sql: vault004 },
-  { version: 5, name: 'project_activity_seen', sql: vault005 }
+  { version: 5, name: 'project_activity_seen', sql: vault005 },
+  { version: 6, name: 'contacts', sql: vault006 }
 ]

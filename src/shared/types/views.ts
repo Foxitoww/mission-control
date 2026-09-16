@@ -7,7 +7,8 @@ import type {
   TaskPriority,
   TaskStatus,
   ProjectStatus,
-  PublicUser
+  PublicUser,
+  Contact
 } from './domain'
 import type { RecurrenceRule } from '../schemas/recurrence.schema'
 import type { ChatReaction } from '../schemas/chat.schema'
@@ -81,6 +82,18 @@ export interface ConversationSummary {
   user: PublicUser
   lastMessageAt: string | null
   hasUnread: boolean
+}
+
+/** Référence légère à un projet — juste ce qu'il faut pour une pastille cliquable. */
+export interface ProjectRef {
+  id: string
+  name: string
+  color: string
+}
+
+/** Un contact avec les projets auxquels il est lié (voir contacts.repo.ts::hydrate). */
+export interface ContactSummary extends Contact {
+  projects: ProjectRef[]
 }
 
 export interface TaskDetail extends TaskListItem {
